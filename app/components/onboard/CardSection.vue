@@ -1,4 +1,4 @@
-<script></script>
+<script setup></script>
 
 <template>
   <!-- Add Icon --->
@@ -6,9 +6,7 @@
     <div
       class="max-w-80.5 w-full bg-white border-2 border-neutral-300 rounded-2xl p-5 flex flex-col gap-4 md:max-w-120"
     >
-      <div>
-        <p>Logo</p>
-      </div>
+      <div />
       <div>
         <h3 class="font-semibold text-center mb-2 text-neutral-900">
           I am a founder

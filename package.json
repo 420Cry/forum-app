@@ -26,6 +26,8 @@
     "vuetify-nuxt-module": "^0.19.5"
   },
   "devDependencies": {
+    "@iconify-json/material-symbols-light": "^1.2.59",
+    "@nuxt/icon": "^2.2.1",
     "typescript": "^5.9.3"
   }
 }
