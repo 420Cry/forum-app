@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     "@assets": resolve(currentDir, "app/assets"),
     "@plugins": resolve(currentDir, "app/plugins"),
     "@types": resolve(currentDir, "app/types"),
+    "@constants": resolve(currentDir, "app/constants"),
   },
   runtimeConfig: {
     public: {
@@ -36,5 +37,9 @@ export default defineNuxtConfig({
   },
   vite: {
     plugins: [tailwindcss()],
+  },
+  icon: {
+    mode: "css",
+    cssLayer: "fundedrIcon",
   },
 });

@@ -1,18 +1,44 @@
-<script setup>
-import CardSection from "~/components/onboard/CardSection.vue";
+<script setup lang="ts">
+import BasicInfo from "@/components/onboard/BasicInfo.vue";
+import GoalSelection from "@/components/onboard/GoalSelection.vue";
+import RoleSelection from "@/components/onboard/RoleSelection.vue";
+import OnboardNav from "@/components/onboard/shared/OnboardNav.vue";
 
 definePageMeta({ layout: "onboard" });
+
+// TODO: Move to useOnboard composables
+// TODO: currentStep controls onboardNav's indicator
+const onboardPage = shallowRef([
+  {
+    step: 1,
+    pageName: RoleSelection,
+  },
+  {
+    step: 2,
+    pageName: BasicInfo,
+  },
+  {
+    step: 3,
+    pageName: GoalSelection,
+  },
+]);
+
+const currentStep = ref(1);
+
+const currentPage = computed(() => {
+  const selectedPage = onboardPage.value.find(
+    (page) => page.step === currentStep.value,
+  );
+
+  return selectedPage?.pageName;
+});
+
+const bumpStep = () => {
+  currentStep.value++;
+};
 </script>
 
 <template>
-  <div class="mb-10">
-    <h1 class="text-neutral-900 text-center text-[18px] font-bold mb-2">
-      What is your role on Fundedr?
-    </h1>
-    <h2 class="text-neutral-600 text-center text-[12px] font-medium">
-      Choose the role that best describes your intent.
-    </h2>
-  </div>
-
-  <CardSection />
+  <component :is="currentPage" />
+  <OnboardNav @next-page="bumpStep" />
 </template>
