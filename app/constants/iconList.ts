@@ -1,5 +1,16 @@
+// TODO: Replace Icon List to be similar with design
 export const iconList = {
-  lightbulb: "material-symbols-light:lightbulb-2-outline-rounded",
-  accountBalance: "material-symbols-light:account-balance-outline",
-  rightArrow: "material-symbols-light:arrow-right-alt-rounded",
+  lightbulb: "material-symbols:lightbulb-2-outline-rounded",
+  accountBalance: "material-symbols:account-balance-outline",
+  rightArrow: "material-symbols:arrow-right-alt-rounded",
+  leftArrow: "material-symbols:arrow-left-alt-rounded",
+  checkMark: "material-symbols:check-rounded",
+  money: "material-symbols:money-range-outline-rounded",
+  partner: "material-symbols:partner-exchange",
+  feedback: "material-symbols:feedback-outline-rounded",
+  network: "material-symbols:network-node",
+  search: "material-symbols:search",
+  chart: "material-symbols:chart-data-outline",
+  peers: "material-symbols:p2p-outline-sharp",
+  barChart: "material-symbols:bar-chart-4-bars-rounded",
 } as const;

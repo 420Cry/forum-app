@@ -23,7 +23,7 @@ const computedIconClass = computed(() => {
 
 const computedCardClass = computed(() => {
   const baseClass =
-    "max-w-80.5 w-full border-2  rounded-2xl p-5 flex flex-col gap-4 hover:bg-primary-100 hover:border-primary-900 transition duration-100 ease-in-out md:max-w-120";
+    "max-w-80.5 w-full border-2 relative rounded-2xl p-5 flex flex-col gap-4 hover:bg-primary-100 hover:border-primary-900 transition duration-100 ease-in-out md:max-w-90 lg:max-w-110";
 
   const inactiveClass = baseClass + " bg-white border-neutral-300";
   const activeClass = baseClass + " bg-primary-100 border-primary-900";
@@ -34,6 +34,12 @@ const computedCardClass = computed(() => {
 
 <template>
   <div :class="computedCardClass">
+    <div
+      v-show="props.active"
+      class="absolute right-6 bg-primary-900 flex justify-center p-1 rounded-full"
+    >
+      <BaseIcon name="checkMark" size="1.5em" class="text-neutral-100" />
+    </div>
     <div class="flex justify-center">
       <div
         class="p-4 bg-primary-200 border-radius rounded-full flex justify-center items-center"
@@ -45,11 +51,11 @@ const computedCardClass = computed(() => {
         />
       </div>
     </div>
-    <div>
+    <div class="flex flex-col justify-center items-center">
       <h3 class="font-semibold text-center mb-2 text-neutral-900">
         {{ props.title }}
       </h3>
-      <h4 class="text-center text-[14px] text-neutral-600">
+      <h4 class="text-center max-w-80 text-[14px] text-neutral-600">
         {{ props.description }}
       </h4>
     </div>

@@ -1,10 +1,10 @@
 <script setup></script>
 <template>
-  <div class="mb-10">
-    <h1 class="text-neutral-900 text-center text-[18px] font-bold mb-2">
+  <div>
+    <h1 class="text-neutral-900 text-center text-xl font-bold mb-4 md:text-3xl">
       <slot name="title" />
     </h1>
-    <h2 class="text-neutral-600 text-center text-[12px] font-medium">
+    <h2 class="text-neutral-600 text-center text-xs font-medium md:text-sm">
       <slot name="subtitle" />
     </h2>
   </div>

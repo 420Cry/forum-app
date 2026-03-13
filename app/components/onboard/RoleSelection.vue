@@ -2,17 +2,19 @@
 import { ref } from "vue";
 import TitleSection from "./shared/TitleSection.vue";
 import OnboardCardComponent from "./OnboardCardComponent.vue";
-import {
-  roleSelection,
-  type roleSelectionType,
-} from "~/constants/onboardContent";
-// Build active state for card
+import { roleSelection } from "~/constants/onboardContent";
+
+import type { roleSelectionType } from "~/types/onboard/onboardType";
 const refRoles = ref(roleSelection);
 
 const setActive = (activeRole: roleSelectionType) => {
   const newRoleList: roleSelectionType[] = refRoles.value.reduce(
     (acc: roleSelectionType[], curr: roleSelectionType) => {
-      curr === activeRole ? (curr.active = true) : (curr.active = false);
+      if (curr === activeRole) {
+        curr.active = true;
+      } else {
+        curr.active = false;
+      }
       acc.push(curr);
       return acc;
     },
@@ -32,16 +34,16 @@ const setActive = (activeRole: roleSelectionType) => {
   </TitleSection>
 
   <div
-    class="mx-auto flex flex-wrap flex-col gap-6 items-center lg:flex-row justify-center"
+    class="mx-auto flex flex-wrap flex-col gap-6 items-center lg:flex-row justify-center mt-10"
   >
     <OnboardCardComponent
       v-for="role in refRoles"
-      @click="setActive(role)"
-      :iconName="role.iconName"
+      :key="role.title"
+      :icon-name="role.iconName"
       :title="role.title"
       :description="role.description"
       :active="role.active"
-      :key="role.title"
+      @click="setActive(role)"
     />
   </div>
 </template>

@@ -7,7 +7,6 @@ import OnboardNav from "@/components/onboard/shared/OnboardNav.vue";
 definePageMeta({ layout: "onboard" });
 
 // TODO: Move to useOnboard composables
-// TODO: currentStep controls onboardNav's indicator
 const onboardPage = shallowRef([
   {
     step: 1,
@@ -15,11 +14,26 @@ const onboardPage = shallowRef([
   },
   {
     step: 2,
-    pageName: BasicInfo,
+    pageName: GoalSelection,
   },
   {
     step: 3,
-    pageName: GoalSelection,
+    pageName: BasicInfo,
+  },
+]);
+
+const totalSteps = ref([
+  {
+    step: 1,
+    active: true,
+  },
+  {
+    step: 2,
+    active: false,
+  },
+  {
+    step: 3,
+    active: false,
   },
 ]);
 
@@ -33,12 +47,40 @@ const currentPage = computed(() => {
   return selectedPage?.pageName;
 });
 
+const updateTotalStepsState = () => {
+  const newTotalSteps = totalSteps.value.map((onboardStep) => {
+    return onboardStep.step === currentStep.value
+      ? { step: onboardStep.step, active: true }
+      : { step: onboardStep.step, active: false };
+  });
+  totalSteps.value = newTotalSteps;
+};
 const bumpStep = () => {
+  if (currentStep.value === onboardPage.value.length) {
+    // TODO: Move to setup profile poge
+    return;
+  }
   currentStep.value++;
+  updateTotalStepsState();
+};
+
+const backStep = () => {
+  if (currentStep.value === 1) {
+    // TODO: Skip for now
+    currentStep.value++;
+    updateTotalStepsState();
+    return;
+  }
+  currentStep.value--;
+  updateTotalStepsState();
 };
 </script>
 
 <template>
   <component :is="currentPage" />
-  <OnboardNav @next-page="bumpStep" />
+  <OnboardNav
+    :total-steps="totalSteps"
+    @next-page="bumpStep"
+    @back-page="backStep"
+  />
 </template>

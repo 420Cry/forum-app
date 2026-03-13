@@ -39,7 +39,6 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
   icon: {
-    mode: "css",
-    cssLayer: "fundedrIcon",
+    mode: "svg",
   },
 });

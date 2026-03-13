@@ -16,7 +16,7 @@ import BaseHeader from "~/components/shared/BaseHeader.vue";
       </template>
       <template #right>
         <button
-          class="text-neutral-100 bg-primary-900 px-4 py-2 font-semibold rounded-lg"
+          class="text-neutral-100 text-xs bg-primary-900 px-4 py-2 font-semibold rounded-lg md:text-[16px]"
         >
           Logout
         </button>
