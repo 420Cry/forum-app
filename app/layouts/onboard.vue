@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BaseButton from "~/components/shared/BaseButton.vue";
 import BaseHeader from "~/components/shared/BaseHeader.vue";
 </script>
 
@@ -15,11 +16,7 @@ import BaseHeader from "~/components/shared/BaseHeader.vue";
         </div>
       </template>
       <template #right>
-        <button
-          class="text-neutral-100 text-xs bg-primary-900 px-4 py-2 font-semibold rounded-lg md:text-[16px]"
-        >
-          Logout
-        </button>
+        <BaseButton>Logout</BaseButton>
       </template>
     </BaseHeader>
     <main class="mx-auto max-w-280.5 px-6 py-12">

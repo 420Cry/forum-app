@@ -11,6 +11,7 @@ export type goalListsType = {
   iconName: iconNameType;
   title: string;
   subtitle: string;
+  active: boolean;
 };
 
 export type goalsSelectionType = {

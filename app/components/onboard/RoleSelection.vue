@@ -43,6 +43,7 @@ const setActive = (activeRole: roleSelectionType) => {
       :title="role.title"
       :description="role.description"
       :active="role.active"
+      variants="roles"
       @click="setActive(role)"
     />
   </div>
