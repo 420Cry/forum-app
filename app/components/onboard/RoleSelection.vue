@@ -3,25 +3,15 @@ import { ref } from "vue";
 import TitleSection from "./shared/TitleSection.vue";
 import OnboardCardComponent from "./OnboardCardComponent.vue";
 import { roleSelection } from "~/constants/onboardContent";
-
 import type { roleSelectionType } from "~/types/onboard/onboardType";
+import setElementActive from "~/utils/setActiveElement";
+
 const refRoles = ref(roleSelection);
+const { onboardInfo } = useOnboard();
 
-const setActive = (activeRole: roleSelectionType) => {
-  const newRoleList: roleSelectionType[] = refRoles.value.reduce(
-    (acc: roleSelectionType[], curr: roleSelectionType) => {
-      if (curr === activeRole) {
-        curr.active = true;
-      } else {
-        curr.active = false;
-      }
-      acc.push(curr);
-      return acc;
-    },
-    [],
-  );
-
-  refRoles.value = newRoleList;
+const handleSelectedRole = (activeRole: roleSelectionType) => {
+  setElementActive<roleSelectionType>(activeRole, refRoles);
+  onboardInfo.role = activeRole.roleTitle;
 };
 </script>
 
@@ -44,7 +34,7 @@ const setActive = (activeRole: roleSelectionType) => {
       :description="role.description"
       :active="role.active"
       variants="roles"
-      @click="setActive(role)"
+      @click="handleSelectedRole(role)"
     />
   </div>
 </template>

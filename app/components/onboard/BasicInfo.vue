@@ -26,7 +26,7 @@ import TitleSection from "./shared/TitleSection.vue";
         <label class="font-semibold" for="dateofbirth">Date of Birth</label>
         <input
           id="fullname"
-          type="text"
+          type="date"
           name="fullname"
           placeholder="DD/MM/YY"
           class="bg-white py-3 px-4 rounded-lg outline-2 outline-neutral-300 focus:outline-primary-300"
@@ -45,4 +45,3 @@ import TitleSection from "./shared/TitleSection.vue";
     </form>
   </div>
 </template>
-

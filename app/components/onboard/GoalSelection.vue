@@ -1,46 +1,40 @@
 <script setup lang="ts">
-import type { goalsSelectionType } from "~/types/onboard/onboardType";
+import type {
+  goalsSelectionType,
+  goalTitlesType,
+} from "~/types/onboard/onboardType";
 import TitleSection from "./shared/TitleSection.vue";
 import { goalsSelection } from "~/constants/onboardContent";
 import BaseCardSection from "./shared/BaseCardSection.vue";
 import OnboardCardComponent from "./OnboardCardComponent.vue";
+import setElementActive from "~/utils/setActiveElement";
+import RolesNav from "./RolesNav.vue";
 
-// TODO: Map goal fetched from backend
+//TODO: Map goal fetched from backend
 const roleGoals: Ref<goalsSelectionType[]> = ref(goalsSelection);
-const baseRoleClass =
-  "text-xs px-4 py-2 font-semibold rounded-lg hover:bg-neutral-100 hover:text-primary-900 md:text-sm";
-const activeRoleClass = baseRoleClass + " bg-neutral-100 text-primary-900";
+const { onboardInfo } = useOnboard();
 
-const setRoleActive = (selectedRole: string) => {
-  const updatedRoleList: goalsSelectionType[] = roleGoals.value.reduce(
-    (acc: goalsSelectionType[], curr: goalsSelectionType) => {
-      if (curr.role === selectedRole) {
-        curr.active = true;
-      } else {
-        curr.active = false;
-      }
-      acc.push(curr);
-      return acc;
-    },
-    [],
-  );
-
-  roleGoals.value = updatedRoleList;
+const setRoleActive = (selectedRoleGoal: goalsSelectionType) => {
+  setElementActive<goalsSelectionType>(selectedRoleGoal, roleGoals);
 };
 
-const selectedGoals = computed(() => {
+const selectedGoalsList = computed(() => {
   const activeRole = roleGoals.value.find((goal) => goal.active);
   return activeRole?.goals;
 });
 
-const setGoalActive = (goalTitle: string) => {
-  const activeGoal = selectedGoals.value?.find(
+const handleSelectedGoal = (goalTitle: goalTitlesType) => {
+  const activeGoal = selectedGoalsList.value?.find(
     (goal) => goal.title === goalTitle,
   );
   if (activeGoal && !activeGoal.active) {
     activeGoal.active = true;
+    onboardInfo.goals.push(goalTitle);
   } else if (activeGoal && activeGoal.active) {
     activeGoal.active = false;
+    onboardInfo.goals = onboardInfo.goals.filter(
+      (title) => title !== goalTitle,
+    );
   }
 };
 </script>
@@ -51,23 +45,22 @@ const setGoalActive = (goalTitle: string) => {
       >Select all that apply to help us personalize your experience.</template
     >
   </TitleSection>
-
   <div class="flex justify-center mt-6">
     <div class="p-2 flex justify-center gap-2 bg-primary-100 rounded-2xl">
-      <button
-        v-for="goal in roleGoals"
-        :key="goal.role"
-        :class="goal.active ? activeRoleClass : baseRoleClass"
-        @click="setRoleActive(goal.role)"
+      <RolesNav
+        v-for="roleGoal in roleGoals"
+        :key="roleGoal.role"
+        :active="roleGoal.active"
+        @role-click="setRoleActive(roleGoal)"
       >
-        {{ goal.role }}
-      </button>
+        {{ roleGoal.role }}
+      </RolesNav>
     </div>
   </div>
 
   <BaseCardSection>
     <OnboardCardComponent
-      v-for="goal in selectedGoals"
+      v-for="goal in selectedGoalsList"
       :key="goal.title"
       :icon-name="goal.iconName"
       :title="goal.title"
@@ -75,7 +68,7 @@ const setGoalActive = (goalTitle: string) => {
       :active="goal.active"
       size="1.5em"
       variants="goals"
-      @click="setGoalActive(goal.title)"
+      @click="handleSelectedGoal(goal.title)"
     />
   </BaseCardSection>
 </template>

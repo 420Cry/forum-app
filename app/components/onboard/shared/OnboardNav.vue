@@ -19,9 +19,8 @@ const handleContinue = () => {
 const handleBack = () => {
   emit("back-page");
 };
-//TODO:Create a BaseButton
 
-const dynamicNav = computed(() => {
+const dynamicNavContent = computed(() => {
   const activeStep = props.totalSteps.find(
     (onboardStep) => onboardStep.active === true,
   );
@@ -29,18 +28,18 @@ const dynamicNav = computed(() => {
 });
 
 const backButtonIntent = computed(() => {
-  return dynamicNav.value === "Back" ? "secondary" : "ghost";
+  return dynamicNavContent.value === "Back" ? "secondary" : "ghost";
 });
 </script>
 
 <template>
   <div class="mt-20 flex justify-between items-center">
     <BaseButton :intent="backButtonIntent" @click="handleBack">
-      <span v-if="dynamicNav === 'Back'" class="inline-block">
+      <span v-if="dynamicNavContent === 'Back'" class="inline-block">
         <BaseIcon name="leftArrow" />
       </span>
       <div class="text-neutral-600 text-base">
-        {{ dynamicNav }}
+        {{ dynamicNavContent }}
       </div>
     </BaseButton>
 

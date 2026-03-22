@@ -5,6 +5,7 @@ import type {
 
 export const roleSelection: roleSelectionType[] = [
   {
+    roleTitle: "Founder",
     title: "I am a Founder",
     description:
       "I'm looking to showcase my startup, connect with investors, and raise capital.",
@@ -12,6 +13,7 @@ export const roleSelection: roleSelectionType[] = [
     iconName: "lightbulb",
   },
   {
+    roleTitle: "Investor",
     title: "I am an Investor",
     description:
       "I'm looking for high-potential startups to fund and diversify my portfolio.",
@@ -23,7 +25,7 @@ export const roleSelection: roleSelectionType[] = [
 //TODO: Default role = Founders, map based on the first answer
 export const goalsSelection: goalsSelectionType[] = [
   {
-    role: "Founders",
+    role: "Founder",
     active: true,
     goals: [
       {
@@ -57,7 +59,7 @@ export const goalsSelection: goalsSelectionType[] = [
     ],
   },
   {
-    role: "Investors",
+    role: "Investor",
     active: false,
     goals: [
       {
@@ -89,4 +91,4 @@ export const goalsSelection: goalsSelectionType[] = [
       },
     ],
   },
-];
+] as const;
