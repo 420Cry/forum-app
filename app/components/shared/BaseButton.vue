@@ -17,8 +17,8 @@ const button = cva(
         medium: ["px-4", "py-2", "md:px-6", "md:text-base"],
       },
       disabled: {
-        true: "disabled",
-        false: "enabled",
+        true: "opacity-50 cursor-not-allowed",
+        false: "",
       },
     },
     defaultVariants: {
@@ -35,7 +35,6 @@ withDefaults(
   defineProps<{
     intent?: ButtonProps["intent"];
     size?: ButtonProps["size"];
-    default?: boolean;
   }>(),
   {
     intent: "primary",

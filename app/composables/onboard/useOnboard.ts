@@ -1,4 +1,3 @@
-// TODO: Move to useOnboard composables
 import { shallowRef, ref, computed } from "vue";
 import BasicInfo from "@/components/onboard/BasicInfo.vue";
 import GoalSelection from "@/components/onboard/GoalSelection.vue";
@@ -44,6 +43,8 @@ export const useOnboard = () => {
   ]);
 
   const currentStep = ref(1);
+  const isLoading = ref(false);
+  const error = ref([]);
 
   const currentPage = computed(() => {
     const selectedPage = onboardPage.value.find((page) => page.active === true);
@@ -63,6 +64,15 @@ export const useOnboard = () => {
     if (currentStep.value === onboardPage.value.length) {
       // TODO: Move to setup profile poge
       return;
+    }
+    switch (currentStep.value) {
+      case 1:
+        isLoading.value = true;
+        //TODO: extract payload and patch to backend
+        break;
+
+      default:
+        break;
     }
     currentStep.value++;
     updateOnboardPage();

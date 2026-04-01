@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import BaseInput from "../shared/BaseInput.vue";
 import TitleSection from "./shared/TitleSection.vue";
+
+const { onboardInfo } = useOnboard();
 </script>
 <template>
   <TitleSection>
@@ -13,33 +16,29 @@ import TitleSection from "./shared/TitleSection.vue";
   <div class="m-auto max-w-133 mt-8">
     <form class="p-2 flex flex-col gap-6">
       <div class="flex flex-col gap-2">
-        <label class="font-semibold" for="fullname">Fullname</label>
-        <input
+        <BaseInput
           id="fullname"
-          type="text"
-          name="fullname"
+          v-model="onboardInfo.fullname"
+          label="Fullname"
           placeholder="eg. Nghia Truong"
-          class="bg-white py-3 px-4 rounded-lg outline-2 outline-neutral-300 focus:outline-primary-300"
+          error-msg="Wrong fullname"
         />
       </div>
       <div class="flex flex-col gap-2">
-        <label class="font-semibold" for="dateofbirth">Date of Birth</label>
-        <input
-          id="fullname"
+        <BaseInput
+          id="dob"
+          v-model="onboardInfo.dob"
           type="date"
-          name="fullname"
+          label="Date of Birth"
           placeholder="DD/MM/YY"
-          class="bg-white py-3 px-4 rounded-lg outline-2 outline-neutral-300 focus:outline-primary-300"
         />
       </div>
       <div class="flex flex-col gap-2">
-        <label class="font-semibold" for="occupation">Occupation</label>
-        <input
+        <BaseInput
           id="occupation"
-          type="text"
-          name="occupation"
+          v-model="onboardInfo.occupation"
+          label="Occupation"
           placeholder="eg. Architect"
-          class="bg-white py-3 px-4 rounded-lg outline-2 outline-neutral-300 focus:outline-primary-300"
         />
       </div>
     </form>
