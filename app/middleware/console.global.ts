@@ -1,19 +1,19 @@
-export default defineNuxtRouteMiddleware(async (to, _) => {
-  //TODO: Server-side protection with cookie configured
-  if (import.meta.server) return;
+export default defineNuxtRouteMiddleware(async (to, from) => {
+  const PROTECTED_ROUTE = ["/onboard"];
+  if (import.meta.server) {
+    const sessionCookie = useCookie("sessionId");
+    if (!sessionCookie.value) {
+      if (PROTECTED_ROUTE.includes(to.path)) {
+        return navigateTo("auth/login");
+      }
+    }
 
-  const { $firebaseAuth } = useNuxtApp();
-  const { user } = useFirebaseAuth();
-
-  if ($firebaseAuth) {
-    await $firebaseAuth.authStateReady();
+    if (to.path === "auth/login") {
+      return navigateTo(from.path);
+    }
   }
 
-  if (!user.value && to.path === "/onboard") {
-    return navigateTo("auth/login");
-  }
-
-  if (user.value && to.path === "/auth/login") {
-    return navigateTo("/onboard");
+  if (import.meta.client) {
+    return;
   }
 });

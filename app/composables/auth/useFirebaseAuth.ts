@@ -24,10 +24,6 @@ export function useFirebaseAuth() {
     isListenerAttached = true;
     onAuthStateChanged($firebaseAuth, async (u) => {
       user.value = u;
-      if (u) {
-        const { fetchMe } = useForumApi();
-        await fetchMe().catch(() => {});
-      }
     });
 
     const handleVisibilityChange = () => {
@@ -106,7 +102,11 @@ export function useFirebaseAuth() {
     useForumSession().clear();
     error.value = null;
     await signOut($firebaseAuth);
-    user.value = null;
+    const { clearSession } = useForumApi();
+    const result = await clearSession();
+    if (result) {
+      user.value = null;
+    }
   }
 
   async function getIdToken(forceRefresh = false): Promise<string | null> {
