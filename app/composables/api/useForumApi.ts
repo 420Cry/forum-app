@@ -14,30 +14,26 @@ export function useForumApi() {
   }
 
   async function fetchHealth() {
-    const headers = await getAuthHeaders();
     const res = await $fetch<{ status: string; timestamp: string }>(
       `${baseUrl}/health`,
       {
-        headers,
+        credentials: "include",
       },
     );
     return res;
   }
 
   async function fetchHello() {
-    const headers = await getAuthHeaders();
     const res = await $fetch<string>(baseUrl, {
-      headers,
+      credentials: "include",
     });
     return res;
   }
 
   async function fetchMe() {
-    const headers = await getAuthHeaders(true);
     const res = await $fetch<{ uid: string; email?: string }>(
       `${baseUrl}/auth/me`,
       {
-        headers,
         credentials: "include",
       },
     );
@@ -59,7 +55,6 @@ export function useForumApi() {
       method: "POST",
       credentials: "include",
     });
-    console.log("result of clear session", result);
     return result as { success: boolean };
   }
 
