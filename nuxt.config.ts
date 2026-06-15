@@ -29,6 +29,7 @@ export default defineNuxtConfig({
   },
   routeRules: {
     "/auth/confirm": { ssr: false },
+    "/auth/reset-password": { ssr: false },
   },
   runtimeConfig: {
     public: {

@@ -1,9 +1,10 @@
-import { useSupabaseAuth } from "../auth/useSupabaseAuth";
+import type { HealthResponse, MeResponse } from "../../types/api";
+import { useSupabaseToken } from "../auth/useSupabaseToken";
 
 export function useForumApi() {
   const config = useRuntimeConfig();
   const baseUrl = config.public.forumApiUrl;
-  const { getAccessToken } = useSupabaseAuth();
+  const { getAccessToken } = useSupabaseToken();
 
   async function getAuthHeaders(
     forceRefresh = false,
@@ -14,50 +15,16 @@ export function useForumApi() {
   }
 
   async function fetchHealth() {
-    const res = await $fetch<{ status: string; timestamp: string }>(
-      `${baseUrl}/health`,
-      {
-        credentials: "include",
-      },
-    );
-    return res;
+    return $fetch<HealthResponse>(`${baseUrl}/health`);
   }
 
   async function fetchHello() {
-    const res = await $fetch<string>(baseUrl, {
-      credentials: "include",
-    });
-    return res;
+    return $fetch<string>(baseUrl);
   }
 
   async function fetchMe() {
     const headers = await getAuthHeaders();
-    const res = await $fetch<{ uid: string; email?: string }>(
-      `${baseUrl}/auth/me`,
-      {
-        headers,
-        credentials: "include",
-      },
-    );
-    return res;
-  }
-
-  async function createSession(): Promise<string> {
-    const headers = await getAuthHeaders(true);
-    const res = await $fetch(`${baseUrl}/auth/session`, {
-      headers,
-      method: "POST",
-      credentials: "include",
-    });
-    return res as string;
-  }
-
-  async function clearSession(): Promise<{ success: boolean }> {
-    const result = await $fetch(`${baseUrl}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    return result as { success: boolean };
+    return $fetch<MeResponse>(`${baseUrl}/auth/me`, { headers });
   }
 
   async function testApiCall() {
@@ -78,7 +45,5 @@ export function useForumApi() {
     fetchHello,
     fetchMe,
     testApiCall,
-    createSession,
-    clearSession,
   };
 }

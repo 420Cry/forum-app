@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { useSupabaseAuth, useForumApi, useToast } from "~/composables";
+import { useSupabaseAuth, useToast } from "~/composables";
 
 definePageMeta({ layout: "auth" });
 
 const { login, loading, error, clearError } = useSupabaseAuth();
-const { fetchMe, createSession } = useForumApi();
 const toast = useToast();
 const email = ref("");
 const password = ref("");
@@ -14,14 +13,6 @@ async function submit() {
   await login(email.value, password.value);
   if (!error.value) {
     toast.showSuccess("Signed in.");
-    try {
-      await createSession();
-      await fetchMe();
-    } catch {
-      toast.showInfo(
-        "Signed in. Server sync failed - Cannot receive your info .",
-      );
-    }
     await navigateTo("/auth");
   }
 }
@@ -51,7 +42,7 @@ async function submit() {
             required
             class="w-full rounded border border-slate-300 px-3 py-2 text-slate-800 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
             placeholder="you@example.com"
-          />
+          >
         </div>
         <div>
           <div class="mb-1 flex items-center justify-between">
@@ -76,7 +67,7 @@ async function submit() {
             minlength="6"
             class="w-full rounded border border-slate-300 px-3 py-2 text-slate-800 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
             placeholder="••••••••"
-          />
+          >
         </div>
         <p v-if="error" class="text-sm text-red-600">
           {{ error }}

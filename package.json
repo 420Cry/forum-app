@@ -1,7 +1,11 @@
 {
-  "name": "nuxt-app",
+  "name": "forum-app",
   "type": "module",
   "private": true,
+  "packageManager": "bun@1.2.22",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "nuxt dev",
     "build": "nuxt build",
@@ -15,16 +19,10 @@
   "dependencies": {
     "@nuxt/eslint": "^1.14.0",
     "@nuxtjs/supabase": "^2.0.9",
-    "@primevue/nuxt-module": "^4.5.4",
     "@tailwindcss/vite": "^4.1.18",
-    "class-variance-authority": "^0.7.1",
     "nuxt": "^4.3.0",
-    "primeicons": "^7.0.0",
-    "primevue": "^4.5.4",
     "tailwindcss": "^4.1.18",
-    "vue": "^3.5.27",
-    "vue-router": "^4.6.4",
-    "vuetify-nuxt-module": "^0.19.5"
+    "vue": "^3.5.27"
   },
   "devDependencies": {
     "@iconify-json/material-symbols": "^1.2.61",

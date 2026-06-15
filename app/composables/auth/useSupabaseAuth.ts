@@ -1,6 +1,6 @@
 import type { User as SupabaseUser } from "@supabase/supabase-js";
-import { useForumApi } from "../api/useForumApi";
 import { useForumSession } from "../session/useForumSession";
+import { useSupabaseToken } from "./useSupabaseToken";
 
 export interface AuthUser {
   id: string;
@@ -17,14 +17,12 @@ function toAuthUser(u: SupabaseUser | null | undefined): AuthUser | null {
   };
 }
 
-function getEmailRedirectUrl(): string {
+function getAppOrigin(): string {
   if (import.meta.client) {
-    return `${window.location.origin}/auth/confirm`;
+    return window.location.origin;
   }
-  return `${useRequestURL().origin}/auth/confirm`;
+  return useRequestURL().origin;
 }
-
-let isListenerAttached = false;
 
 function isSupabaseUser(u: unknown): u is SupabaseUser {
   return !!u && typeof u === "object" && "id" in u;
@@ -37,6 +35,7 @@ export function useSupabaseAuth() {
     "supabase-refreshed-user",
     () => null,
   );
+  const { getAccessToken } = useSupabaseToken();
 
   const loading = ref(false);
   const error = ref<string | null>(null);
@@ -47,23 +46,7 @@ export function useSupabaseAuth() {
   });
   const isAuthenticated = computed(() => !!user.value);
 
-  if (import.meta.client && !isListenerAttached) {
-    isListenerAttached = true;
-
-    supabase.auth.onAuthStateChange(async (event) => {
-      if (
-        event === "SIGNED_IN" ||
-        event === "USER_UPDATED" ||
-        event === "TOKEN_REFRESHED"
-      ) {
-        const { data } = await supabase.auth.getUser();
-        refreshedUser.value = data.user;
-      }
-      if (event === "SIGNED_OUT") {
-        refreshedUser.value = null;
-      }
-    });
-
+  if (import.meta.client) {
     const handleVisibilityChange = () => {
       if (
         document.visibilityState === "visible" &&
@@ -110,7 +93,7 @@ export function useSupabaseAuth() {
         email,
         password,
         options: {
-          emailRedirectTo: getEmailRedirectUrl(),
+          emailRedirectTo: `${getAppOrigin()}/auth/confirm`,
         },
       });
       if (err) {
@@ -128,18 +111,6 @@ export function useSupabaseAuth() {
     error.value = null;
     refreshedUser.value = null;
     await supabase.auth.signOut();
-    await useForumApi()
-      .clearSession()
-      .catch(() => {});
-  }
-
-  async function getAccessToken(forceRefresh = false): Promise<string | null> {
-    if (forceRefresh) {
-      const { data } = await supabase.auth.refreshSession();
-      return data.session?.access_token ?? null;
-    }
-    const { data } = await supabase.auth.getSession();
-    return data.session?.access_token ?? null;
   }
 
   async function resetPassword(email: string) {
@@ -147,7 +118,7 @@ export function useSupabaseAuth() {
     error.value = null;
     try {
       const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: getEmailRedirectUrl(),
+        redirectTo: `${getAppOrigin()}/auth/reset-password`,
       });
       if (err) error.value = err.message;
     } finally {
@@ -159,12 +130,7 @@ export function useSupabaseAuth() {
     await supabase.auth.refreshSession();
     const { data } = await supabase.auth.getUser();
     refreshedUser.value = data.user;
-    if (data.user?.email_confirmed_at) {
-      const { fetchMe } = useForumApi();
-      await fetchMe().catch(() => {});
-      return true;
-    }
-    return false;
+    return !!data.user?.email_confirmed_at;
   }
 
   async function resendVerificationEmail() {
@@ -183,7 +149,7 @@ export function useSupabaseAuth() {
         type: "signup",
         email: user.value.email,
         options: {
-          emailRedirectTo: getEmailRedirectUrl(),
+          emailRedirectTo: `${getAppOrigin()}/auth/confirm`,
         },
       });
       if (err) error.value = err.message;

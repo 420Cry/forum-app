@@ -3,43 +3,33 @@ import { useSupabaseAuth } from "~/composables";
 
 definePageMeta({ layout: "auth" });
 
-const user = useSupabaseUser();
-const supabase = useSupabaseClient();
 const { refreshUser } = useSupabaseAuth();
 const status = ref<"confirming" | "verified" | "failed">("confirming");
 
 onMounted(async () => {
-  await supabase.auth.getSession();
   const verified = await refreshUser();
-  status.value = verified ? "verified" : "confirming";
-});
-
-watch(
-  user,
-  async (currentUser) => {
-    if (currentUser?.email_confirmed_at) {
-      status.value = "verified";
-      await navigateTo("/auth");
-    }
-  },
-  { immediate: true },
-);
-
-watch(status, async (value) => {
-  if (value === "verified") {
+  if (verified) {
     await navigateTo("/auth");
+    return;
   }
+  status.value = "failed";
 });
 
 async function retry() {
   status.value = "confirming";
   const verified = await refreshUser();
-  status.value = verified ? "verified" : "failed";
+  if (verified) {
+    await navigateTo("/auth");
+    return;
+  }
+  status.value = "failed";
 }
 </script>
 
 <template>
-  <div class="mx-auto max-w-md rounded-lg border bg-white p-8 text-center shadow-sm">
+  <div
+    class="mx-auto max-w-md rounded-lg border bg-white p-8 text-center shadow-sm"
+  >
     <p v-if="status === 'confirming'" class="text-slate-600">
       Confirming your email...
     </p>
