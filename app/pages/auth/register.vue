@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useFirebaseAuth, useForumApi, useToast } from '~/composables'
+import { useSupabaseAuth, useForumApi, useToast } from '~/composables'
 
 definePageMeta({ layout: 'auth' })
 
-const { register, loading, error, clearError } = useFirebaseAuth()
+const { register, loading, error, clearError } = useSupabaseAuth()
 const { fetchMe } = useForumApi()
 const toast = useToast()
 const email = ref('')

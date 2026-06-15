@@ -14,9 +14,10 @@
   },
   "dependencies": {
     "@nuxt/eslint": "^1.14.0",
+    "@nuxtjs/supabase": "^2.0.9",
     "@primevue/nuxt-module": "^4.5.4",
     "@tailwindcss/vite": "^4.1.18",
-    "firebase": "^12.9.0",
+    "class-variance-authority": "^0.7.1",
     "nuxt": "^4.3.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.4",
@@ -26,6 +27,8 @@
     "vuetify-nuxt-module": "^0.19.5"
   },
   "devDependencies": {
+    "@iconify-json/material-symbols": "^1.2.61",
+    "@nuxt/icon": "^2.2.1",
     "typescript": "^5.9.3"
   }
 }

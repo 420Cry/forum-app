@@ -1,25 +1,28 @@
 <script setup lang="ts">
-import { useFirebaseAuth, useForumApi, useToast } from '~/composables'
+import { useSupabaseAuth, useForumApi, useToast } from "~/composables";
 
-definePageMeta({ layout: 'auth' })
+definePageMeta({ layout: "auth" });
 
-const { login, loading, error, clearError } = useFirebaseAuth()
-const { fetchMe } = useForumApi()
-const toast = useToast()
-const email = ref('')
-const password = ref('')
+const { login, loading, error, clearError } = useSupabaseAuth();
+const { fetchMe, createSession } = useForumApi();
+const toast = useToast();
+const email = ref("");
+const password = ref("");
 
 async function submit() {
-  clearError()
-  await login(email.value, password.value)
+  clearError();
+  await login(email.value, password.value);
   if (!error.value) {
-    toast.showSuccess('Signed in.')
+    toast.showSuccess("Signed in.");
     try {
-      await fetchMe()
+      await createSession();
+      await fetchMe();
     } catch {
-      toast.showInfo('Signed in. Server sync failed — some features may be limited.')
+      toast.showInfo(
+        "Signed in. Server sync failed - Cannot receive your info .",
+      );
     }
-    await navigateTo('/auth')
+    await navigateTo("/auth");
   }
 }
 </script>
@@ -27,9 +30,7 @@ async function submit() {
 <template>
   <div>
     <div class="mb-6">
-      <h2 class="text-xl font-semibold text-slate-800">
-        Sign in
-      </h2>
+      <h2 class="text-xl font-semibold text-slate-800">Sign in</h2>
       <p class="mt-1 text-slate-500">
         Sign in to your account to use the forum
       </p>
@@ -37,7 +38,10 @@ async function submit() {
     <div class="mx-auto max-w-md rounded-lg border bg-white p-6 shadow-sm">
       <form class="space-y-4" @submit.prevent="submit">
         <div>
-          <label for="email" class="mb-1 block text-sm font-medium text-slate-700">
+          <label
+            for="email"
+            class="mb-1 block text-sm font-medium text-slate-700"
+          >
             Email
           </label>
           <input
@@ -47,11 +51,14 @@ async function submit() {
             required
             class="w-full rounded border border-slate-300 px-3 py-2 text-slate-800 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
             placeholder="you@example.com"
-          >
+          />
         </div>
         <div>
           <div class="mb-1 flex items-center justify-between">
-            <label for="password" class="block text-sm font-medium text-slate-700">
+            <label
+              for="password"
+              class="block text-sm font-medium text-slate-700"
+            >
               Password
             </label>
             <NuxtLink
@@ -69,7 +76,7 @@ async function submit() {
             minlength="6"
             class="w-full rounded border border-slate-300 px-3 py-2 text-slate-800 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
             placeholder="••••••••"
-          >
+          />
         </div>
         <p v-if="error" class="text-sm text-red-600">
           {{ error }}
@@ -79,12 +86,15 @@ async function submit() {
           :disabled="loading"
           class="w-full rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
         >
-          {{ loading ? 'Signing in...' : 'Sign in' }}
+          {{ loading ? "Signing in..." : "Sign in" }}
         </button>
       </form>
       <p class="mt-4 text-center text-sm text-slate-500">
         Don't have an account?
-        <NuxtLink to="/auth/register" class="font-medium text-slate-700 hover:text-slate-900">
+        <NuxtLink
+          to="/auth/register"
+          class="font-medium text-slate-700 hover:text-slate-900"
+        >
           Create account
         </NuxtLink>
       </p>
