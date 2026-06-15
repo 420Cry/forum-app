@@ -1,6 +1,6 @@
 # Forum App
 
-Nuxt 4 frontend for the forum project. Auth is handled by Supabase; the NestJS API verifies Bearer tokens.
+Nuxt 4 frontend for the forum project
 
 ## Setup
 
