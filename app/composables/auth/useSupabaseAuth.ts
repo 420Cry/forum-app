@@ -26,6 +26,10 @@ function getEmailRedirectUrl(): string {
 
 let isListenerAttached = false;
 
+function isSupabaseUser(u: unknown): u is SupabaseUser {
+  return !!u && typeof u === "object" && "id" in u;
+}
+
 export function useSupabaseAuth() {
   const supabase = useSupabaseClient();
   const supabaseUser = useSupabaseUser();
@@ -37,9 +41,10 @@ export function useSupabaseAuth() {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  const user = computed(() =>
-    toAuthUser(refreshedUser.value ?? supabaseUser.value),
-  );
+  const user = computed(() => {
+    const current = refreshedUser.value ?? supabaseUser.value;
+    return isSupabaseUser(current) ? toAuthUser(current) : null;
+  });
   const isAuthenticated = computed(() => !!user.value);
 
   if (import.meta.client && !isListenerAttached) {
