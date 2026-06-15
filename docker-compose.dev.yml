@@ -15,7 +15,7 @@ services:
       NITRO_HOST: "0.0.0.0"
       NITRO_PORT: ${PORT:-3000}
       CHOKIDAR_USEPOLLING: "true"
-    command: npm run dev
+    command: bun run dev
     networks:
       - forum.test
 

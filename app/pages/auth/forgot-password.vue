@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'auth' })
 
-const { resetPassword, loading, error, clearError } = useFirebaseAuth()
+const { resetPassword, loading, error, clearError } = useSupabaseAuth()
 const email = ref('')
 const resetSent = ref(false)
 
