@@ -11,14 +11,39 @@ type formProp = {
   id: string;
 };
 
-const input = cva(["bg-white", "py-3", "px-4", "rounded-lg", "outline-2"], {
-  variants: {
-    intent: {
-      primary: ["outline-neutral-300", "focus:outline-primary-300"],
-      error: ["outline-red-500"],
+const input = cva(
+  [
+    "bg-card",
+    "border",
+    "rounded-[var(--radius-md)]",
+    "py-2.5",
+    "px-3",
+    "text-ink",
+    "text-sm",
+    "w-full",
+    "outline-none",
+    "transition-colors",
+    "placeholder:text-ink-4",
+  ],
+  {
+    variants: {
+      intent: {
+        primary: [
+          "border-line",
+          "focus:border-brand",
+          "focus:ring-2",
+          "focus:ring-brand/20",
+        ],
+        error: [
+          "border-red-500",
+          "focus:border-red-500",
+          "focus:ring-2",
+          "focus:ring-red-500/20",
+        ],
+      },
     },
   },
-});
+);
 
 type InputProp = VariantProps<typeof input>;
 withDefaults(defineProps<formProp>(), {
@@ -29,7 +54,7 @@ withDefaults(defineProps<formProp>(), {
 });
 </script>
 <template>
-  <label class="font-semibold" :for="id">{{ label }}</label>
+  <label class="block text-sm font-semibold text-ink-2 mb-1" :for="id">{{ label }}</label>
   <input
     v-bind="$attrs"
     :id="id"
@@ -37,7 +62,7 @@ withDefaults(defineProps<formProp>(), {
     :placeholder="placeholder"
     :class="input({ intent })"
   />
-  <p v-if="intent !== 'primary'" class="text-red-500">
+  <p v-if="intent !== 'primary'" class="mt-1 text-xs text-red-500">
     {{ errorMsg }}
   </p>
 </template>

@@ -15,7 +15,7 @@ type propsType = {
 
 const props = withDefaults(defineProps<propsType>(), {
   size: "2.5em",
-  class: "text-primary-900",
+  class: "text-brand",
 });
 
 const computedIconClass = computed(() => {
@@ -24,25 +24,27 @@ const computedIconClass = computed(() => {
 
 const computedCardClass = computed(() => {
   return [
-    "max-w-80.5 w-full border-2 relative rounded-2xl p-5 flex flex-col gap-4 hover:bg-primary-100 hover:border-primary-900 transition duration-100 ease-in-out cursor-pointer md:max-w-90 lg:max-w-95",
+    "max-w-80.5 w-full border relative p-5 flex flex-col gap-4 transition cursor-pointer md:max-w-90 lg:max-w-95",
+    "rounded-[var(--radius-lg)]",
     {
-      "bg-white border-neutral-300": !props.active,
-      "bg-primary-100 border-primary-900": props.active,
+      "bg-card border-line shadow-[var(--shadow-1)] hover:bg-surface-hover hover:border-brand hover:shadow-[var(--shadow-2)]":
+        !props.active,
+      "bg-brand/5 border-brand shadow-[var(--shadow-2)]": props.active,
     },
   ];
 });
 
 const baseMainIconClass = "flex";
-const baseIconWrapper = "bg-primary-200 flex items-center justify-center";
-const baseTitleClass = "font-semibold mb-2 text-neutral-900";
-const baseSubtitleClass = " max-w-80 text-[14px] text-neutral-600";
-const baseTextWrapperClass = "flex flex-col justify-center ";
+const baseIconWrapper = "bg-brand/10 flex items-center justify-center";
+const baseTitleClass = "font-semibold mb-2 text-ink text-sm";
+const baseSubtitleClass = "max-w-80 text-sm text-ink-3";
+const baseTextWrapperClass = "flex flex-col justify-center";
 const variantClasses = {
   mainIconClass:
     baseMainIconClass + (props.variants === "roles" ? " justify-center" : ""),
   iconWrapper:
     baseIconWrapper +
-    (props.variants === "roles" ? " p-4 rounded-full" : " p-3 rounded-lg"),
+    (props.variants === "roles" ? " p-4 rounded-full" : " p-3 rounded-[var(--radius-md)]"),
   titleClass:
     baseTitleClass + (props.variants === "roles" ? " text-center" : ""),
   subtitleClass:
@@ -56,9 +58,9 @@ const variantClasses = {
   <div :class="computedCardClass">
     <div
       v-show="props.active"
-      class="absolute right-6 bg-primary-900 flex justify-center p-1 rounded-full"
+      class="absolute right-6 bg-brand flex justify-center p-1 rounded-full"
     >
-      <BaseIcon name="checkMark" size="1.5em" class="text-neutral-100" />
+      <BaseIcon name="checkMark" size="1.5em" class="text-white" />
     </div>
 
     <div :class="variantClasses.mainIconClass">

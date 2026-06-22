@@ -38,7 +38,7 @@ const backButtonIntent = computed(() => {
       <span v-if="dynamicNavContent === 'Back'" class="inline-block">
         <BaseIcon name="leftArrow" />
       </span>
-      <div class="text-neutral-600 text-base">
+      <div class="text-ink-3 text-base">
         {{ dynamicNavContent }}
       </div>
     </BaseButton>
@@ -49,8 +49,8 @@ const backButtonIntent = computed(() => {
         :key="onboardStep.step"
         :class="
           onboardStep.active
-            ? `${baseClass} bg-primary-900`
-            : `${baseClass} bg-neutral-300`
+            ? `${baseClass} bg-brand`
+            : `${baseClass} bg-line`
         "
       />
     </div>

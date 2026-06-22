@@ -4,7 +4,7 @@ import BaseHeader from "~/components/shared/BaseHeader.vue";
 </script>
 
 <template>
-  <div class="min-h-screen bg-bgColor">
+  <div class="min-h-screen bg-surface">
     <BaseHeader>
       <template #logo>
         <div>

@@ -1,4 +1,11 @@
 <script setup lang="ts">
+import { useSupabaseAuth } from "~/composables";
+
+const { refreshUser } = useSupabaseAuth();
+onMounted(() => {
+  void refreshUser();
+});
+
 useHead({
   link: [
     { rel: "preconnect", href: "https://fonts.googleapis.com" },

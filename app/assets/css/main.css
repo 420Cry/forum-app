@@ -3,26 +3,79 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --color-primary-100: #fdf2ec;
-  --color-primary-200: #fce5d9;
-  --color-primary-300: #f6b08e;
-  --color-primary-400: #f4a37b;
-  --color-primary-500: #f39668;
-  --color-primary-600: #f18955;
-  --color-primary-700: #f07c42;
-  --color-primary-800: #ee6f2f;
-  --color-primary-900: #ec5b13;
+  /* Brand — Deep Sea Green */
+  --color-brand: #075056;
+  --color-brand-hover: #053e43;
+  --color-brand-light: #0e7a74;
+  --color-brand-50: #eef6f6;
+  --color-brand-100: #d6ecec;
+  --color-brand-200: #b0d8d9;
+  --color-brand-300: #7fbfc1;
+  --color-brand-400: #4aa3a7;
+  --color-brand-500: #298a8f;
+  --color-brand-600: #1a7075;
+  --color-brand-700: #075056;
 
-  --color-neutral-100: #f8f9fa;
-  --color-neutral-200: #e9ecef;
-  --color-neutral-300: #dee2e6;
-  --color-neutral-400: #ced4da;
-  --color-neutral-500: #adb5bd;
-  --color-neutral-600: #6c757d;
-  --color-neutral-700: #495057;
-  --color-neutral-800: #343a40;
-  --color-neutral-900: #212529;
+  /* Accent — Blaze Orange */
+  --color-accent: #ff5b04;
+  --color-accent-hover: #e04e00;
+  --color-accent-soft: #ffe7d8;
+  --color-accent-text: #9c3a02;
 
-  --color-bgColor: #f8f8f6;
+  /* Ink scale */
+  --color-ink: #16232a;
+  --color-ink-2: #2e3b42;
+  --color-ink-3: #51616a;
+  --color-ink-4: #7e8d94;
+  --color-ink-5: #aebbc0;
+
+  /* Surfaces */
+  --color-surface: #f8fbfb;
+  --color-card: #ffffff;
+  --color-surface-hover: #eef4f5;
+  --color-surface-hover-2: #e2ebec;
+  --color-sand: #e4eef0;
+
+  /* Lines / borders */
+  --color-line: #d2dee1;
+  --color-line-2: #bfcdd0;
+
+  /* Stage pills */
+  --color-stage-idea-bg: #dce6e8;
+  --color-stage-idea-fg: #46555c;
+  --color-stage-preseed-bg: #d3e4e5;
+  --color-stage-preseed-fg: #0a4a50;
+  --color-stage-seed-bg: #d9e9dc;
+  --color-stage-seed-fg: #2c6a3d;
+  --color-stage-seriesa-bg: #f3e6d6;
+  --color-stage-seriesa-fg: #8a4314;
+  --color-stage-investor-bg: #e7e4f0;
+  --color-stage-investor-fg: #4e3a8a;
+
+  /* Border radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-pill: 9999px;
 }
 
+:root {
+  /* Shadows */
+  --shadow-1: 0 1px 0 rgba(20, 30, 45, 0.04), 0 1px 2px rgba(20, 30, 45, 0.04);
+  --shadow-2: 0 2px 8px rgba(20, 30, 45, 0.07);
+  --shadow-pop: 0 8px 28px rgba(20, 30, 45, 0.12),
+    0 0 0 1px rgba(20, 30, 45, 0.04);
+
+  /* Transitions */
+  --transition-fast: 0.12s ease;
+  --transition-normal: 0.18s ease;
+  --transition-slow: 0.28s ease;
+
+  /* Z-index layers */
+  --z-page: 0;
+  --z-sticky: 5;
+  --z-overlay: 20;
+  --z-popover: 40;
+  --z-modal: 80;
+}

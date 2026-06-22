@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useFirebaseAuth, useForumApi, useForumSession } from "~/composables";
+import { useSupabaseAuth, useForumApi, useForumSession } from "~/composables";
 
 definePageMeta({ layout: "auth" });
 
@@ -8,13 +8,28 @@ const {
   logout,
   isAuthenticated,
   resendVerificationEmail,
+  refreshUser,
   loading,
   error,
   clearError,
-} = useFirebaseAuth();
+} = useSupabaseAuth();
 const { fetchMe } = useForumApi();
 const { meResult } = useForumSession();
 const verificationResent = ref(false);
+const checkingVerification = ref(false);
+
+onMounted(() => {
+  if (user.value && !user.value.emailVerified) {
+    void refreshUser();
+  }
+});
+
+async function handleCheckVerified() {
+  checkingVerification.value = true;
+  clearError();
+  await refreshUser();
+  checkingVerification.value = false;
+}
 
 async function verifyApi() {
   meResult.value = null;
@@ -70,6 +85,14 @@ async function handleResendVerification() {
         <p v-if="error" class="mt-2 text-red-600">
           {{ error }}
         </p>
+        <button
+          type="button"
+          :disabled="loading || checkingVerification"
+          class="mt-3 mr-3 rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+          @click="handleCheckVerified"
+        >
+          {{ checkingVerification ? "Checking..." : "I've verified my email" }}
+        </button>
         <button
           type="button"
           :disabled="loading"

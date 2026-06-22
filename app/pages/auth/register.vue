@@ -1,25 +1,23 @@
 <script setup lang="ts">
-import { useFirebaseAuth, useForumApi, useToast } from '~/composables'
+import { useSupabaseAuth, useToast } from "~/composables";
+import BaseButton from "~/components/shared/BaseButton.vue";
+import BaseInput from "~/components/shared/BaseInput.vue";
 
-definePageMeta({ layout: 'auth' })
+definePageMeta({ layout: "auth" });
 
-const { register, loading, error, clearError } = useFirebaseAuth()
-const { fetchMe } = useForumApi()
-const toast = useToast()
-const email = ref('')
-const password = ref('')
+const { register, loading, error, clearError } = useSupabaseAuth();
+const toast = useToast();
+const email = ref("");
+const password = ref("");
 
 async function submit() {
-  clearError()
-  await register(email.value, password.value)
+  clearError();
+  await register(email.value, password.value);
   if (!error.value) {
-    try {
-      await fetchMe()
-    } catch {
-      // User is unverified; backend may reject /auth/me. Ignore.
-    }
-    toast.showSuccess('Account created. Check your email to verify your address.')
-    await navigateTo('/auth')
+    toast.showSuccess(
+      "Account created. Check your email to verify your address.",
+    );
+    await navigateTo("/auth");
   }
 }
 </script>
@@ -27,59 +25,48 @@ async function submit() {
 <template>
   <div>
     <div class="mb-6">
-      <h2 class="text-xl font-semibold text-slate-800">
-        Create account
-      </h2>
-      <p class="mt-1 text-slate-500">
-        Sign up to join the forum
-      </p>
+      <h2 class="text-2xl font-bold text-ink">Create account</h2>
+      <p class="mt-1 text-sm text-ink-3">Sign up to join the forum</p>
     </div>
-    <div class="mx-auto max-w-md rounded-lg border bg-white p-6 shadow-sm">
+    <div
+      class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-6"
+    >
       <form class="space-y-4" @submit.prevent="submit">
         <div>
-          <label for="email" class="mb-1 block text-sm font-medium text-slate-700">
-            Email
-          </label>
-          <input
+          <BaseInput
             id="email"
             v-model="email"
+            label="Email"
             type="email"
             required
-            class="w-full rounded border border-slate-300 px-3 py-2 text-slate-800 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
             placeholder="you@example.com"
-          >
+          />
         </div>
         <div>
-          <label for="password" class="mb-1 block text-sm font-medium text-slate-700">
-            Password
-          </label>
-          <input
+          <BaseInput
             id="password"
             v-model="password"
+            label="Password"
             type="password"
             required
             minlength="6"
-            class="w-full rounded border border-slate-300 px-3 py-2 text-slate-800 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
             placeholder="••••••••"
-          >
-          <p class="mt-1 text-xs text-slate-500">
-            At least 6 characters
-          </p>
+          />
+          <p class="mt-1 text-xs text-ink-4">At least 6 characters</p>
         </div>
-        <p v-if="error" class="text-sm text-red-600">
-          {{ error }}
-        </p>
-        <button
+        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        <BaseButton
           type="submit"
           :disabled="loading"
-          class="w-full rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+          size="md"
+          class="w-full justify-center"
         >
-          {{ loading ? 'Creating account...' : 'Create account' }}
-        </button>
+          {{ loading ? "Creating account..." : "Create account" }}
+        </BaseButton>
       </form>
-      <p class="mt-4 text-center text-sm text-slate-500">
+      <p class="mt-4 text-center text-sm text-ink-3">
         Already have an account?
-        <NuxtLink to="/auth/login" class="font-medium text-slate-700 hover:text-slate-900">
+        <NuxtLink to="/auth/login" class="font-semibold text-brand hover:text-brand-hover">
           Sign in
         </NuxtLink>
       </p>

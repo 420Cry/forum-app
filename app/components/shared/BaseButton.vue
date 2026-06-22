@@ -1,29 +1,59 @@
 <script setup lang="ts">
 import { cva, type VariantProps } from "class-variance-authority";
 
-//TODO: Create button design system
 const button = cva(
-  ["font-semibold", "flex", "gap-1", "items-center", "rounded-lg"],
+  [
+    "inline-flex",
+    "items-center",
+    "gap-1.5",
+    "font-semibold",
+    "rounded-[var(--radius-pill)]",
+    "transition-colors",
+    "cursor-pointer",
+    "select-none",
+  ],
   {
     variants: {
       intent: {
-        primary: ["bg-primary-900", "text-neutral-100"],
-        secondary: ["bg-primary-200", "text-neutral-600"],
-        outline: ["outline-primary-900", "text-neutral-600"],
-        ghost: ["hover:bg-primary-200", "transition", "ease-in-out"],
+        primary: [
+          "bg-brand",
+          "text-white",
+          "hover:bg-brand-hover",
+        ],
+        "primary-outline": [
+          "border",
+          "border-brand",
+          "text-brand",
+          "bg-transparent",
+          "hover:bg-surface-hover",
+        ],
+        secondary: [
+          "border",
+          "border-line",
+          "text-ink-2",
+          "bg-card",
+          "hover:bg-surface-hover",
+          "hover:border-line-2",
+        ],
+        ghost: [
+          "text-ink-3",
+          "hover:bg-surface-hover",
+          "bg-transparent",
+        ],
       },
       size: {
-        small: ["px-2", "py-1", "md:px-4"],
-        medium: ["px-4", "py-2", "md:px-6", "md:text-base"],
+        sm: ["px-3", "py-1.5", "text-xs"],
+        md: ["px-4", "py-2", "text-sm"],
+        lg: ["px-5", "py-2.5", "text-sm"],
       },
       disabled: {
-        true: "opacity-50 cursor-not-allowed",
+        true: "opacity-50 cursor-not-allowed pointer-events-none",
         false: "",
       },
     },
     defaultVariants: {
       intent: "primary",
-      size: "small",
+      size: "md",
       disabled: false,
     },
   },
@@ -38,7 +68,7 @@ withDefaults(
   }>(),
   {
     intent: "primary",
-    size: "medium",
+    size: "md",
     disabled: false,
   },
 );
@@ -50,10 +80,10 @@ withDefaults(
       button({
         intent,
         size,
-        disabled: typeof $attrs['disabled'] !== 'undefined',
+        disabled: !!$attrs['disabled'],
       })
     "
-    :disabled="typeof $attrs['disabled'] !== 'undefined'"
+    :disabled="!!$attrs['disabled']"
   >
     <slot />
   </button>

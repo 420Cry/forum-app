@@ -1,43 +1,37 @@
-import { useFirebaseAuth } from "../auth/useFirebaseAuth";
+import type { HealthResponse, MeResponse } from "../../types/api";
+import { useSupabaseToken } from "../auth/useSupabaseToken";
 
 export function useForumApi() {
   const config = useRuntimeConfig();
   const baseUrl = config.public.forumApiUrl;
-  const { getIdToken } = useFirebaseAuth();
+  const { getAccessToken } = useSupabaseToken();
 
   async function getAuthHeaders(
     forceRefresh = false,
   ): Promise<Record<string, string>> {
-    const token = await getIdToken(forceRefresh);
+    const token = await getAccessToken(forceRefresh);
     if (!token) return {};
     return { Authorization: `Bearer ${token}` };
   }
 
   async function fetchHealth() {
-    const res = await $fetch<{ status: string; timestamp: string }>(
-      `${baseUrl}/health`,
-      {
-        credentials: "include",
-      },
-    );
-    return res;
+    return $fetch<HealthResponse>(`${baseUrl}/health`, {
+      credentials: "include",
+    });
   }
 
   async function fetchHello() {
-    const res = await $fetch<string>(baseUrl, {
+    return $fetch<string>(baseUrl, {
       credentials: "include",
     });
-    return res;
   }
 
   async function fetchMe() {
-    const res = await $fetch<{ uid: string; email?: string }>(
-      `${baseUrl}/auth/me`,
-      {
-        credentials: "include",
-      },
-    );
-    return res;
+    const headers = await getAuthHeaders();
+    return $fetch<MeResponse>(`${baseUrl}/auth/me`, {
+      headers,
+      credentials: "include",
+    });
   }
 
   async function createSession(): Promise<string> {

@@ -45,7 +45,7 @@ export const useOnboard = () => {
   //TODO: Onboard flow: backend holds source of truth, calls the api to check the initial step and UI updates accordingly
   const currentStep = ref(1);
   const isLoading = ref(false);
-  const error = ref([]);
+  // const error = ref([]);
 
   const currentPage = computed(() => {
     const selectedPage = onboardPage.value.find((page) => page.active === true);
