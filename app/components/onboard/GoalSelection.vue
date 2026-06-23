@@ -4,71 +4,118 @@ import type {
   goalTitlesType,
 } from "~/types/onboard/onboardType";
 import TitleSection from "./shared/TitleSection.vue";
+import BaseIcon from "../shared/BaseIcon.vue";
 import { goalsSelection } from "~/constants/onboardContent";
-import BaseCardSection from "./shared/BaseCardSection.vue";
-import OnboardCardComponent from "./OnboardCardComponent.vue";
-import setElementActive from "~/utils/setActiveElement";
-import RolesNav from "./RolesNav.vue";
+import type { iconNameType } from "~/types/iconType";
 
-//TODO: Map goal fetched from backend
-const roleGoals: Ref<goalsSelectionType[]> = ref(goalsSelection);
 const { onboardInfo } = useOnboard();
 
-const setRoleActive = (selectedRoleGoal: goalsSelectionType) => {
-  setElementActive<goalsSelectionType>(selectedRoleGoal, roleGoals);
+type MutableGoal = {
+  iconName: iconNameType;
+  title: string;
+  subtitle: string;
+  active: boolean;
 };
 
-const selectedGoalsList = computed(() => {
-  const activeRole = roleGoals.value.find((goal) => goal.active);
-  return activeRole?.goals;
-});
+const goalsByRole = ref<MutableGoal[]>([]);
 
-const handleSelectedGoal = (goalTitle: goalTitlesType) => {
-  const activeGoal = selectedGoalsList.value?.find(
-    (goal) => goal.title === goalTitle,
-  );
-  if (activeGoal && !activeGoal.active) {
-    activeGoal.active = true;
-    onboardInfo.goals.push(goalTitle);
-  } else if (activeGoal && activeGoal.active) {
-    activeGoal.active = false;
-    onboardInfo.goals = onboardInfo.goals.filter(
-      (title) => title !== goalTitle,
-    );
+watch(
+  () => onboardInfo.role,
+  (newRole, oldRole) => {
+    const isRoleChange = oldRole !== undefined && oldRole !== newRole;
+    if (isRoleChange) {
+      onboardInfo.goals = [];
+    }
+    const match = goalsSelection.find((g) => g.role === newRole);
+    const matchGoal = match ?? (goalsSelection[0] as goalsSelectionType);
+    goalsByRole.value = matchGoal.goals.map((g) => ({
+      ...g,
+      active: onboardInfo.goals.includes(g.title as goalTitlesType),
+    }));
+  },
+  { immediate: true },
+);
+
+const selectedCount = computed(
+  () => goalsByRole.value.filter((g) => g.active).length,
+);
+
+const toggleGoal = (goal: MutableGoal) => {
+  goal.active = !goal.active;
+  const title = goal.title as goalTitlesType;
+  if (goal.active) {
+    onboardInfo.goals.push(title);
+  } else {
+    onboardInfo.goals = onboardInfo.goals.filter((t) => t !== title);
   }
 };
 </script>
+
 <template>
   <TitleSection>
-    <template #title>What are your main goals?</template>
-    <template #subtitle
-      >Select all that apply to help us personalize your experience.</template
-    >
+    <template #title>What are your goals?</template>
+    <template #subtitle>
+      Pick the ones that fit. We'll use this to tailor your home feed and
+      recommendations. You can select more than one.
+    </template>
   </TitleSection>
-  <div class="flex justify-center mt-6">
-    <div class="p-2 flex justify-center gap-2 bg-primary-100 rounded-2xl">
-      <RolesNav
-        v-for="roleGoal in roleGoals"
-        :key="roleGoal.role"
-        :active="roleGoal.active"
-        @role-click="setRoleActive(roleGoal)"
-      >
-        {{ roleGoal.role }}
-      </RolesNav>
-    </div>
-  </div>
 
-  <BaseCardSection>
-    <OnboardCardComponent
-      v-for="goal in selectedGoalsList"
-      :key="goal.title"
-      :icon-name="goal.iconName"
-      :title="goal.title"
-      :description="goal.subtitle"
-      :active="goal.active"
-      size="1.5em"
-      variants="goals"
-      @click="handleSelectedGoal(goal.title)"
-    />
-  </BaseCardSection>
+  <div class="max-w-[640px] mx-auto mt-8">
+    <div class="grid grid-cols-2 gap-[14px]">
+      <div
+        v-for="goal in goalsByRole"
+        :key="goal.title"
+        class="flex gap-[14px] items-start p-5 bg-card border rounded-[var(--radius-md)] cursor-pointer transition-colors"
+        :class="
+          goal.active
+            ? 'border-brand bg-brand/5'
+            : 'border-line hover:border-line-2'
+        "
+        @click="toggleGoal(goal)"
+      >
+        <!-- Square checkbox -->
+        <span
+          class="relative flex-none w-[18px] h-[18px] rounded-[4px] border mt-0.5 transition-colors"
+          :class="
+            goal.active ? 'bg-brand border-brand' : 'bg-card border-line-2'
+          "
+        >
+          <svg
+            v-if="goal.active"
+            class="absolute inset-0 m-auto"
+            width="10"
+            height="8"
+            viewBox="0 0 10 8"
+            fill="none"
+          >
+            <path
+              d="M1 4L3.5 6.5L9 1"
+              stroke="white"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+
+        <!-- Content -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <BaseIcon
+              :name="goal.iconName"
+              size="1em"
+              :class="goal.active ? 'text-brand' : 'text-ink-3'"
+            />
+            <span class="text-sm font-semibold text-ink">{{ goal.title }}</span>
+          </div>
+          <p class="text-xs text-ink-3 leading-relaxed">{{ goal.subtitle }}</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="mt-4 text-center text-xs text-ink-4">
+      <b class="text-brand font-semibold">{{ selectedCount }} selected</b>
+      &nbsp;·&nbsp;You can update these any time from your profile
+    </p>
+  </div>
 </template>

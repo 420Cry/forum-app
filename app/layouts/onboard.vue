@@ -7,19 +7,15 @@ import BaseHeader from "~/components/shared/BaseHeader.vue";
   <div class="min-h-screen bg-surface">
     <BaseHeader>
       <template #logo>
-        <div>
-          <img
-            src="../assets/logo/FundedrLogo.png"
-            alt="FundedrLogo"
-            class="max-w-32 object-cover"
-          />
-        </div>
+        <span class="font-wordmark text-2xl font-bold tracking-tight text-ink select-none">
+          fund<span class="text-accent">e</span>dr
+        </span>
       </template>
       <template #right>
-        <BaseButton>Logout</BaseButton>
+        <BaseButton intent="ghost" size="sm">Sign out</BaseButton>
       </template>
     </BaseHeader>
-    <main class="mx-auto max-w-280.5 px-6 py-12">
+    <main class="mx-auto max-w-[760px] px-6 py-8">
       <slot />
     </main>
   </div>

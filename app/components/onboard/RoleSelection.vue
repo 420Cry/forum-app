@@ -13,19 +13,26 @@ const handleSelectedRole = (activeRole: roleSelectionType) => {
   setElementActive<roleSelectionType>(activeRole, refRoles);
   onboardInfo.role = activeRole.roleTitle;
 };
+
+onMounted(() => {
+  if (onboardInfo.role) {
+    refRoles.value = refRoles.value.map((role) => {
+      return { ...role, active: onboardInfo.role === role.roleTitle };
+    });
+  }
+});
 </script>
 
 <template>
   <TitleSection>
-    <template #title> What is your role on Fundedr?</template>
+    <template #title>What brings you to Fundedr?</template>
     <template #subtitle>
-      Choose the role that best describes your intent.</template
-    >
+      Pick the option that fits you best. You can hold both roles later — this
+      just sets up your home feed.
+    </template>
   </TitleSection>
 
-  <div
-    class="mx-auto flex flex-wrap flex-col gap-6 items-center lg:flex-row justify-center mt-10"
-  >
+  <div class="grid grid-cols-2 gap-[18px] max-w-[640px] mx-auto mt-10">
     <OnboardCardComponent
       v-for="role in refRoles"
       :key="role.title"

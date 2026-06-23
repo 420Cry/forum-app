@@ -23,7 +23,8 @@
     "class-variance-authority": "^0.7.1",
     "nuxt": "^4.3.0",
     "tailwindcss": "^4.1.18",
-    "vue": "^3.5.27"
+    "vue": "^3.5.27",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@iconify-json/material-symbols": "^1.2.61",

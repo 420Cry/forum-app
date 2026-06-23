@@ -1,46 +1,110 @@
 <script setup lang="ts">
 import BaseInput from "../shared/BaseInput.vue";
+import BaseButton from "../shared/BaseButton.vue";
+import BaseIcon from "../shared/BaseIcon.vue";
 import TitleSection from "./shared/TitleSection.vue";
 
-const { onboardInfo } = useOnboard();
+const { onboardInfo, infoErrors, clearInfoError } = useOnboard();
 </script>
+
 <template>
   <TitleSection>
-    <template #title> Tell us a bit about yourself </template>
-    <template #subtitle
-      >Help us personalize your profile <br />
-      and connect you with the right people.
+    <template #title>Tell us about yourself</template>
+    <template #subtitle>
+      A few quick details. This is how others will see you across Fundedr.
     </template>
   </TitleSection>
 
-  <div class="m-auto max-w-133 mt-8">
-    <form class="p-2 flex flex-col gap-6">
-      <div class="flex flex-col gap-2">
-        <BaseInput
-          id="fullname"
-          v-model="onboardInfo.fullname"
-          label="Fullname"
-          placeholder="eg. Nghia Truong"
-          error-msg="Wrong fullname"
-        />
+  <div
+    class="max-w-[640px] mx-auto mt-8 bg-card border border-line rounded-[var(--radius-md)] p-6"
+  >
+    <!-- Photo upload -->
+    <div class="flex items-center gap-6 mb-6">
+      <div
+        class="w-24 h-24 rounded-full border-2 border-dashed border-line-2 bg-surface-hover flex items-center justify-center text-ink-4 flex-none"
+      >
+        <BaseIcon name="camera" size="2em" />
       </div>
-      <div class="flex flex-col gap-2">
-        <BaseInput
-          id="dob"
-          v-model="onboardInfo.dob"
-          type="date"
-          label="Date of Birth"
-          placeholder="DD/MM/YY"
-        />
+      <div>
+        <p class="text-sm font-semibold text-ink-2 mb-1">Profile photo</p>
+        <p class="text-xs text-ink-3 leading-relaxed">
+          A clear headshot helps people recognise you. JPG or PNG, up to 5 MB.
+        </p>
+        <BaseButton intent="secondary" size="sm" class="mt-2">
+          Upload photo
+        </BaseButton>
       </div>
-      <div class="flex flex-col gap-2">
+    </div>
+
+    <!-- Form fields -->
+    <div class="flex flex-col gap-5">
+      <!-- Row 1: First + Last name -->
+      <div class="grid grid-cols-2 gap-[18px]">
+        <div class="flex flex-col gap-1">
+          <BaseInput
+            id="firstName"
+            v-model="onboardInfo.firstName"
+            label="First name"
+            placeholder="e.g. Dao"
+            :intent="infoErrors?.firstName ? 'error' : 'primary'"
+            :error-msg="infoErrors?.firstName"
+            @input="clearInfoError('firstName')"
+          />
+        </div>
+        <div class="flex flex-col gap-1">
+          <BaseInput
+            id="lastName"
+            v-model="onboardInfo.lastName"
+            label="Last name"
+            placeholder="e.g. Nguyen"
+            :intent="infoErrors?.lastName ? 'error' : 'primary'"
+            :error-msg="infoErrors?.lastName"
+            @input="clearInfoError('lastName')"
+          />
+        </div>
+      </div>
+
+      <!-- Row 2: Age + Location -->
+      <div class="grid grid-cols-2 gap-[18px]">
+        <div class="flex flex-col gap-1">
+          <BaseInput
+            id="age"
+            v-model="onboardInfo.age"
+            label="Age"
+            placeholder="e.g. 28"
+            :intent="infoErrors?.age ? 'error' : 'primary'"
+            :error-msg="infoErrors?.age"
+            @input="clearInfoError('age')"
+          />
+        </div>
+        <div class="flex flex-col gap-1">
+          <BaseInput
+            id="location"
+            v-model="onboardInfo.location"
+            label="Location"
+            placeholder="City, country"
+            :intent="infoErrors?.location ? 'error' : 'primary'"
+            :error-msg="infoErrors?.location"
+            @input="clearInfoError('location')"
+          />
+        </div>
+      </div>
+
+      <!-- Row 3: Occupation (full width) -->
+      <div class="flex flex-col gap-1">
         <BaseInput
           id="occupation"
           v-model="onboardInfo.occupation"
           label="Occupation"
-          placeholder="eg. Architect"
+          placeholder="e.g. Founder & researcher"
+          :intent="infoErrors?.occupation ? 'error' : 'primary'"
+          :error-msg="infoErrors?.occupation"
+          @input="clearInfoError('occupation')"
         />
+        <p class="text-xs text-ink-4 mt-1">
+          This appears under your name on your profile and posts.
+        </p>
       </div>
-    </form>
+    </div>
   </div>
 </template>

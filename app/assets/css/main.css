@@ -1,7 +1,16 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Asgrike";
+  src: url("../fonts/Asgrike.otf") format("opentype");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-wordmark: "Asgrike", ui-sans-serif, system-ui, sans-serif;
 
   /* Brand — Deep Sea Green */
   --color-brand: #075056;

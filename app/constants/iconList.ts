@@ -1,4 +1,3 @@
-// TODO: Replace Icon List to be similar with design
 export const iconList = {
   lightbulb: "material-symbols:lightbulb-2-outline-rounded",
   accountBalance: "material-symbols:account-balance-outline",
@@ -13,4 +12,5 @@ export const iconList = {
   chart: "material-symbols:chart-data-outline",
   peers: "material-symbols:p2p-outline-sharp",
   barChart: "material-symbols:bar-chart-4-bars-rounded",
+  camera: "material-symbols:photo-camera-outline-rounded",
 } as const;
