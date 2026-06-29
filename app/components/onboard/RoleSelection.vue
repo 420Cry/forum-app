@@ -32,7 +32,7 @@ onMounted(() => {
     </template>
   </TitleSection>
 
-  <div class="grid grid-cols-2 gap-[18px] max-w-[640px] mx-auto mt-10">
+  <div class="grid w-full max-w-[760px] grid-cols-2 gap-[18px] mx-auto">
     <OnboardCardComponent
       v-for="role in refRoles"
       :key="role.title"

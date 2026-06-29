@@ -9,19 +9,23 @@ const fillPercent = computed(() => (props.step / props.totalSteps) * 100);
 </script>
 
 <template>
-  <div class="mb-8">
-    <div class="flex items-center justify-between mb-2">
-      <span class="text-xs text-ink-4">
-        <b class="font-semibold text-ink-3">Step {{ step }} of {{ totalSteps }}</b>
-        &nbsp;·&nbsp;{{ label }}
-      </span>
-      <span class="text-xs text-ink-4">~ 2 min total</span>
-    </div>
-    <div class="w-full h-[3px] bg-line rounded-full overflow-hidden">
+  <div class="bg-card border-b border-line px-8 pt-5 pb-[22px]">
+    <div class="mx-auto max-w-[720px]">
       <div
-        class="h-full bg-brand rounded-full transition-all duration-300"
-        :style="{ width: fillPercent + '%' }"
-      />
+        class="mb-2.5 flex items-center justify-between text-[13px] font-medium text-ink-3"
+      >
+        <span>
+          <b class="font-semibold text-ink">Step {{ step }} of {{ totalSteps }}</b>
+          &nbsp;·&nbsp;{{ label }}
+        </span>
+        <span>~ 2 min total</span>
+      </div>
+      <div class="h-1.5 w-full overflow-hidden rounded-full bg-surface-hover">
+        <div
+          class="h-full rounded-full bg-brand transition-all duration-300"
+          :style="{ width: fillPercent + '%' }"
+        />
+      </div>
     </div>
   </div>
 </template>

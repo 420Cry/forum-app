@@ -1,7 +1,8 @@
 import type { iconNameType } from "~/types/iconType";
 import type { goalsSelection } from "~/constants/onboardContent";
 
-export type roleTitlesType = "Founder" | "Investor";
+export const roleTitles = ["Founder", "Investor"] as const;
+export type roleTitlesType = (typeof roleTitles)[number];
 
 export type roleSelectionType = {
   roleTitle: roleTitlesType;

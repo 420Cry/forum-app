@@ -16,18 +16,18 @@ const { onboardInfo, infoErrors, clearInfoError } = useOnboard();
   </TitleSection>
 
   <div
-    class="max-w-[640px] mx-auto mt-8 bg-card border border-line rounded-[var(--radius-md)] p-6"
+    class="mx-auto w-full max-w-[760px] bg-card border border-line rounded-[var(--radius-md)] shadow-[var(--shadow-1)] px-8 py-7"
   >
     <!-- Photo upload -->
-    <div class="flex items-center gap-6 mb-6">
+    <div class="flex items-center gap-[22px] mb-[26px]">
       <div
         class="w-24 h-24 rounded-full border-2 border-dashed border-line-2 bg-surface-hover flex items-center justify-center text-ink-4 flex-none"
       >
         <BaseIcon name="camera" size="2em" />
       </div>
       <div>
-        <p class="text-sm font-semibold text-ink-2 mb-1">Profile photo</p>
-        <p class="text-xs text-ink-3 leading-relaxed">
+        <p class="text-[12.5px] font-semibold text-ink-2 mb-1">Profile photo</p>
+        <p class="text-[13.5px] text-ink-3 leading-relaxed">
           A clear headshot helps people recognise you. JPG or PNG, up to 5 MB.
         </p>
         <BaseButton intent="secondary" size="sm" class="mt-2">

@@ -14,7 +14,7 @@ type propsType = {
 };
 
 const props = withDefaults(defineProps<propsType>(), {
-  size: "2.5em",
+  size: "1.6em",
   class: "text-brand",
 });
 
@@ -24,60 +24,37 @@ const computedIconClass = computed(() => {
 
 const computedCardClass = computed(() => {
   return [
-    "max-w-80.5 w-full border relative p-5 flex flex-col gap-4 transition cursor-pointer md:max-w-90 lg:max-w-95",
-    "rounded-[var(--radius-lg)]",
+    "relative flex flex-col gap-4 px-6 py-[26px] cursor-pointer border-[1.5px]",
+    "rounded-[var(--radius-lg)] transition-[border-color,box-shadow] duration-150",
     {
-      "bg-card border-line shadow-[var(--shadow-1)] hover:bg-surface-hover hover:border-brand hover:shadow-[var(--shadow-2)]":
-        !props.active,
-      "bg-brand/5 border-brand shadow-[var(--shadow-2)]": props.active,
+      "bg-card border-line hover:border-line-2": !props.active,
+      "bg-card border-brand shadow-[0_0_0_3px_var(--color-brand-tint)]":
+        props.active,
     },
   ];
 });
-
-const baseMainIconClass = "flex";
-const baseIconWrapper = "bg-brand/10 flex items-center justify-center";
-const baseTitleClass = "font-semibold mb-2 text-ink text-sm";
-const baseSubtitleClass = "max-w-80 text-sm text-ink-3";
-const baseTextWrapperClass = "flex flex-col justify-center";
-const variantClasses = {
-  mainIconClass:
-    baseMainIconClass + (props.variants === "roles" ? " justify-center" : ""),
-  iconWrapper:
-    baseIconWrapper +
-    (props.variants === "roles" ? " p-4 rounded-full" : " p-3 rounded-[var(--radius-md)]"),
-  titleClass:
-    baseTitleClass + (props.variants === "roles" ? " text-center" : ""),
-  subtitleClass:
-    baseSubtitleClass + (props.variants === "roles" ? " text-center" : ""),
-  textWrapperClass:
-    baseTextWrapperClass + (props.variants === "roles" ? " items-center" : ""),
-};
 </script>
 
 <template>
   <div :class="computedCardClass">
-    <div
-      v-show="props.active"
-      class="absolute right-6 bg-brand flex justify-center p-1 rounded-full"
+    <span
+      class="absolute top-[18px] right-5 flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 transition"
+      :class="props.active ? 'bg-brand border-brand' : 'bg-card border-line-2'"
     >
-      <BaseIcon name="checkMark" size="1.5em" class="text-white" />
+      <BaseIcon v-if="props.active" name="checkMark" size="0.7em" class="text-white" />
+    </span>
+
+    <div
+      class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-tint text-brand"
+    >
+      <BaseIcon :name="iconName" :class="computedIconClass" :size="props.size" />
     </div>
 
-    <div :class="variantClasses.mainIconClass">
-      <div :class="variantClasses.iconWrapper">
-        <BaseIcon
-          :name="iconName"
-          :class="computedIconClass"
-          :size="props.size"
-        />
-      </div>
-    </div>
-
-    <div :class="variantClasses.textWrapperClass">
-      <h3 :class="variantClasses.titleClass">
+    <div class="flex flex-col">
+      <h3 class="text-[19px] font-bold leading-tight tracking-[-0.014em] text-ink">
         {{ props.title }}
       </h3>
-      <h4 :class="variantClasses.subtitleClass">
+      <h4 class="mt-2 text-[13.5px] leading-[1.55] text-ink-3">
         {{ props.description }}
       </h4>
     </div>

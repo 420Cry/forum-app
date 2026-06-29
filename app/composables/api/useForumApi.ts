@@ -1,18 +1,8 @@
 import type { HealthResponse, MeResponse } from "../../types/api";
-import { useSupabaseToken } from "../auth/useSupabaseToken";
+import { useApiConfig } from "./useApiConfig";
 
 export function useForumApi() {
-  const config = useRuntimeConfig();
-  const baseUrl = config.public.forumApiUrl;
-  const { getAccessToken } = useSupabaseToken();
-
-  async function getAuthHeaders(
-    forceRefresh = false,
-  ): Promise<Record<string, string>> {
-    const token = await getAccessToken(forceRefresh);
-    if (!token) return {};
-    return { Authorization: `Bearer ${token}` };
-  }
+  const { baseUrl, getAuthHeaders } = useApiConfig();
 
   async function fetchHealth() {
     return $fetch<HealthResponse>(`${baseUrl}/health`, {
@@ -34,24 +24,6 @@ export function useForumApi() {
     });
   }
 
-  async function createSession(): Promise<string> {
-    const headers = await getAuthHeaders(true);
-    const res = await $fetch(`${baseUrl}/auth/session`, {
-      headers,
-      method: "POST",
-      credentials: "include",
-    });
-    return res as string;
-  }
-
-  async function clearSession(): Promise<{ success: boolean }> {
-    const result = await $fetch(`${baseUrl}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    return result as { success: boolean };
-  }
-
   async function testApiCall() {
     try {
       const [health, hello] = await Promise.all([fetchHealth(), fetchHello()]);
@@ -70,7 +42,5 @@ export function useForumApi() {
     fetchHello,
     fetchMe,
     testApiCall,
-    createSession,
-    clearSession,
   };
 }

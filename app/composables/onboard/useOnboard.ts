@@ -8,6 +8,9 @@ import type {
 } from "~/types/onboard/onboardType";
 import { useZodValidation } from "../validate/useZodValidation";
 import { Info } from "~/types/onboard/schema/infoSchema";
+import { useOnboardApi } from "../api/onboard/useOnboardApi";
+import { RolePayload } from "~/types/onboard/schema/rolePayloadSchema";
+import type { ApiErrResponse } from "~/types/api";
 
 type onboardInfoType = {
   role: "" | roleTitlesType;
@@ -31,8 +34,7 @@ const onboardInfo = reactive<onboardInfoType>({
 
 const stepLabels: Record<number, string> = {
   1: "Choose your role",
-  2: "Your goals",
-  3: "About you",
+  3: "Tell us about yourself",
 };
 
 const infoErrors = ref<Record<string, string> | null>(null);
@@ -52,7 +54,14 @@ export const useOnboard = () => {
     return selectedPage?.pageName;
   });
 
-  const currentStepLabel = computed(() => stepLabels[currentStep.value] ?? "");
+  const currentStepLabel = computed(() => {
+    if (currentStep.value === 2) {
+      return onboardInfo.role === "Investor"
+        ? "Your investor goals"
+        : "Your founder goals";
+    }
+    return stepLabels[currentStep.value] ?? "";
+  });
 
   const updateOnboardPage = () => {
     onboardPage.value = onboardPage.value.map((onboardStep) => ({
@@ -63,14 +72,16 @@ export const useOnboard = () => {
 
   const toast = useToast();
 
-  const bumpStep = () => {
+  const bumpStep = async () => {
+    const { saveUserRole } = useOnboardApi();
+    const { formInputValidate } = useZodValidation();
+
     if (currentStep.value === onboardPage.value.length) {
       // TODO: submit onboardInfo and navigate to main app
       const submitInput = computed(() => {
         const { role, goals, ...rest } = onboardInfo;
         return rest;
       });
-      const { formInputValidate } = useZodValidation();
       const { data, errors } = formInputValidate(submitInput.value, Info);
       if (errors) {
         infoErrors.value = errors;
@@ -90,7 +101,33 @@ export const useOnboard = () => {
           3000,
         );
       }
-      // TODO: patch role to backend
+      try {
+        const { data, errors } = formInputValidate(
+          { role: onboardInfo.role },
+          RolePayload,
+        );
+        if (errors) {
+          return toast.showError(Object.values(errors)[0] as string, 3000);
+        }
+
+        const res = await saveUserRole(data);
+        toast.showSuccess(res.message, 1500);
+      } catch (err: unknown) {
+        const error = (err as { data?: ApiErrResponse })?.data;
+        if (!error) return toast.showError("Please try again", 2000);
+
+        if (typeof error.message === "string") {
+          return toast.showError(error.message, 2000);
+        }
+
+        if (Array.isArray(error.message)) {
+          error.message.forEach((msg) => {
+            toast.showError(msg, 1500);
+          });
+        }
+      } finally {
+        isLoading.value = false;
+      }
     }
 
     if (currentStep.value === 2) {

@@ -18,7 +18,11 @@ updateOnboardPage();
     :total-steps="totalSteps"
     :label="currentStepLabel"
   />
-  <component :is="currentPage" />
+
+  <main class="flex-1 flex flex-col items-center px-8 pt-14 pb-10">
+    <component :is="currentPage" />
+  </main>
+
   <OnboardNav
     :current-step="currentStep"
     :total-steps="totalSteps"

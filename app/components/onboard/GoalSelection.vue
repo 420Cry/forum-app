@@ -60,22 +60,22 @@ const toggleGoal = (goal: MutableGoal) => {
     </template>
   </TitleSection>
 
-  <div class="max-w-[640px] mx-auto mt-8">
+  <div class="mx-auto w-full max-w-[760px]">
     <div class="grid grid-cols-2 gap-[14px]">
       <div
         v-for="goal in goalsByRole"
         :key="goal.title"
-        class="flex gap-[14px] items-start p-5 bg-card border rounded-[var(--radius-md)] cursor-pointer transition-colors"
+        class="flex gap-[14px] items-start px-5 py-[18px] bg-card border-[1.5px] rounded-[var(--radius-md)] cursor-pointer transition-colors"
         :class="
           goal.active
-            ? 'border-brand bg-brand/5'
+            ? 'border-brand bg-brand-tint'
             : 'border-line hover:border-line-2'
         "
         @click="toggleGoal(goal)"
       >
         <!-- Square checkbox -->
         <span
-          class="relative flex-none w-[18px] h-[18px] rounded-[4px] border mt-0.5 transition-colors"
+          class="relative flex-none w-[18px] h-[18px] rounded-[4px] border-[1.5px] mt-px transition-colors"
           :class="
             goal.active ? 'bg-brand border-brand' : 'bg-card border-line-2'
           "
@@ -106,14 +106,14 @@ const toggleGoal = (goal: MutableGoal) => {
               size="1em"
               :class="goal.active ? 'text-brand' : 'text-ink-3'"
             />
-            <span class="text-sm font-semibold text-ink">{{ goal.title }}</span>
+            <span class="text-[14.5px] font-semibold text-ink">{{ goal.title }}</span>
           </div>
-          <p class="text-xs text-ink-3 leading-relaxed">{{ goal.subtitle }}</p>
+          <p class="mt-1 text-[13px] text-ink-3 leading-[1.5]">{{ goal.subtitle }}</p>
         </div>
       </div>
     </div>
 
-    <p class="mt-4 text-center text-xs text-ink-4">
+    <p class="mt-[18px] text-center text-[13px] text-ink-4">
       <b class="text-brand font-semibold">{{ selectedCount }} selected</b>
       &nbsp;·&nbsp;You can update these any time from your profile
     </p>

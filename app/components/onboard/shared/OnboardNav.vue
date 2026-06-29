@@ -14,7 +14,9 @@ const isLastStep = computed(() => props.currentStep === props.totalSteps);
 </script>
 
 <template>
-  <div class="mt-16 flex justify-between items-center">
+  <footer
+    class="flex items-center justify-between border-t border-line bg-card px-8 py-[18px]"
+  >
     <BaseButton
       :intent="isFirstStep ? 'ghost' : 'secondary'"
       size="sm"
@@ -24,13 +26,14 @@ const isLastStep = computed(() => props.currentStep === props.totalSteps);
       {{ isFirstStep ? "Skip for now" : "Back" }}
     </BaseButton>
 
-    <span class="hidden sm:block text-xs text-ink-4">
-      You can change any of this later in Settings
-    </span>
-
-    <BaseButton size="sm" @click="emit('next-page')">
-      {{ isLastStep ? "Finish & enter Fundedr" : "Continue" }}
-      <BaseIcon name="rightArrow" size="1.2em" />
-    </BaseButton>
-  </div>
+    <div class="flex items-center gap-4">
+      <span class="hidden text-[13px] text-ink-4 sm:block">
+        You can change any of this later in Settings
+      </span>
+      <BaseButton size="lg" @click="emit('next-page')">
+        {{ isLastStep ? "Finish & enter Fundedr" : "Continue" }}
+        <BaseIcon name="rightArrow" size="1.2em" />
+      </BaseButton>
+    </div>
+  </footer>
 </template>

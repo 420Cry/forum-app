@@ -24,6 +24,8 @@
   --color-brand-500: #298a8f;
   --color-brand-600: #1a7075;
   --color-brand-700: #075056;
+  /* Subtle tint for selected surfaces / focus rings */
+  --color-brand-tint: rgba(7, 80, 86, 0.07);
 
   /* Accent — Blaze Orange */
   --color-accent: #ff5b04;

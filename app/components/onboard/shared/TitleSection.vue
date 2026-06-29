@@ -1,15 +1,15 @@
 <script setup></script>
 <template>
-  <div>
-    <h1 class="text-ink text-center text-xl font-bold mb-4 md:text-3xl">
+  <div class="mx-auto mb-10 max-w-[640px] text-center">
+    <h1
+      class="text-[26px] font-bold leading-[1.15] tracking-[-0.022em] text-ink md:text-[30px]"
+    >
       <slot name="title" />
     </h1>
-    <div class="flex justify-center">
-      <h2
-        class="text-ink-3 max-w-full text-center text-xs leading-6 font-medium md:text-sm"
-      >
-        <slot name="subtitle" />
-      </h2>
-    </div>
+    <p
+      class="mt-2.5 text-sm leading-[1.55] text-ink-3 md:text-[15.5px]"
+    >
+      <slot name="subtitle" />
+    </p>
   </div>
 </template>
