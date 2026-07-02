@@ -8,7 +8,7 @@ import BaseIcon from "../shared/BaseIcon.vue";
 import { goalsSelection } from "~/constants/onboardContent";
 import type { iconNameType } from "~/types/iconType";
 
-const { onboardInfo } = useOnboard();
+const { onboardInfo, goalsRole } = useOnboard();
 
 type MutableGoal = {
   iconName: iconNameType;
@@ -19,22 +19,19 @@ type MutableGoal = {
 
 const goalsByRole = ref<MutableGoal[]>([]);
 
-watch(
-  () => onboardInfo.role,
-  (newRole, oldRole) => {
-    const isRoleChange = oldRole !== undefined && oldRole !== newRole;
-    if (isRoleChange) {
-      onboardInfo.goals = [];
-    }
-    const match = goalsSelection.find((g) => g.role === newRole);
-    const matchGoal = match ?? (goalsSelection[0] as goalsSelectionType);
-    goalsByRole.value = matchGoal.goals.map((g) => ({
-      ...g,
-      active: onboardInfo.goals.includes(g.title as goalTitlesType),
-    }));
-  },
-  { immediate: true },
-);
+const isRoleChange =
+  goalsRole.value !== "" && goalsRole.value !== onboardInfo.role;
+if (isRoleChange) {
+  onboardInfo.goals = [];
+}
+goalsRole.value = onboardInfo.role;
+
+const match = goalsSelection.find((g) => g.role === onboardInfo.role);
+const matchGoal = match ?? (goalsSelection[0] as goalsSelectionType);
+goalsByRole.value = matchGoal.goals.map((g) => ({
+  ...g,
+  active: onboardInfo.goals.includes(g.title as goalTitlesType),
+}));
 
 const selectedCount = computed(
   () => goalsByRole.value.filter((g) => g.active).length,
@@ -106,9 +103,13 @@ const toggleGoal = (goal: MutableGoal) => {
               size="1em"
               :class="goal.active ? 'text-brand' : 'text-ink-3'"
             />
-            <span class="text-[14.5px] font-semibold text-ink">{{ goal.title }}</span>
+            <span class="text-[14.5px] font-semibold text-ink">{{
+              goal.title
+            }}</span>
           </div>
-          <p class="mt-1 text-[13px] text-ink-3 leading-[1.5]">{{ goal.subtitle }}</p>
+          <p class="mt-1 text-[13px] text-ink-3 leading-[1.5]">
+            {{ goal.subtitle }}
+          </p>
         </div>
       </div>
     </div>

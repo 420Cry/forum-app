@@ -39,6 +39,8 @@ const stepLabels: Record<number, string> = {
 
 const infoErrors = ref<Record<string, string> | null>(null);
 
+const goalsRole = ref<"" | roleTitlesType>("");
+
 export const useOnboard = () => {
   const onboardPage = shallowRef([
     { step: 1, pageName: RoleSelection, active: false },
@@ -96,6 +98,7 @@ export const useOnboard = () => {
     if (currentStep.value === 1) {
       isLoading.value = true;
       if (!onboardInfo.role) {
+        isLoading.value = false;
         return toast.showError(
           "Please select your role before continue!",
           3000,
@@ -124,6 +127,7 @@ export const useOnboard = () => {
           error.message.forEach((msg) => {
             toast.showError(msg, 1500);
           });
+          return;
         }
       } finally {
         isLoading.value = false;
@@ -133,10 +137,33 @@ export const useOnboard = () => {
     if (currentStep.value === 2) {
       isLoading.value = true;
       if (onboardInfo.goals.length === 0) {
+        console.log(onboardInfo.goals);
+        isLoading.value = false;
         return toast.showError(
           "Please select at least one goal before continue!",
           3000,
         );
+      }
+      const { saveUserGoals } = useOnboardApi();
+      try {
+        const res = await saveUserGoals(onboardInfo.goals);
+        toast.showSuccess(res.message, 1500);
+      } catch (err: unknown) {
+        const error = (err as { data?: ApiErrResponse })?.data;
+        if (!error) return toast.showError("Please try again", 2000);
+
+        if (typeof error.message === "string") {
+          return toast.showError(error.message, 2000);
+        }
+
+        if (Array.isArray(error.message)) {
+          error.message.forEach((msg) => {
+            toast.showError(msg, 1500);
+          });
+        }
+        return;
+      } finally {
+        isLoading.value = false;
       }
     }
 
@@ -169,6 +196,8 @@ export const useOnboard = () => {
     backStep,
     updateOnboardPage,
     onboardInfo,
+    goalsRole,
+    isLoading,
     infoErrors: readonly(infoErrors),
     clearInfoError,
   };

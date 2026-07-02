@@ -1,4 +1,4 @@
-export interface UserRoleResponse {
+export interface OnboardResponse {
   success: boolean;
   message: string;
 }
