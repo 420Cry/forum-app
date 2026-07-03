@@ -14,8 +14,8 @@ async function submit() {
   clearError();
   await login(email.value, password.value);
   if (!error.value) {
-    toast.showSuccess("Signed in.");
-    await navigateTo("/auth");
+    toast.showSuccess("Signed in.", 1500);
+    await navigateTo("/onboard");
   }
 }
 </script>
@@ -24,7 +24,9 @@ async function submit() {
   <div>
     <div class="mb-6">
       <h2 class="text-2xl font-bold text-ink">Sign in</h2>
-      <p class="mt-1 text-sm text-ink-3">Sign in to your account to use the forum</p>
+      <p class="mt-1 text-sm text-ink-3">
+        Sign in to your account to use the forum
+      </p>
     </div>
     <div
       class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-6"
@@ -74,7 +76,10 @@ async function submit() {
       </form>
       <p class="mt-4 text-center text-sm text-ink-3">
         Don't have an account?
-        <NuxtLink to="/auth/register" class="font-semibold text-brand hover:text-brand-hover">
+        <NuxtLink
+          to="/auth/register"
+          class="font-semibold text-brand hover:text-brand-hover"
+        >
           Create account
         </NuxtLink>
       </p>

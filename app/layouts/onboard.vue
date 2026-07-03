@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import BaseButton from "~/components/shared/BaseButton.vue";
+
+const { logout } = useSupabaseAuth();
+
+const handleLogout = async () => {
+  await logout();
+  await navigateTo("/");
+};
 </script>
 
 <template>
@@ -12,7 +19,9 @@ import BaseButton from "~/components/shared/BaseButton.vue";
       >
         fund<span class="text-accent">e</span>dr
       </span>
-      <BaseButton intent="ghost" size="sm">Sign out</BaseButton>
+      <BaseButton intent="ghost" size="sm" @click="handleLogout"
+        >Sign out</BaseButton
+      >
     </header>
     <slot />
   </div>

@@ -7,7 +7,7 @@ import type {
   roleTitlesType,
 } from "~/types/onboard/onboardType";
 import { useZodValidation } from "../validate/useZodValidation";
-import { Info } from "~/types/onboard/schema/infoSchema";
+import { OnboardInfo } from "~/types/onboard/schema/onboardInfoSchema";
 import { useOnboardApi } from "../api/onboard/useOnboardApi";
 import { RolePayload } from "~/types/onboard/schema/rolePayloadSchema";
 import type { ApiErrResponse } from "~/types/api";
@@ -75,28 +75,53 @@ export const useOnboard = () => {
   const toast = useToast();
 
   const bumpStep = async () => {
-    const { saveUserRole } = useOnboardApi();
     const { formInputValidate } = useZodValidation();
-
     if (currentStep.value === onboardPage.value.length) {
-      // TODO: submit onboardInfo and navigate to main app
+      isLoading.value = true;
+      const { saveUserInfo } = useOnboardApi();
       const submitInput = computed(() => {
         const { role, goals, ...rest } = onboardInfo;
         return rest;
       });
-      const { data, errors } = formInputValidate(submitInput.value, Info);
-      if (errors) {
-        infoErrors.value = errors;
-        return;
+      try {
+        const { data, errors } = formInputValidate(
+          submitInput.value,
+          OnboardInfo,
+        );
+        if (errors) {
+          infoErrors.value = errors;
+          return;
+        }
+        infoErrors.value = null;
+        const res = await saveUserInfo(data);
+        if (!res.success) {
+          return toast.showError("Please try again later", 1500);
+        }
+        toast.showSuccess(res.message, 2000);
+        return await navigateTo("/home");
+      } catch (err: unknown) {
+        const error = (err as { data?: ApiErrResponse })?.data;
+        if (!error) return toast.showError("Please try again", 2000);
+
+        if (typeof error.message === "string") {
+          return toast.showError(error.message, 2000);
+        }
+
+        if (Array.isArray(error.message)) {
+          error.message.forEach((msg) => {
+            toast.showError(msg, 1500);
+          });
+          return;
+        }
+      } finally {
+        isLoading.value = false;
       }
-      infoErrors.value = null;
-      // TODO: submit data to backend
-      console.log("Valid info:", data);
       return;
     }
 
     if (currentStep.value === 1) {
       isLoading.value = true;
+      const { saveUserRole } = useOnboardApi();
       if (!onboardInfo.role) {
         isLoading.value = false;
         return toast.showError(
@@ -137,7 +162,6 @@ export const useOnboard = () => {
     if (currentStep.value === 2) {
       isLoading.value = true;
       if (onboardInfo.goals.length === 0) {
-        console.log(onboardInfo.goals);
         isLoading.value = false;
         return toast.showError(
           "Please select at least one goal before continue!",

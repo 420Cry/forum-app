@@ -1,7 +1,10 @@
-import type { ZodObject } from "zod";
+import type { ZodObject, output } from "zod";
 
 export const useZodValidation = () => {
-  const formInputValidate = <TInput>(input: TInput, schema: ZodObject) => {
+  const formInputValidate = <TSchema extends ZodObject>(
+    input: unknown,
+    schema: TSchema,
+  ) => {
     const result = schema.safeParse(input);
 
     if (!result.success) {
@@ -15,7 +18,7 @@ export const useZodValidation = () => {
       return { data: null, errors };
     }
 
-    return { data: result.data as TInput, errors: null };
+    return { data: result.data as output<TSchema>, errors: null };
   };
 
   return { formInputValidate };

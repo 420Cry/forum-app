@@ -15,18 +15,19 @@ const isLastStep = computed(() => props.currentStep === props.totalSteps);
 
 <template>
   <footer
-    class="flex items-center justify-between border-t border-line bg-card px-8 py-[18px]"
+    class="flex items-center justify-center border-t border-line bg-card px-8 py-[18px]"
   >
     <BaseButton
-      :intent="isFirstStep ? 'ghost' : 'secondary'"
+      v-if="!isFirstStep"
+      intent="secondary"
       size="sm"
       @click="emit('back-page')"
     >
-      <BaseIcon v-if="!isFirstStep" name="leftArrow" />
-      {{ isFirstStep ? "Skip for now" : "Back" }}
+      <BaseIcon name="leftArrow" />
+      Back
     </BaseButton>
 
-    <div class="flex items-center gap-4">
+    <div class="flex w-full justify-end items-center gap-4">
       <span class="hidden text-[13px] text-ink-4 sm:block">
         You can change any of this later in Settings
       </span>
