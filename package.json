@@ -7,11 +7,11 @@
     "node": ">=22"
   },
   "scripts": {
-    "start": "nuxt dev",
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
+    "start": "nuxt dev --dotenv .env",
+    "build": "nuxt build --dotenv .env.production",
+    "dev": "nuxt dev --dotenv .env",
+    "generate": "nuxt generate --dotenv .env.production",
+    "preview": "nuxt preview --dotenv .env.production",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
@@ -20,9 +20,11 @@
     "@nuxt/eslint": "^1.14.0",
     "@nuxtjs/supabase": "^2.0.9",
     "@tailwindcss/vite": "^4.1.18",
+    "class-variance-authority": "^0.7.1",
     "nuxt": "^4.3.0",
     "tailwindcss": "^4.1.18",
-    "vue": "^3.5.27"
+    "vue": "^3.5.27",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@iconify-json/material-symbols": "^1.2.61",

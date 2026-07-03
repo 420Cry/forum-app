@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useSupabaseAuth, useToast } from "~/composables";
+import BaseButton from "~/components/shared/BaseButton.vue";
+import BaseInput from "~/components/shared/BaseInput.vue";
 
 definePageMeta({ layout: "auth" });
 
@@ -12,8 +14,8 @@ async function submit() {
   clearError();
   await login(email.value, password.value);
   if (!error.value) {
-    toast.showSuccess("Signed in.");
-    await navigateTo("/auth");
+    toast.showSuccess("Signed in.", 1500);
+    await navigateTo("/onboard");
   }
 }
 </script>
@@ -21,70 +23,62 @@ async function submit() {
 <template>
   <div>
     <div class="mb-6">
-      <h2 class="text-xl font-semibold text-slate-800">Sign in</h2>
-      <p class="mt-1 text-slate-500">
+      <h2 class="text-2xl font-bold text-ink">Sign in</h2>
+      <p class="mt-1 text-sm text-ink-3">
         Sign in to your account to use the forum
       </p>
     </div>
-    <div class="mx-auto max-w-md rounded-lg border bg-white p-6 shadow-sm">
+    <div
+      class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-6"
+    >
       <form class="space-y-4" @submit.prevent="submit">
         <div>
-          <label
-            for="email"
-            class="mb-1 block text-sm font-medium text-slate-700"
-          >
-            Email
-          </label>
-          <input
+          <BaseInput
             id="email"
             v-model="email"
+            label="Email"
             type="email"
             required
-            class="w-full rounded border border-slate-300 px-3 py-2 text-slate-800 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
             placeholder="you@example.com"
-          >
+          />
         </div>
         <div>
           <div class="mb-1 flex items-center justify-between">
-            <label
-              for="password"
-              class="block text-sm font-medium text-slate-700"
-            >
+            <label for="password" class="text-sm font-semibold text-ink-2">
               Password
             </label>
             <NuxtLink
               to="/auth/forgot-password"
-              class="text-sm text-slate-600 hover:text-slate-800"
+              class="text-sm text-ink-3 hover:text-ink"
             >
               Forgot password?
             </NuxtLink>
           </div>
-          <input
+          <BaseInput
             id="password"
             v-model="password"
+            label=""
             type="password"
             required
             minlength="6"
-            class="w-full rounded border border-slate-300 px-3 py-2 text-slate-800 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
             placeholder="••••••••"
-          >
+          />
         </div>
-        <p v-if="error" class="text-sm text-red-600">
-          {{ error }}
-        </p>
-        <button
+        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        <BaseButton
           type="submit"
           :disabled="loading"
-          class="w-full rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+          size="md"
+          class="w-full justify-center"
         >
           {{ loading ? "Signing in..." : "Sign in" }}
-        </button>
+        </BaseButton>
       </form>
-      <p class="mt-4 text-center text-sm text-slate-500">
+      <p class="mt-4 text-center text-sm text-ink-3">
         Don't have an account?
         <NuxtLink
           to="/auth/register"
-          class="font-medium text-slate-700 hover:text-slate-900"
+          class="font-semibold text-brand hover:text-brand-hover"
         >
           Create account
         </NuxtLink>

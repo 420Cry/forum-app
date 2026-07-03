@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useToast } from "~/composables";
+import BaseButton from "~/components/shared/BaseButton.vue";
+import BaseInput from "~/components/shared/BaseInput.vue";
 
 definePageMeta({ layout: "auth" });
 
@@ -32,39 +34,34 @@ async function submit() {
 </script>
 
 <template>
-  <div class="mx-auto max-w-md rounded-lg border bg-white p-6 shadow-sm">
-    <h2 class="text-xl font-semibold text-slate-800">Set a new password</h2>
-    <p v-if="!ready" class="mt-2 text-sm text-slate-500">
+  <div
+    class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-6"
+  >
+    <h2 class="text-2xl font-bold text-ink">Set a new password</h2>
+    <p v-if="!ready" class="mt-2 text-sm text-ink-3">
       Open the reset link from your email to continue.
     </p>
     <form v-else class="mt-4 space-y-4" @submit.prevent="submit">
       <div>
-        <label
-          for="password"
-          class="mb-1 block text-sm font-medium text-slate-700"
-        >
-          New password
-        </label>
-        <input
+        <BaseInput
           id="password"
           v-model="password"
+          label="New password"
           type="password"
           required
           minlength="6"
-          class="w-full rounded border border-slate-300 px-3 py-2 text-slate-800 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
           placeholder="••••••••"
-        >
+        />
       </div>
-      <p v-if="error" class="text-sm text-red-600">
-        {{ error }}
-      </p>
-      <button
+      <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+      <BaseButton
         type="submit"
         :disabled="loading"
-        class="w-full rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+        size="md"
+        class="w-full justify-center"
       >
         {{ loading ? "Saving..." : "Update password" }}
-      </button>
+      </BaseButton>
     </form>
   </div>
 </template>

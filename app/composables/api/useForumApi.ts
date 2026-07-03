@@ -1,30 +1,27 @@
 import type { HealthResponse, MeResponse } from "../../types/api";
-import { useSupabaseToken } from "../auth/useSupabaseToken";
+import { useApiConfig } from "./useApiConfig";
 
 export function useForumApi() {
-  const config = useRuntimeConfig();
-  const baseUrl = config.public.forumApiUrl;
-  const { getAccessToken } = useSupabaseToken();
-
-  async function getAuthHeaders(
-    forceRefresh = false,
-  ): Promise<Record<string, string>> {
-    const token = await getAccessToken(forceRefresh);
-    if (!token) return {};
-    return { Authorization: `Bearer ${token}` };
-  }
+  const { baseUrl, getAuthHeaders } = useApiConfig();
 
   async function fetchHealth() {
-    return $fetch<HealthResponse>(`${baseUrl}/health`);
+    return $fetch<HealthResponse>(`${baseUrl}/health`, {
+      credentials: "include",
+    });
   }
 
   async function fetchHello() {
-    return $fetch<string>(baseUrl);
+    return $fetch<string>(baseUrl, {
+      credentials: "include",
+    });
   }
 
   async function fetchMe() {
     const headers = await getAuthHeaders();
-    return $fetch<MeResponse>(`${baseUrl}/auth/me`, { headers });
+    return $fetch<MeResponse>(`${baseUrl}/auth/me`, {
+      headers,
+      credentials: "include",
+    });
   }
 
   async function testApiCall() {

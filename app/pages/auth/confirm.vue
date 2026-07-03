@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useSupabaseAuth } from "~/composables";
+import BaseButton from "~/components/shared/BaseButton.vue";
 
 definePageMeta({ layout: "auth" });
 
@@ -28,22 +29,23 @@ async function retry() {
 
 <template>
   <div
-    class="mx-auto max-w-md rounded-lg border bg-white p-8 text-center shadow-sm"
+    class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-8 text-center"
   >
-    <p v-if="status === 'confirming'" class="text-slate-600">
+    <p v-if="status === 'confirming'" class="text-ink-3">
       Confirming your email...
     </p>
-    <p v-else-if="status === 'failed'" class="text-slate-600">
+    <p v-else-if="status === 'failed'" class="text-ink-3">
       We could not confirm your email yet. Try again after clicking the link in
       your inbox.
     </p>
-    <button
+    <BaseButton
       v-if="status === 'failed'"
       type="button"
-      class="mt-4 rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+      size="md"
+      class="mt-4"
       @click="retry"
     >
       Check again
-    </button>
+    </BaseButton>
   </div>
 </template>
