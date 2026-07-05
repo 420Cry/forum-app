@@ -61,7 +61,8 @@
       "sign_in_or_create": "Sign in or create an account to continue",
       "signed_in_toast": "Signed in.",
       "account_created_toast": "Account created. Check your email to verify your address.",
-      "password_updated_toast": "Password updated. You can sign in now."
+      "password_updated_toast": "Password updated. You can sign in now.",
+      "local_dev_email_inbox": "Local dev: open http://127.0.0.1:54324 to read verification emails."
     },
     "action": {
       "sign_in": "Sign in",
@@ -87,7 +88,8 @@
       "password_number": "Password must include at least 1 number",
       "password_uppercase": "Password must include at least 1 uppercase letter",
       "password_lowercase": "Password must include at least 1 lowercase letter",
-      "password_special": "Password must include at least 1 special character"
+      "password_special": "Password must include at least 1 special character",
+      "session_invalid": "Your session could not be verified. Sign in again after confirming your email."
     }
   },
   "onboard": {

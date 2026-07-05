@@ -61,7 +61,8 @@
       "sign_in_or_create": "Đăng nhập hoặc tạo tài khoản để tiếp tục",
       "signed_in_toast": "Đã đăng nhập.",
       "account_created_toast": "Tài khoản đã được tạo. Kiểm tra email để xác minh địa chỉ.",
-      "password_updated_toast": "Mật khẩu đã được cập nhật. Bạn có thể đăng nhập ngay."
+      "password_updated_toast": "Mật khẩu đã được cập nhật. Bạn có thể đăng nhập ngay.",
+      "local_dev_email_inbox": "Môi trường local: mở http://127.0.0.1:54324 để đọc email xác minh."
     },
     "action": {
       "sign_in": "Đăng nhập",
@@ -87,7 +88,8 @@
       "password_number": "Mật khẩu phải có ít nhất 1 chữ số",
       "password_uppercase": "Mật khẩu phải có ít nhất 1 chữ hoa",
       "password_lowercase": "Mật khẩu phải có ít nhất 1 chữ thường",
-      "password_special": "Mật khẩu phải có ít nhất 1 ký tự đặc biệt"
+      "password_special": "Mật khẩu phải có ít nhất 1 ký tự đặc biệt",
+      "session_invalid": "Không thể xác minh phiên đăng nhập. Hãy đăng nhập lại sau khi xác minh email."
     }
   },
   "onboard": {

@@ -16,6 +16,7 @@ const {
 } = useSupabaseAuth()
 const verificationResent = ref(false)
 const checkingVerification = ref(false)
+const isDev = import.meta.dev
 
 onMounted(() => {
   if (user.value && !user.value.emailVerified) {
@@ -73,6 +74,12 @@ async function handleResendVerification() {
         </p>
         <p class="mt-1 text-amber-700">
           {{ t('auth.info.verify_email_prompt', { email: user.email }) }}
+        </p>
+        <p
+          v-if="isDev"
+          class="mt-2 text-xs text-amber-700"
+        >
+          {{ t('auth.info.local_dev_email_inbox') }}
         </p>
         <p
           v-if="verificationResent"

@@ -3,6 +3,7 @@ services:
     container_name: forum-app
     env_file:
       - .env
+      - .env.local
     extra_hosts:
       - "host.docker.internal:host-gateway"
     build:

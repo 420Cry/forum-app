@@ -41,13 +41,12 @@ export default defineNuxtConfig({
     },
   },
   i18n: {
-    restructureDir: false,
+    restructureDir: '.',
     defaultLocale: 'en',
     locales: [
       { code: 'en', name: 'English', file: 'en/forum-common.json' },
       { code: 'vn', name: 'Tiếng Việt', file: 'vn/forum-common.json' },
     ],
-    lazy: true,
     langDir: 'locales',
     strategy: 'no_prefix',
     detectBrowserLanguage: {
@@ -62,6 +61,7 @@ export default defineNuxtConfig({
   supabase: {
     redirect: false,
     redirectOptions: {
+      login: '/auth/login',
       callback: '/auth/confirm',
       exclude: ['/auth/confirm'],
     },

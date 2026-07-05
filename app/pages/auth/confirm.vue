@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import { useSupabaseAuth } from '~/composables'
+import { postAuthPath } from '~/types/user'
 import BaseButton from '~/components/shared/BaseButton.vue'
 
 definePageMeta({ layout: 'auth' })
 
 const { t } = useI18n()
 const { refreshUser } = useSupabaseAuth()
+const { refreshProfile } = useUserProfile()
 const status = ref<'confirming' | 'verified' | 'failed'>('confirming')
+
+async function goToPostAuth() {
+  const me = await refreshProfile(true)
+  await navigateTo(postAuthPath(me?.profile ?? null))
+}
 
 onMounted(async () => {
   const verified = await refreshUser()
   if (verified) {
-    await navigateTo('/auth')
+    await goToPostAuth()
     return
   }
   status.value = 'failed'
@@ -21,7 +28,7 @@ async function retry() {
   status.value = 'confirming'
   const verified = await refreshUser()
   if (verified) {
-    await navigateTo('/auth')
+    await goToPostAuth()
     return
   }
   status.value = 'failed'

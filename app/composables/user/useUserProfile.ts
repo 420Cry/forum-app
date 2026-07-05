@@ -1,10 +1,12 @@
 import type { AuthMeResponse } from '~/types/user'
 import { isOnboardingComplete } from '~/types/user'
+import { isFetchUnauthorized } from '~/utils/authSession'
 import { useUserApi } from '../api/useUserApi'
 
 export function useUserProfile() {
   const profile = useState<AuthMeResponse | null>('forum-user-me', () => null)
   const loading = useState('forum-user-me-loading', () => false)
+  const unauthorized = useState('forum-user-me-unauthorized', () => false)
 
   const isComplete = computed(() =>
     isOnboardingComplete(profile.value?.profile ?? null),
@@ -17,10 +19,12 @@ export function useUserProfile() {
     try {
       const { fetchMe } = useUserApi()
       profile.value = await fetchMe()
+      unauthorized.value = false
       return profile.value
     }
-    catch {
+    catch (err) {
       profile.value = null
+      unauthorized.value = isFetchUnauthorized(err)
       return null
     }
     finally {
@@ -30,11 +34,13 @@ export function useUserProfile() {
 
   function clearProfile() {
     profile.value = null
+    unauthorized.value = false
   }
 
   return {
     profile,
     loading,
+    unauthorized,
     isComplete,
     refreshProfile,
     clearProfile,

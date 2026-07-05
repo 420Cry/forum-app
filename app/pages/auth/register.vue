@@ -28,7 +28,7 @@ async function submit() {
   await register(email.value, password.value)
   if (!error.value) {
     toast.showSuccess(t('auth.info.account_created_toast'))
-    await navigateTo('/auth')
+    await navigateTo('/auth', { replace: true })
   }
 }
 </script>

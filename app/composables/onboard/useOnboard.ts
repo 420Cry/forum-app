@@ -13,6 +13,7 @@ import { createRolePayloadSchema } from '~/types/onboard/schema/rolePayloadSchem
 import type { ApiErrResponse } from '~/types/api'
 import type { UserProfile } from '~/types/user'
 import { onboardStepFromProcess } from '~/types/user'
+import { isFetchUnauthorized } from '~/utils/authSession'
 import { useUserProfile } from '../user/useUserProfile'
 
 type onboardInfoType = {
@@ -80,6 +81,13 @@ export const useOnboard = () => {
   const toast = useToast()
   const { refreshProfile } = useUserProfile()
 
+  async function handleUnauthorized(err: unknown) {
+    if (!isFetchUnauthorized(err)) return false
+    toast.showError(t('auth.error.session_invalid'), 4000)
+    await navigateTo('/auth')
+    return true
+  }
+
   const hydrateFromProfile = (profile: UserProfile | null) => {
     if (!profile || profile.onboard_process === 'Completed') return
 
@@ -128,6 +136,7 @@ export const useOnboard = () => {
         return await navigateTo('/home')
       }
       catch (err: unknown) {
+        if (await handleUnauthorized(err)) return
         const error = (err as { data?: ApiErrResponse })?.data
         if (!error) return toast.showError(t('common.error.try_again'), 2000)
 
@@ -172,6 +181,7 @@ export const useOnboard = () => {
         await refreshProfile(true)
       }
       catch (err: unknown) {
+        if (await handleUnauthorized(err)) return
         const error = (err as { data?: ApiErrResponse })?.data
         if (!error) return toast.showError(t('common.error.try_again'), 2000)
 
@@ -207,6 +217,7 @@ export const useOnboard = () => {
         await refreshProfile(true)
       }
       catch (err: unknown) {
+        if (await handleUnauthorized(err)) return
         const error = (err as { data?: ApiErrResponse })?.data
         if (!error) return toast.showError(t('common.error.try_again'), 2000)
 

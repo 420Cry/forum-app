@@ -1,6 +1,7 @@
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { useSupabaseToken } from './useSupabaseToken'
 import { useUserProfile } from '../user/useUserProfile'
+import { isEmailVerified } from '~/utils/authSession'
 
 export interface AuthUser {
   id: string
@@ -8,12 +9,16 @@ export interface AuthUser {
   emailVerified: boolean
 }
 
+export interface RegisterResult {
+  needsVerification: boolean
+}
+
 function toAuthUser(u: SupabaseUser | null | undefined): AuthUser | null {
   if (!u) return null
   return {
     id: u.id,
     email: u.email ?? null,
-    emailVerified: !!u.email_confirmed_at,
+    emailVerified: isEmailVerified(u),
   }
 }
 
@@ -46,6 +51,9 @@ export function useSupabaseAuth() {
     return isSupabaseUser(current) ? toAuthUser(current) : null
   })
   const isAuthenticated = computed(() => !!user.value)
+  const canAccessApp = computed(
+    () => !!user.value?.emailVerified && !!supabaseUser.value,
+  )
 
   if (import.meta.client) {
     const handleVisibilityChange = () => {
@@ -87,7 +95,10 @@ export function useSupabaseAuth() {
     }
   }
 
-  async function register(email: string, password: string) {
+  async function register(
+    email: string,
+    password: string,
+  ): Promise<RegisterResult | undefined> {
     loading.value = true
     error.value = null
     try {
@@ -102,7 +113,13 @@ export function useSupabaseAuth() {
         error.value = err.message
         return
       }
+
       refreshedUser.value = data.user
+
+      const needsVerification
+        = !data.session && !isEmailVerified(data.user)
+
+      return { needsVerification }
     }
     finally {
       loading.value = false
@@ -173,6 +190,7 @@ export function useSupabaseAuth() {
     error,
     clearError,
     isAuthenticated,
+    canAccessApp,
     login,
     register,
     logout,

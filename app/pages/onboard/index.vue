@@ -5,6 +5,8 @@ import { isOnboardingComplete } from '~/types/user'
 
 definePageMeta({ layout: 'onboard' })
 
+const { t } = useI18n()
+const toast = useToast()
 const {
   currentPage,
   currentStep,
@@ -15,12 +17,19 @@ const {
   updateOnboardPage,
   hydrateFromProfile,
 } = useOnboard()
-const { refreshProfile } = useUserProfile()
+const { refreshProfile, unauthorized } = useUserProfile()
 
 const totalSteps = onboardPage.value.length
 
 onMounted(async () => {
   const me = await refreshProfile(true)
+
+  if (unauthorized.value) {
+    toast.showError(t('auth.error.session_invalid'), 4000)
+    await navigateTo('/auth')
+    return
+  }
+
   const userProfile = me?.profile ?? null
 
   if (isOnboardingComplete(userProfile)) {
