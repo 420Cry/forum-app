@@ -9,6 +9,7 @@ export function useUserApi() {
     return $fetch<AuthMeResponse>(`${baseUrl}/auth/me`, {
       headers,
       credentials: 'include',
+      timeout: 8_000,
     })
   }
 

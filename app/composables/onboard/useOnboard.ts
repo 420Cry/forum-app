@@ -179,6 +179,9 @@ export const useOnboard = () => {
         const res = await saveUserRole(data)
         toast.showSuccess(res.message, 1500)
         await refreshProfile(true)
+        currentStep.value++
+        updateOnboardPage()
+        return
       }
       catch (err: unknown) {
         if (await handleUnauthorized(err)) return
@@ -199,6 +202,7 @@ export const useOnboard = () => {
       finally {
         isLoading.value = false
       }
+      return
     }
 
     if (currentStep.value === 2) {
@@ -215,6 +219,9 @@ export const useOnboard = () => {
         const res = await saveUserGoals(onboardInfo.goals)
         toast.showSuccess(res.message, 1500)
         await refreshProfile(true)
+        currentStep.value++
+        updateOnboardPage()
+        return
       }
       catch (err: unknown) {
         if (await handleUnauthorized(err)) return
@@ -235,10 +242,8 @@ export const useOnboard = () => {
       finally {
         isLoading.value = false
       }
+      return
     }
-
-    currentStep.value++
-    updateOnboardPage()
   }
 
   const clearInfoError = (field: string) => {
