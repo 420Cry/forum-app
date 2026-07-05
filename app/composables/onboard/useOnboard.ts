@@ -84,7 +84,7 @@ export const useOnboard = () => {
   async function handleUnauthorized(err: unknown) {
     if (!isFetchUnauthorized(err)) return false
     toast.showError(t('auth.error.session_invalid'), 4000)
-    await navigateTo('/auth')
+    await navigateTo('/auth/login')
     return true
   }
 

@@ -26,7 +26,7 @@ onMounted(async () => {
 
   if (unauthorized.value) {
     toast.showError(t('auth.error.session_invalid'), 4000)
-    await navigateTo('/auth')
+    await navigateTo('/auth/login')
     return
   }
 

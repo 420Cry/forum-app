@@ -1,4 +1,4 @@
-import type { Session } from '@supabase/supabase-js'
+import type { Session, User } from '@supabase/supabase-js'
 
 type EmailVerificationState = {
   email_confirmed_at?: string | null
@@ -11,6 +11,18 @@ export function isEmailVerified(user: unknown): boolean {
 
 export function hasAccessToken(session: Session | null | undefined): boolean {
   return !!session?.access_token
+}
+
+export function resolveAuthUser(
+  supabaseUser: unknown,
+  session: Session | null | undefined,
+  fetchedUser?: User | null | undefined,
+): User | null {
+  if (fetchedUser) return fetchedUser
+  if (supabaseUser && typeof supabaseUser === 'object' && 'id' in supabaseUser) {
+    return supabaseUser as User
+  }
+  return session?.user ?? null
 }
 
 export function isFetchUnauthorized(err: unknown): boolean {

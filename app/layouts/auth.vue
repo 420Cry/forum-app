@@ -1,10 +1,8 @@
 <template>
   <div class="min-h-screen bg-surface">
-    <header class="border-b border-line bg-card">
-      <div class="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-        <h1 class="text-xl font-semibold text-ink">
-          {{ $t('common.heading.forum') }}
-        </h1>
+    <header class="h-14 border-b border-line bg-card">
+      <div class="mx-auto flex h-full max-w-3xl items-center justify-between px-6">
+        <SharedAppLogo />
         <LocaleSwitcher />
       </div>
     </header>
