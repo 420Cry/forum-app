@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite'
 const currentDir = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineNuxtConfig({
-  modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxtjs/supabase'],
+  modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxtjs/supabase', '@nuxtjs/i18n'],
   devtools: { enabled: true },
   css: ['./app/assets/css/main.css'],
   runtimeConfig: {
@@ -38,6 +38,22 @@ export default defineNuxtConfig({
       stylistic: {
         semi: false,
       },
+    },
+  },
+  i18n: {
+    restructureDir: false,
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', name: 'English', file: 'en/forum-common.json' },
+      { code: 'vn', name: 'Tiếng Việt', file: 'vn/forum-common.json' },
+    ],
+    lazy: true,
+    langDir: 'locales',
+    strategy: 'no_prefix',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'forum_locale',
+      fallbackLocale: 'en',
     },
   },
   icon: {

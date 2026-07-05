@@ -3,6 +3,7 @@ import { useSupabaseAuth } from '~/composables'
 
 definePageMeta({ layout: 'auth' })
 
+const { t } = useI18n()
 const {
   user,
   logout,
@@ -54,7 +55,11 @@ async function handleResendVerification() {
             {{ user.email }}
           </p>
           <p class="text-sm text-slate-500">
-            {{ user.emailVerified ? "Signed in" : "Email not verified" }}
+            {{
+              user.emailVerified
+                ? t('auth.info.signed_in_status')
+                : t('auth.info.email_not_verified_status')
+            }}
           </p>
         </div>
       </div>
@@ -64,17 +69,16 @@ async function handleResendVerification() {
         class="mt-4 rounded border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800"
       >
         <p class="font-medium">
-          Verify your email
+          {{ t('auth.heading.verify_email') }}
         </p>
         <p class="mt-1 text-amber-700">
-          We sent a verification link to {{ user.email }}. Check your inbox or
-          resend below.
+          {{ t('auth.info.verify_email_prompt', { email: user.email }) }}
         </p>
         <p
           v-if="verificationResent"
           class="mt-2 font-medium text-green-700"
         >
-          Verification email sent.
+          {{ t('auth.info.verification_email_sent') }}
         </p>
         <p
           v-if="error"
@@ -88,7 +92,11 @@ async function handleResendVerification() {
           class="mt-3 mr-3 rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
           @click="handleCheckVerified"
         >
-          {{ checkingVerification ? "Checking..." : "I've verified my email" }}
+          {{
+            checkingVerification
+              ? t('auth.action.checking')
+              : t('auth.action.check_verified')
+          }}
         </button>
         <button
           type="button"
@@ -96,7 +104,11 @@ async function handleResendVerification() {
           class="mt-3 rounded bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
           @click="handleResendVerification"
         >
-          {{ loading ? "Sending..." : "Resend verification email" }}
+          {{
+            loading
+              ? t('auth.action.sending')
+              : t('auth.action.resend_verification')
+          }}
         </button>
       </div>
 
@@ -109,7 +121,7 @@ async function handleResendVerification() {
           class="rounded border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           @click="logout"
         >
-          Sign out
+          {{ t('common.action.sign_out') }}
         </button>
       </div>
     </div>
@@ -120,23 +132,23 @@ async function handleResendVerification() {
     class="mx-auto max-w-md rounded-lg border bg-white p-8 shadow-sm text-center"
   >
     <h2 class="text-xl font-semibold text-slate-800">
-      Account
+      {{ t('auth.heading.account') }}
     </h2>
     <p class="mt-2 text-slate-500">
-      Sign in or create an account to continue
+      {{ t('auth.info.sign_in_or_create') }}
     </p>
     <div class="mt-6 flex flex-col gap-3">
       <NuxtLink
         to="/auth/login"
         class="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
       >
-        Sign in
+        {{ t('auth.action.sign_in') }}
       </NuxtLink>
       <NuxtLink
         to="/auth/register"
         class="rounded border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
       >
-        Create account
+        {{ t('auth.action.create_account') }}
       </NuxtLink>
     </div>
   </div>

@@ -2,6 +2,7 @@
 import type { ToastType } from '~/composables/useToast'
 
 const { toasts, remove } = useToast()
+const { t } = useI18n()
 
 const typeStyles: Record<ToastType, string> = {
   success: 'border-green-200 bg-green-50 text-green-800',
@@ -24,22 +25,22 @@ const typeStyles: Record<ToastType, string> = {
       leave-to-class="opacity-0 translate-x-4"
     >
       <div
-        v-for="t in toasts"
-        :key="t.id"
+        v-for="toast in toasts"
+        :key="toast.id"
         class="pointer-events-auto relative min-w-[280px] max-w-md rounded-lg border px-4 py-3 pr-8 shadow-lg"
-        :class="typeStyles[t.type]"
+        :class="typeStyles[toast.type]"
         role="alert"
       >
         <p class="text-sm font-medium">
-          {{ t.message }}
+          {{ toast.message }}
         </p>
         <button
           type="button"
           class="absolute right-2 top-2 rounded p-1 opacity-70 hover:opacity-100"
-          aria-label="Dismiss"
-          @click="remove(t.id)"
+          :aria-label="t('common.aria.dismiss')"
+          @click="remove(toast.id)"
         >
-          <span class="sr-only">Dismiss</span>
+          <span class="sr-only">{{ t('common.action.dismiss') }}</span>
           <span aria-hidden="true">&times;</span>
         </button>
       </div>

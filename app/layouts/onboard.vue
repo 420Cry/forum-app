@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '~/components/shared/BaseButton.vue'
 
+const { t } = useI18n()
 const { logout } = useSupabaseAuth()
 
 const handleLogout = async () => {
@@ -19,13 +20,16 @@ const handleLogout = async () => {
       >
         fund<span class="text-accent">e</span>dr
       </span>
-      <BaseButton
-        intent="ghost"
-        size="sm"
-        @click="handleLogout"
-      >
-        Sign out
-      </BaseButton>
+      <div class="flex items-center gap-3">
+        <LocaleSwitcher />
+        <BaseButton
+          intent="ghost"
+          size="sm"
+          @click="handleLogout"
+        >
+          {{ t('common.action.sign_out') }}
+        </BaseButton>
+      </div>
     </header>
     <slot />
   </div>

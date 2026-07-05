@@ -2,14 +2,18 @@
 import { useToast } from '~/composables'
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
+import PasswordRequirements from '~/components/auth/PasswordRequirements.vue'
+import { createPasswordSchema } from '~/utils/passwordSchema'
 
 definePageMeta({ layout: 'auth' })
 
+const { t } = useI18n()
 const supabase = useSupabaseClient()
 const toast = useToast()
 const password = ref('')
 const loading = ref(false)
 const error = ref<string | null>(null)
+const passwordError = ref<string | null>(null)
 const ready = ref(false)
 
 onMounted(async () => {
@@ -20,6 +24,16 @@ onMounted(async () => {
 async function submit() {
   loading.value = true
   error.value = null
+  passwordError.value = null
+
+  const passwordSchema = createPasswordSchema(t)
+  const validation = passwordSchema.safeParse(password.value)
+  if (!validation.success) {
+    passwordError.value = validation.error.issues[0]?.message ?? null
+    loading.value = false
+    return
+  }
+
   const { error: err } = await supabase.auth.updateUser({
     password: password.value,
   })
@@ -28,7 +42,7 @@ async function submit() {
     error.value = err.message
     return
   }
-  toast.showSuccess('Password updated. You can sign in now.')
+  toast.showSuccess(t('auth.info.password_updated_toast'))
   await navigateTo('/auth/login')
 }
 </script>
@@ -38,13 +52,13 @@ async function submit() {
     class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-6"
   >
     <h2 class="text-2xl font-bold text-ink">
-      Set a new password
+      {{ t('auth.heading.set_new_password') }}
     </h2>
     <p
       v-if="!ready"
       class="mt-2 text-sm text-ink-3"
     >
-      Open the reset link from your email to continue.
+      {{ t('auth.info.open_reset_link') }}
     </p>
     <form
       v-else
@@ -55,12 +69,14 @@ async function submit() {
         <BaseInput
           id="password"
           v-model="password"
-          label="New password"
+          :label="t('auth.label.new_password')"
           type="password"
           required
-          minlength="6"
-          placeholder="••••••••"
+          :placeholder="t('auth.label.password_placeholder')"
+          :intent="passwordError ? 'error' : 'primary'"
+          :error-msg="passwordError ?? undefined"
         />
+        <PasswordRequirements :password="password" />
       </div>
       <p
         v-if="error"
@@ -74,7 +90,11 @@ async function submit() {
         size="md"
         class="w-full justify-center"
       >
-        {{ loading ? "Saving..." : "Update password" }}
+        {{
+          loading
+            ? t('auth.action.saving')
+            : t('auth.action.update_password')
+        }}
       </BaseButton>
     </form>
   </div>

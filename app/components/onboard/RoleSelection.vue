@@ -6,6 +6,7 @@ import { roleSelection } from '~/constants/onboardContent'
 import type { roleSelectionType } from '~/types/onboard/onboardType'
 import setElementActive from '~/utils/setActiveElement'
 
+const { t } = useI18n()
 const refRoles = ref(roleSelection)
 const { onboardInfo } = useOnboard()
 
@@ -26,21 +27,20 @@ onMounted(() => {
 <template>
   <TitleSection>
     <template #title>
-      What brings you to Fundedr?
+      {{ t('onboard.heading.role_prompt') }}
     </template>
     <template #subtitle>
-      Pick the option that fits you best. You can hold both roles later — this
-      just sets up your home feed.
+      {{ t('onboard.info.role_subtitle') }}
     </template>
   </TitleSection>
 
   <div class="grid w-full max-w-[760px] grid-cols-2 gap-[18px] mx-auto">
     <OnboardCardComponent
       v-for="role in refRoles"
-      :key="role.title"
+      :key="role.roleTitle"
       :icon-name="role.iconName"
-      :title="role.title"
-      :description="role.description"
+      :title="t(role.titleKey)"
+      :description="t(role.descriptionKey)"
       :active="role.active"
       variants="roles"
       @click="handleSelectedRole(role)"

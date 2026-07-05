@@ -7,9 +7,9 @@ import type {
   roleTitlesType,
 } from '~/types/onboard/onboardType'
 import { useZodValidation } from '../validate/useZodValidation'
-import { OnboardInfo } from '~/types/onboard/schema/onboardInfoSchema'
+import { createOnboardInfoSchema } from '~/types/onboard/schema/onboardInfoSchema'
 import { useOnboardApi } from '../api/onboard/useOnboardApi'
-import { RolePayload } from '~/types/onboard/schema/rolePayloadSchema'
+import { createRolePayloadSchema } from '~/types/onboard/schema/rolePayloadSchema'
 import type { ApiErrResponse } from '~/types/api'
 import type { UserProfile } from '~/types/user'
 import { onboardStepFromProcess } from '~/types/user'
@@ -35,9 +35,9 @@ const onboardInfo = reactive<onboardInfoType>({
   occupation: '',
 })
 
-const stepLabels: Record<number, string> = {
-  1: 'Choose your role',
-  3: 'Tell us about yourself',
+const stepLabelKeys: Record<number, string> = {
+  1: 'onboard.heading.choose_role',
+  3: 'onboard.heading.about_yourself',
 }
 
 const infoErrors = ref<Record<string, string> | null>(null)
@@ -45,6 +45,7 @@ const infoErrors = ref<Record<string, string> | null>(null)
 const goalsRole = ref<'' | roleTitlesType>('')
 
 export const useOnboard = () => {
+  const { t } = useI18n()
   const onboardPage = shallowRef([
     { step: 1, pageName: RoleSelection, active: false },
     { step: 2, pageName: GoalSelection, active: false },
@@ -62,10 +63,11 @@ export const useOnboard = () => {
   const currentStepLabel = computed(() => {
     if (currentStep.value === 2) {
       return onboardInfo.role === 'Investor'
-        ? 'Your investor goals'
-        : 'Your founder goals'
+        ? t('onboard.heading.investor_goals')
+        : t('onboard.heading.founder_goals')
     }
-    return stepLabels[currentStep.value] ?? ''
+    const key = stepLabelKeys[currentStep.value]
+    return key ? t(key) : ''
   })
 
   const updateOnboardPage = () => {
@@ -110,7 +112,7 @@ export const useOnboard = () => {
       try {
         const { data, errors } = formInputValidate(
           submitInput.value,
-          OnboardInfo,
+          createOnboardInfoSchema(t),
         )
         if (errors) {
           infoErrors.value = errors
@@ -119,7 +121,7 @@ export const useOnboard = () => {
         infoErrors.value = null
         const res = await saveUserInfo(data)
         if (!res.success) {
-          return toast.showError('Please try again later', 1500)
+          return toast.showError(t('common.error.try_again_later'), 1500)
         }
         toast.showSuccess(res.message, 2000)
         await refreshProfile(true)
@@ -127,7 +129,7 @@ export const useOnboard = () => {
       }
       catch (err: unknown) {
         const error = (err as { data?: ApiErrResponse })?.data
-        if (!error) return toast.showError('Please try again', 2000)
+        if (!error) return toast.showError(t('common.error.try_again'), 2000)
 
         if (typeof error.message === 'string') {
           return toast.showError(error.message, 2000)
@@ -152,14 +154,14 @@ export const useOnboard = () => {
       if (!onboardInfo.role) {
         isLoading.value = false
         return toast.showError(
-          'Please select your role before continue!',
+          t('onboard.error.select_role'),
           3000,
         )
       }
       try {
         const { data, errors } = formInputValidate(
           { role: onboardInfo.role },
-          RolePayload,
+          createRolePayloadSchema(t),
         )
         if (errors) {
           return toast.showError(Object.values(errors)[0] as string, 3000)
@@ -171,7 +173,7 @@ export const useOnboard = () => {
       }
       catch (err: unknown) {
         const error = (err as { data?: ApiErrResponse })?.data
-        if (!error) return toast.showError('Please try again', 2000)
+        if (!error) return toast.showError(t('common.error.try_again'), 2000)
 
         if (typeof error.message === 'string') {
           return toast.showError(error.message, 2000)
@@ -194,7 +196,7 @@ export const useOnboard = () => {
       if (onboardInfo.goals.length === 0) {
         isLoading.value = false
         return toast.showError(
-          'Please select at least one goal before continue!',
+          t('onboard.error.select_goal'),
           3000,
         )
       }
@@ -206,7 +208,7 @@ export const useOnboard = () => {
       }
       catch (err: unknown) {
         const error = (err as { data?: ApiErrResponse })?.data
-        if (!error) return toast.showError('Please try again', 2000)
+        if (!error) return toast.showError(t('common.error.try_again'), 2000)
 
         if (typeof error.message === 'string') {
           return toast.showError(error.message, 2000)

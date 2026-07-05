@@ -9,6 +9,7 @@ const props = defineProps<{
   totalSteps: number
 }>()
 
+const { t } = useI18n()
 const isFirstStep = computed(() => props.currentStep === 1)
 const isLastStep = computed(() => props.currentStep === props.totalSteps)
 </script>
@@ -24,18 +25,22 @@ const isLastStep = computed(() => props.currentStep === props.totalSteps)
       @click="emit('back-page')"
     >
       <BaseIcon name="leftArrow" />
-      Back
+      {{ t('common.action.back') }}
     </BaseButton>
 
     <div class="flex w-full justify-end items-center gap-4">
       <span class="hidden text-[13px] text-ink-4 sm:block">
-        Complete each step to continue
+        {{ t('onboard.info.complete_each_step') }}
       </span>
       <BaseButton
         size="lg"
         @click="emit('next-page')"
       >
-        {{ isLastStep ? "Finish & enter Fundedr" : "Continue" }}
+        {{
+          isLastStep
+            ? t('onboard.action.finish')
+            : t('common.action.continue')
+        }}
         <BaseIcon
           name="rightArrow"
           size="1.2em"

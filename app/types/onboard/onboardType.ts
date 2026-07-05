@@ -6,8 +6,8 @@ export type roleTitlesType = (typeof roleTitles)[number]
 
 export type roleSelectionType = {
   roleTitle: roleTitlesType
-  title: string
-  description: string
+  titleKey: string
+  descriptionKey: string
   active: boolean
   iconName: iconNameType
 }
@@ -15,7 +15,8 @@ export type roleSelectionType = {
 export type goalListsType = {
   iconName: iconNameType
   title: string
-  subtitle: string
+  titleKey: string
+  subtitleKey: string
   active: boolean
 }
 

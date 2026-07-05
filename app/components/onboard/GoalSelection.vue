@@ -8,12 +8,14 @@ import BaseIcon from '../shared/BaseIcon.vue'
 import { goalsSelection } from '~/constants/onboardContent'
 import type { iconNameType } from '~/types/iconType'
 
+const { t } = useI18n()
 const { onboardInfo, goalsRole } = useOnboard()
 
 type MutableGoal = {
   iconName: iconNameType
   title: string
-  subtitle: string
+  titleKey: string
+  subtitleKey: string
   active: boolean
 }
 
@@ -44,7 +46,7 @@ const toggleGoal = (goal: MutableGoal) => {
     onboardInfo.goals.push(title)
   }
   else {
-    onboardInfo.goals = onboardInfo.goals.filter(t => t !== title)
+    onboardInfo.goals = onboardInfo.goals.filter(item => item !== title)
   }
 }
 </script>
@@ -52,11 +54,10 @@ const toggleGoal = (goal: MutableGoal) => {
 <template>
   <TitleSection>
     <template #title>
-      What are your goals?
+      {{ t('onboard.heading.goals') }}
     </template>
     <template #subtitle>
-      Pick the ones that fit. We'll use this to tailor your home feed and
-      recommendations. You can select more than one.
+      {{ t('onboard.info.goals_subtitle') }}
     </template>
   </TitleSection>
 
@@ -73,7 +74,6 @@ const toggleGoal = (goal: MutableGoal) => {
         "
         @click="toggleGoal(goal)"
       >
-        <!-- Square checkbox -->
         <span
           class="relative flex-none w-[18px] h-[18px] rounded-[4px] border-[1.5px] mt-px transition-colors"
           :class="
@@ -98,7 +98,6 @@ const toggleGoal = (goal: MutableGoal) => {
           </svg>
         </span>
 
-        <!-- Content -->
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1">
             <BaseIcon
@@ -107,19 +106,21 @@ const toggleGoal = (goal: MutableGoal) => {
               :class="goal.active ? 'text-brand' : 'text-ink-3'"
             />
             <span class="text-[14.5px] font-semibold text-ink">{{
-              goal.title
+              t(goal.titleKey)
             }}</span>
           </div>
           <p class="mt-1 text-[13px] text-ink-3 leading-[1.5]">
-            {{ goal.subtitle }}
+            {{ t(goal.subtitleKey) }}
           </p>
         </div>
       </div>
     </div>
 
     <p class="mt-[18px] text-center text-[13px] text-ink-4">
-      <b class="text-brand font-semibold">{{ selectedCount }} selected</b>
-      &nbsp;·&nbsp;You can update these any time from your profile
+      <b class="text-brand font-semibold">{{
+        t('common.info.selected_count', { count: selectedCount })
+      }}</b>
+      &nbsp;·&nbsp;{{ t('common.info.update_anytime') }}
     </p>
   </div>
 </template>

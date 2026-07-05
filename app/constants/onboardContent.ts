@@ -6,17 +6,15 @@ import type {
 export const roleSelection: roleSelectionType[] = [
   {
     roleTitle: 'Founder',
-    title: 'I\'m a Founder',
-    description:
-      'I\'m building a company and want to share progress, meet investors, and grow a following.',
+    titleKey: 'onboard.heading.founder_role_card',
+    descriptionKey: 'onboard.info.founder_role_card',
     active: false,
     iconName: 'lightbulb',
   },
   {
     roleTitle: 'Investor',
-    title: 'I\'m an Investor',
-    description:
-      'I want to discover early-stage founders, track promising companies, and build my deal flow.',
+    titleKey: 'onboard.heading.investor_role_card',
+    descriptionKey: 'onboard.info.investor_role_card',
     active: false,
     iconName: 'accountBalance',
   },
@@ -30,29 +28,29 @@ export const goalsSelection: goalsSelectionType[] = [
       {
         iconName: 'money',
         title: 'Raise capital',
-        subtitle:
-          'Connect with angels actively writing first cheques in your sector.',
+        titleKey: 'onboard.heading.goal_raise_capital',
+        subtitleKey: 'onboard.info.goal_raise_capital',
         active: false,
       },
       {
         iconName: 'partner',
         title: 'Find co-founders',
-        subtitle:
-          'Meet a technical or commercial partner the next chapter needs.',
+        titleKey: 'onboard.heading.goal_find_cofounders',
+        subtitleKey: 'onboard.info.goal_find_cofounders',
         active: false,
       },
       {
         iconName: 'feedback',
         title: 'Gather feedback',
-        subtitle:
-          'Hear from operators before the round, while the product can still move.',
+        titleKey: 'onboard.heading.goal_gather_feedback',
+        subtitleKey: 'onboard.info.goal_gather_feedback',
         active: false,
       },
       {
         iconName: 'network',
         title: 'Build a following',
-        subtitle:
-          'Publish progress notes so the right readers find you over time.',
+        titleKey: 'onboard.heading.goal_build_following',
+        subtitleKey: 'onboard.info.goal_build_following',
         active: false,
       },
     ],
@@ -64,29 +62,29 @@ export const goalsSelection: goalsSelectionType[] = [
       {
         iconName: 'search',
         title: 'Discover startups',
-        subtitle:
-          'Surface high-potential early-stage companies across industries you care about.',
+        titleKey: 'onboard.heading.goal_discover_startups',
+        subtitleKey: 'onboard.info.goal_discover_startups',
         active: false,
       },
       {
         iconName: 'chart',
         title: 'Build deal flow',
-        subtitle:
-          'Track promising opportunities as they evolve, in real time, in one place.',
+        titleKey: 'onboard.heading.goal_build_deal_flow',
+        subtitleKey: 'onboard.info.goal_build_deal_flow',
         active: false,
       },
       {
         iconName: 'peers',
         title: 'Network with peers',
-        subtitle:
-          'Read alongside other angels, scouts, and VC partners at the same edge.',
+        titleKey: 'onboard.heading.goal_network_peers',
+        subtitleKey: 'onboard.info.goal_network_peers',
         active: false,
       },
       {
         iconName: 'barChart',
         title: 'Market insights',
-        subtitle:
-          'Stay close to trends and ecosystem shifts that change which bets make sense.',
+        titleKey: 'onboard.heading.goal_market_insights',
+        subtitleKey: 'onboard.info.goal_market_insights',
         active: false,
       },
     ],

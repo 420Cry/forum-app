@@ -1,0 +1,168 @@
+{
+  "common": {
+    "action": {
+      "back": "Quay lại",
+      "continue": "Tiếp tục",
+      "dismiss": "Đóng",
+      "sign_out": "Đăng xuất"
+    },
+    "aria": {
+      "dismiss": "Đóng"
+    },
+    "heading": {
+      "forum": "Diễn đàn"
+    },
+    "info": {
+      "selected_count": "Đã chọn {count}",
+      "update_anytime": "Bạn có thể cập nhật bất cứ lúc nào trong hồ sơ"
+    },
+    "error": {
+      "try_again": "Vui lòng thử lại",
+      "try_again_later": "Vui lòng thử lại sau"
+    }
+  },
+  "auth": {
+    "heading": {
+      "sign_in": "Đăng nhập",
+      "create_account": "Tạo tài khoản",
+      "reset_password": "Đặt lại mật khẩu",
+      "set_new_password": "Đặt mật khẩu mới",
+      "account": "Tài khoản",
+      "verify_email": "Xác minh email",
+      "check_email": "Kiểm tra email"
+    },
+    "label": {
+      "email": "Email",
+      "password": "Mật khẩu",
+      "new_password": "Mật khẩu mới",
+      "email_placeholder": "ban{'@'}example.com",
+      "password_placeholder": "••••••••"
+    },
+    "info": {
+      "sign_in_subtitle": "Đăng nhập để sử dụng diễn đàn",
+      "create_account_subtitle": "Đăng ký để tham gia diễn đàn",
+      "reset_password_subtitle": "Nhập email và chúng tôi sẽ gửi liên kết đặt lại mật khẩu.",
+      "reset_link_sent": "Chúng tôi đã gửi liên kết đặt lại mật khẩu tới {email}",
+      "open_reset_link": "Mở liên kết đặt lại mật khẩu trong email để tiếp tục.",
+      "password_requirements": "Mật khẩu phải có:",
+      "password_req_min_length": "Ít nhất 8 ký tự",
+      "password_req_number": "Ít nhất 1 chữ số",
+      "password_req_uppercase": "Ít nhất 1 chữ hoa",
+      "password_req_lowercase": "Ít nhất 1 chữ thường",
+      "password_req_special": "Ít nhất 1 ký tự đặc biệt",
+      "already_have_account": "Đã có tài khoản?",
+      "no_account": "Chưa có tài khoản?",
+      "confirming_email": "Đang xác minh email...",
+      "email_confirm_failed": "Chưa xác minh được email. Hãy thử lại sau khi nhấp liên kết trong hộp thư.",
+      "verify_email_prompt": "Chúng tôi đã gửi liên kết xác minh tới {email}. Kiểm tra hộp thư hoặc gửi lại bên dưới.",
+      "verification_email_sent": "Đã gửi email xác minh.",
+      "signed_in_status": "Đã đăng nhập",
+      "email_not_verified_status": "Email chưa xác minh",
+      "sign_in_or_create": "Đăng nhập hoặc tạo tài khoản để tiếp tục",
+      "signed_in_toast": "Đã đăng nhập.",
+      "account_created_toast": "Tài khoản đã được tạo. Kiểm tra email để xác minh địa chỉ.",
+      "password_updated_toast": "Mật khẩu đã được cập nhật. Bạn có thể đăng nhập ngay."
+    },
+    "action": {
+      "sign_in": "Đăng nhập",
+      "signing_in": "Đang đăng nhập...",
+      "create_account": "Tạo tài khoản",
+      "creating_account": "Đang tạo tài khoản...",
+      "forgot_password": "Quên mật khẩu?",
+      "send_reset_link": "Gửi liên kết đặt lại",
+      "sending": "Đang gửi...",
+      "update_password": "Cập nhật mật khẩu",
+      "saving": "Đang lưu...",
+      "check_again": "Kiểm tra lại",
+      "check_verified": "Tôi đã xác minh email",
+      "checking": "Đang kiểm tra...",
+      "resend_verification": "Gửi lại email xác minh",
+      "back_to_sign_in": "Quay lại đăng nhập"
+    },
+    "error": {
+      "email_not_verified": "Vui lòng xác minh email trước khi đăng nhập. Kiểm tra hộp thư để lấy liên kết xác minh.",
+      "not_signed_in": "Chưa đăng nhập",
+      "email_already_verified": "Email đã được xác minh",
+      "password_min_length": "Mật khẩu phải có ít nhất 8 ký tự",
+      "password_number": "Mật khẩu phải có ít nhất 1 chữ số",
+      "password_uppercase": "Mật khẩu phải có ít nhất 1 chữ hoa",
+      "password_lowercase": "Mật khẩu phải có ít nhất 1 chữ thường",
+      "password_special": "Mật khẩu phải có ít nhất 1 ký tự đặc biệt"
+    }
+  },
+  "onboard": {
+    "heading": {
+      "choose_role": "Chọn vai trò của bạn",
+      "founder_goals": "Mục tiêu founder",
+      "investor_goals": "Mục tiêu nhà đầu tư",
+      "about_yourself": "Giới thiệu về bạn",
+      "goals": "Mục tiêu của bạn là gì?",
+      "role_prompt": "Điều gì đưa bạn đến Fundedr?",
+      "founder_role_card": "Tôi là Founder",
+      "investor_role_card": "Tôi là Nhà đầu tư",
+      "goal_raise_capital": "Huy động vốn",
+      "goal_find_cofounders": "Tìm đồng sáng lập",
+      "goal_gather_feedback": "Thu thập phản hồi",
+      "goal_build_following": "Xây dựng lượng theo dõi",
+      "goal_discover_startups": "Khám phá startup",
+      "goal_build_deal_flow": "Xây dựng deal flow",
+      "goal_network_peers": "Kết nối đồng nghiệp",
+      "goal_market_insights": "Thông tin thị trường",
+      "profile_photo": "Ảnh đại diện"
+    },
+    "label": {
+      "first_name": "Tên",
+      "last_name": "Họ",
+      "age": "Tuổi",
+      "location": "Địa điểm",
+      "occupation": "Nghề nghiệp",
+      "first_name_placeholder": "vd. Dao",
+      "last_name_placeholder": "vd. Nguyen",
+      "age_placeholder": "vd. 28",
+      "location_placeholder": "Thành phố, quốc gia",
+      "occupation_placeholder": "vd. Founder & researcher"
+    },
+    "info": {
+      "role_subtitle": "Chọn phương án phù hợp nhất. Bạn có thể giữ cả hai vai trò sau này — bước này chỉ thiết lập bảng tin.",
+      "goals_subtitle": "Chọn những mục tiêu phù hợp. Chúng tôi dùng thông tin này để cá nhân hóa bảng tin và gợi ý. Bạn có thể chọn nhiều hơn một.",
+      "about_subtitle": "Vài thông tin nhanh. Đây là cách người khác nhìn thấy bạn trên Fundedr.",
+      "complete_each_step": "Hoàn thành từng bước để tiếp tục",
+      "founder_role_card": "Tôi đang xây dựng công ty và muốn chia sẻ tiến độ, gặp nhà đầu tư và phát triển lượng theo dõi.",
+      "investor_role_card": "Tôi muốn khám phá founder giai đoạn đầu, theo dõi công ty triển vọng và xây dựng deal flow.",
+      "goal_raise_capital": "Kết nối với các nhà đầu tư thiên thần đang rót vốn trong lĩnh vực của bạn.",
+      "goal_find_cofounders": "Gặp đối tác kỹ thuật hoặc thương mại mà giai đoạn tiếp theo cần.",
+      "goal_gather_feedback": "Lắng nghe từ các operator trước vòng gọi vốn, khi sản phẩm vẫn còn thay đổi.",
+      "goal_build_following": "Đăng tiến độ để đúng độc giả tìm thấy bạn theo thời gian.",
+      "goal_discover_startups": "Tìm các công ty tiềm năng giai đoạn đầu trong ngành bạn quan tâm.",
+      "goal_build_deal_flow": "Theo dõi cơ hội triển vọng theo thời gian thực, tại một nơi.",
+      "goal_network_peers": "Đọc cùng các nhà đầu tư thiên thần, scout và đối tác VC khác.",
+      "goal_market_insights": "Bám sát xu hướng và thay đổi hệ sinh thái ảnh hưởng đến quyết định đầu tư.",
+      "profile_photo_help": "Ảnh chân dung rõ giúp mọi người nhận ra bạn. JPG hoặc PNG, tối đa 5 MB.",
+      "occupation_help": "Hiển thị dưới tên bạn trên hồ sơ và bài đăng."
+    },
+    "action": {
+      "finish": "Hoàn tất & vào Fundedr",
+      "upload_photo": "Tải ảnh lên"
+    },
+    "error": {
+      "select_role": "Vui lòng chọn vai trò trước khi tiếp tục!",
+      "select_goal": "Vui lòng chọn ít nhất một mục tiêu trước khi tiếp tục!",
+      "first_name_required": "Bắt buộc nhập tên",
+      "first_name_min": "Tên phải có ít nhất 2 ký tự",
+      "first_name_special": "Tên không được chứa ký tự đặc biệt",
+      "last_name_required": "Bắt buộc nhập họ",
+      "last_name_min": "Họ phải có ít nhất 2 ký tự",
+      "last_name_special": "Họ không được chứa ký tự đặc biệt",
+      "age_required": "Bắt buộc nhập tuổi",
+      "age_min": "Tuổi không thể nhỏ hơn 5",
+      "age_max": "Tuổi không thể lớn hơn 100",
+      "location_required": "Bắt buộc nhập địa điểm",
+      "location_min": "Địa điểm phải có ít nhất 2 ký tự",
+      "location_special": "Địa điểm không được chứa ký tự đặc biệt",
+      "occupation_required": "Bắt buộc nhập nghề nghiệp",
+      "occupation_min": "Nghề nghiệp phải có ít nhất 2 ký tự",
+      "occupation_special": "Nghề nghiệp không được chứa ký tự đặc biệt",
+      "role_invalid": "Vai trò chỉ có thể là Founder hoặc Investor"
+    }
+  }
+}

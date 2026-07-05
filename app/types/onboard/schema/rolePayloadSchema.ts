@@ -1,8 +1,10 @@
-import z from 'zod'
-import { roleTitles } from '../onboardType'
+import * as z from 'zod'
+import { roleTitles } from '~/types/onboard/onboardType'
 
-export const RolePayload = z.object({
-  role: z.enum(roleTitles, 'User role can only be Startup or Investor'),
-})
+export function createRolePayloadSchema(t: (key: string) => string) {
+  return z.object({
+    role: z.enum(roleTitles, t('onboard.error.role_invalid')),
+  })
+}
 
-export type RolePayload = z.infer<typeof RolePayload>
+export type RolePayload = z.infer<ReturnType<typeof createRolePayloadSchema>>

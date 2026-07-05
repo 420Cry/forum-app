@@ -29,6 +29,7 @@ function isSupabaseUser(u: unknown): u is SupabaseUser {
 }
 
 export function useSupabaseAuth() {
+  const { t } = useI18n()
   const supabase = useSupabaseClient()
   const supabaseUser = useSupabaseUser()
   const refreshedUser = useState<SupabaseUser | null>(
@@ -75,7 +76,7 @@ export function useSupabaseAuth() {
       if (err) {
         error.value
           = err.code === 'email_not_confirmed'
-            ? 'Please verify your email before signing in. Check your inbox for the verification link.'
+            ? t('auth.error.email_not_verified')
             : err.message
         return
       }
@@ -138,11 +139,11 @@ export function useSupabaseAuth() {
 
   async function resendVerificationEmail() {
     if (!user.value?.email) {
-      error.value = 'Not signed in'
+      error.value = t('auth.error.not_signed_in')
       return
     }
     if (user.value.emailVerified) {
-      error.value = 'Email already verified'
+      error.value = t('auth.error.email_already_verified')
       return
     }
     loading.value = true

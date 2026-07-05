@@ -4,6 +4,7 @@ import BaseButton from '~/components/shared/BaseButton.vue'
 
 definePageMeta({ layout: 'auth' })
 
+const { t } = useI18n()
 const { refreshUser } = useSupabaseAuth()
 const status = ref<'confirming' | 'verified' | 'failed'>('confirming')
 
@@ -35,14 +36,13 @@ async function retry() {
       v-if="status === 'confirming'"
       class="text-ink-3"
     >
-      Confirming your email...
+      {{ t('auth.info.confirming_email') }}
     </p>
     <p
       v-else-if="status === 'failed'"
       class="text-ink-3"
     >
-      We could not confirm your email yet. Try again after clicking the link in
-      your inbox.
+      {{ t('auth.info.email_confirm_failed') }}
     </p>
     <BaseButton
       v-if="status === 'failed'"
@@ -51,7 +51,7 @@ async function retry() {
       class="mt-4"
       @click="retry"
     >
-      Check again
+      {{ t('auth.action.check_again') }}
     </BaseButton>
   </div>
 </template>
