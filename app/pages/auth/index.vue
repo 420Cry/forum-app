@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSupabaseAuth, useForumApi, useForumSession } from "~/composables";
+import { useSupabaseAuth } from "~/composables";
 
 definePageMeta({ layout: "auth" });
 
@@ -13,8 +13,6 @@ const {
   error,
   clearError,
 } = useSupabaseAuth();
-const { fetchMe } = useForumApi();
-const { meResult } = useForumSession();
 const verificationResent = ref(false);
 const checkingVerification = ref(false);
 
@@ -29,18 +27,6 @@ async function handleCheckVerified() {
   clearError();
   await refreshUser();
   checkingVerification.value = false;
-}
-
-async function verifyApi() {
-  meResult.value = null;
-  try {
-    meResult.value = await fetchMe();
-  } catch (e: unknown) {
-    const err = e as { data?: { message?: string }; message?: string };
-    const msg =
-      err?.data?.message ?? (e instanceof Error ? e.message : String(e));
-    meResult.value = { error: msg };
-  }
 }
 
 async function handleResendVerification() {
@@ -103,14 +89,7 @@ async function handleResendVerification() {
         </button>
       </div>
 
-      <div v-if="user.emailVerified" class="mt-4 flex flex-wrap gap-3">
-        <button
-          type="button"
-          class="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
-          @click="verifyApi"
-        >
-          Verify API token
-        </button>
+      <div v-if="user.emailVerified" class="mt-4">
         <button
           type="button"
           class="rounded border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
@@ -118,20 +97,6 @@ async function handleResendVerification() {
         >
           Sign out
         </button>
-      </div>
-
-      <div
-        v-if="user.emailVerified && meResult"
-        class="mt-4 rounded border p-4 text-sm font-mono overflow-auto max-h-64"
-        :class="
-          'error' in meResult
-            ? 'border-red-200 bg-red-50 text-red-800'
-            : 'border-green-200 bg-green-50 text-green-800'
-        "
-      >
-        <pre class="whitespace-pre-wrap">{{
-          JSON.stringify(meResult, null, 2)
-        }}</pre>
       </div>
     </div>
   </div>

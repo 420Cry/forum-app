@@ -11,6 +11,9 @@ import { OnboardInfo } from "~/types/onboard/schema/onboardInfoSchema";
 import { useOnboardApi } from "../api/onboard/useOnboardApi";
 import { RolePayload } from "~/types/onboard/schema/rolePayloadSchema";
 import type { ApiErrResponse } from "~/types/api";
+import type { UserProfile } from "~/types/user";
+import { onboardStepFromProcess } from "~/types/user";
+import { useUserProfile } from "../user/useUserProfile";
 
 type onboardInfoType = {
   role: "" | roleTitlesType;
@@ -73,6 +76,27 @@ export const useOnboard = () => {
   };
 
   const toast = useToast();
+  const { refreshProfile } = useUserProfile();
+
+  const hydrateFromProfile = (profile: UserProfile | null) => {
+    if (!profile || profile.onboard_process === "Completed") return;
+
+    if (profile.role) onboardInfo.role = profile.role;
+    if (profile.goals.length > 0) {
+      onboardInfo.goals = profile.goals as goalTitlesType[];
+    }
+    if (profile.name) {
+      const [firstName, ...rest] = profile.name.trim().split(/\s+/);
+      onboardInfo.firstName = firstName ?? "";
+      onboardInfo.lastName = rest.join(" ");
+    }
+    if (profile.age != null) onboardInfo.age = String(profile.age);
+    if (profile.location) onboardInfo.location = profile.location;
+    if (profile.occupation) onboardInfo.occupation = profile.occupation;
+
+    currentStep.value = onboardStepFromProcess(profile.onboard_process);
+    updateOnboardPage();
+  };
 
   const bumpStep = async () => {
     const { formInputValidate } = useZodValidation();
@@ -98,6 +122,7 @@ export const useOnboard = () => {
           return toast.showError("Please try again later", 1500);
         }
         toast.showSuccess(res.message, 2000);
+        await refreshProfile(true);
         return await navigateTo("/home");
       } catch (err: unknown) {
         const error = (err as { data?: ApiErrResponse })?.data;
@@ -140,6 +165,7 @@ export const useOnboard = () => {
 
         const res = await saveUserRole(data);
         toast.showSuccess(res.message, 1500);
+        await refreshProfile(true);
       } catch (err: unknown) {
         const error = (err as { data?: ApiErrResponse })?.data;
         if (!error) return toast.showError("Please try again", 2000);
@@ -172,6 +198,7 @@ export const useOnboard = () => {
       try {
         const res = await saveUserGoals(onboardInfo.goals);
         toast.showSuccess(res.message, 1500);
+        await refreshProfile(true);
       } catch (err: unknown) {
         const error = (err as { data?: ApiErrResponse })?.data;
         if (!error) return toast.showError("Please try again", 2000);
@@ -202,11 +229,7 @@ export const useOnboard = () => {
   };
 
   const backStep = () => {
-    if (currentStep.value === 1) {
-      // "Skip for now" — navigate away
-      navigateTo("/");
-      return;
-    }
+    if (currentStep.value === 1) return;
     currentStep.value--;
     updateOnboardPage();
   };
@@ -219,6 +242,7 @@ export const useOnboard = () => {
     bumpStep,
     backStep,
     updateOnboardPage,
+    hydrateFromProfile,
     onboardInfo,
     goalsRole,
     isLoading,

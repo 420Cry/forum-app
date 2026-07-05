@@ -29,7 +29,7 @@ const isLastStep = computed(() => props.currentStep === props.totalSteps);
 
     <div class="flex w-full justify-end items-center gap-4">
       <span class="hidden text-[13px] text-ink-4 sm:block">
-        You can change any of this later in Settings
+        Complete each step to continue
       </span>
       <BaseButton size="lg" @click="emit('next-page')">
         {{ isLastStep ? "Finish & enter Fundedr" : "Continue" }}

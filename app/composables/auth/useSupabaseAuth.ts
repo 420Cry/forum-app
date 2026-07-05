@@ -1,6 +1,6 @@
 import type { User as SupabaseUser } from "@supabase/supabase-js";
-import { useForumSession } from "../session/useForumSession";
 import { useSupabaseToken } from "./useSupabaseToken";
+import { useUserProfile } from "../user/useUserProfile";
 
 export interface AuthUser {
   id: string;
@@ -107,7 +107,7 @@ export function useSupabaseAuth() {
   }
 
   async function logout() {
-    useForumSession().clear();
+    useUserProfile().clearProfile();
     error.value = null;
     refreshedUser.value = null;
     await supabase.auth.signOut();
