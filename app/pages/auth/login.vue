@@ -19,7 +19,7 @@ async function submit() {
   if (!error.value) {
     toast.showSuccess(t('auth.info.signed_in_toast'), 1500)
     const me = await refreshProfile(true)
-    await navigateTo(postAuthPath(me?.profile ?? null))
+    await navigateTo(postAuthPath(me?.profile ?? null), { replace: true })
   }
 }
 </script>

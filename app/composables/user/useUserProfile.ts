@@ -18,7 +18,7 @@ export function useUserProfile() {
     loading.value = true
     try {
       const { fetchMe } = useUserApi()
-      profile.value = await fetchMe()
+      profile.value = await fetchMe(force)
       unauthorized.value = false
       return profile.value
     }

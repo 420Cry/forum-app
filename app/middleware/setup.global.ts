@@ -1,4 +1,4 @@
-import { isOnboardingComplete, postAuthPath } from '~/types/user'
+import { isOnboardingComplete } from '~/types/user'
 import { hasAccessToken, isEmailVerified } from '~/utils/authSession'
 
 const AUTH_GUEST_PATHS = new Set([
@@ -45,7 +45,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   await refreshProfile(true)
 
   if (unauthorized.value && isProtectedRoute) {
-    return navigateTo('/auth')
+    return navigateTo('/auth/login')
   }
 
   const userProfile = profile.value?.profile ?? null
@@ -63,7 +63,11 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo('/home')
   }
 
+  if (!completed && isAuthRoute && AUTH_GUEST_PATHS.has(to.path)) {
+    return navigateTo('/onboard')
+  }
+
   if (!completed && to.path === '/auth') {
-    return navigateTo(postAuthPath(userProfile))
+    return navigateTo('/onboard')
   }
 })
