@@ -1,4 +1,5 @@
 <script setup></script>
+
 <template>
   <div class="mx-auto mb-10 max-w-[640px] text-center">
     <h1

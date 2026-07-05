@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useSupabaseAuth } from "~/composables";
+import { useSupabaseAuth } from '~/composables'
 
-definePageMeta({ layout: "auth" });
+definePageMeta({ layout: 'auth' })
 
 const {
   user,
@@ -12,33 +12,36 @@ const {
   loading,
   error,
   clearError,
-} = useSupabaseAuth();
-const verificationResent = ref(false);
-const checkingVerification = ref(false);
+} = useSupabaseAuth()
+const verificationResent = ref(false)
+const checkingVerification = ref(false)
 
 onMounted(() => {
   if (user.value && !user.value.emailVerified) {
-    void refreshUser();
+    void refreshUser()
   }
-});
+})
 
 async function handleCheckVerified() {
-  checkingVerification.value = true;
-  clearError();
-  await refreshUser();
-  checkingVerification.value = false;
+  checkingVerification.value = true
+  clearError()
+  await refreshUser()
+  checkingVerification.value = false
 }
 
 async function handleResendVerification() {
-  verificationResent.value = false;
-  clearError();
-  await resendVerificationEmail();
-  if (!error.value) verificationResent.value = true;
+  verificationResent.value = false
+  clearError()
+  await resendVerificationEmail()
+  if (!error.value) verificationResent.value = true
 }
 </script>
 
 <template>
-  <div v-if="isAuthenticated && user" class="space-y-6">
+  <div
+    v-if="isAuthenticated && user"
+    class="space-y-6"
+  >
     <div class="rounded-lg border bg-white p-6 shadow-sm">
       <div class="flex items-center gap-4">
         <div
@@ -60,15 +63,23 @@ async function handleResendVerification() {
         v-if="!user.emailVerified"
         class="mt-4 rounded border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800"
       >
-        <p class="font-medium">Verify your email</p>
+        <p class="font-medium">
+          Verify your email
+        </p>
         <p class="mt-1 text-amber-700">
           We sent a verification link to {{ user.email }}. Check your inbox or
           resend below.
         </p>
-        <p v-if="verificationResent" class="mt-2 font-medium text-green-700">
+        <p
+          v-if="verificationResent"
+          class="mt-2 font-medium text-green-700"
+        >
           Verification email sent.
         </p>
-        <p v-if="error" class="mt-2 text-red-600">
+        <p
+          v-if="error"
+          class="mt-2 text-red-600"
+        >
           {{ error }}
         </p>
         <button
@@ -89,7 +100,10 @@ async function handleResendVerification() {
         </button>
       </div>
 
-      <div v-if="user.emailVerified" class="mt-4">
+      <div
+        v-if="user.emailVerified"
+        class="mt-4"
+      >
         <button
           type="button"
           class="rounded border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
@@ -105,8 +119,12 @@ async function handleResendVerification() {
     v-else
     class="mx-auto max-w-md rounded-lg border bg-white p-8 shadow-sm text-center"
   >
-    <h2 class="text-xl font-semibold text-slate-800">Account</h2>
-    <p class="mt-2 text-slate-500">Sign in or create an account to continue</p>
+    <h2 class="text-xl font-semibold text-slate-800">
+      Account
+    </h2>
+    <p class="mt-2 text-slate-500">
+      Sign in or create an account to continue
+    </p>
     <div class="mt-6 flex flex-col gap-3">
       <NuxtLink
         to="/auth/login"

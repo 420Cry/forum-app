@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import BaseInput from "../shared/BaseInput.vue";
-import BaseButton from "../shared/BaseButton.vue";
-import BaseIcon from "../shared/BaseIcon.vue";
-import TitleSection from "./shared/TitleSection.vue";
+import BaseInput from '../shared/BaseInput.vue'
+import BaseButton from '../shared/BaseButton.vue'
+import BaseIcon from '../shared/BaseIcon.vue'
+import TitleSection from './shared/TitleSection.vue'
 
-const { onboardInfo, infoErrors, clearInfoError } = useOnboard();
+const { onboardInfo, infoErrors, clearInfoError } = useOnboard()
 </script>
 
 <template>
   <TitleSection>
-    <template #title>Tell us about yourself</template>
+    <template #title>
+      Tell us about yourself
+    </template>
     <template #subtitle>
       A few quick details. This is how others will see you across Fundedr.
     </template>
@@ -23,14 +25,23 @@ const { onboardInfo, infoErrors, clearInfoError } = useOnboard();
       <div
         class="w-24 h-24 rounded-full border-2 border-dashed border-line-2 bg-surface-hover flex items-center justify-center text-ink-4 flex-none"
       >
-        <BaseIcon name="camera" size="2em" />
+        <BaseIcon
+          name="camera"
+          size="2em"
+        />
       </div>
       <div>
-        <p class="text-[12.5px] font-semibold text-ink-2 mb-1">Profile photo</p>
+        <p class="text-[12.5px] font-semibold text-ink-2 mb-1">
+          Profile photo
+        </p>
         <p class="text-[13.5px] text-ink-3 leading-relaxed">
           A clear headshot helps people recognise you. JPG or PNG, up to 5 MB.
         </p>
-        <BaseButton intent="secondary" size="sm" class="mt-2">
+        <BaseButton
+          intent="secondary"
+          size="sm"
+          class="mt-2"
+        >
           Upload photo
         </BaseButton>
       </div>

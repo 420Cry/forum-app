@@ -2,55 +2,58 @@
 import type {
   goalsSelectionType,
   goalTitlesType,
-} from "~/types/onboard/onboardType";
-import TitleSection from "./shared/TitleSection.vue";
-import BaseIcon from "../shared/BaseIcon.vue";
-import { goalsSelection } from "~/constants/onboardContent";
-import type { iconNameType } from "~/types/iconType";
+} from '~/types/onboard/onboardType'
+import TitleSection from './shared/TitleSection.vue'
+import BaseIcon from '../shared/BaseIcon.vue'
+import { goalsSelection } from '~/constants/onboardContent'
+import type { iconNameType } from '~/types/iconType'
 
-const { onboardInfo, goalsRole } = useOnboard();
+const { onboardInfo, goalsRole } = useOnboard()
 
 type MutableGoal = {
-  iconName: iconNameType;
-  title: string;
-  subtitle: string;
-  active: boolean;
-};
-
-const goalsByRole = ref<MutableGoal[]>([]);
-
-const isRoleChange =
-  goalsRole.value !== "" && goalsRole.value !== onboardInfo.role;
-if (isRoleChange) {
-  onboardInfo.goals = [];
+  iconName: iconNameType
+  title: string
+  subtitle: string
+  active: boolean
 }
-goalsRole.value = onboardInfo.role;
 
-const match = goalsSelection.find((g) => g.role === onboardInfo.role);
-const matchGoal = match ?? (goalsSelection[0] as goalsSelectionType);
-goalsByRole.value = matchGoal.goals.map((g) => ({
+const goalsByRole = ref<MutableGoal[]>([])
+
+const isRoleChange
+  = goalsRole.value !== '' && goalsRole.value !== onboardInfo.role
+if (isRoleChange) {
+  onboardInfo.goals = []
+}
+goalsRole.value = onboardInfo.role
+
+const match = goalsSelection.find(g => g.role === onboardInfo.role)
+const matchGoal = match ?? (goalsSelection[0] as goalsSelectionType)
+goalsByRole.value = matchGoal.goals.map(g => ({
   ...g,
   active: onboardInfo.goals.includes(g.title as goalTitlesType),
-}));
+}))
 
 const selectedCount = computed(
-  () => goalsByRole.value.filter((g) => g.active).length,
-);
+  () => goalsByRole.value.filter(g => g.active).length,
+)
 
 const toggleGoal = (goal: MutableGoal) => {
-  goal.active = !goal.active;
-  const title = goal.title as goalTitlesType;
+  goal.active = !goal.active
+  const title = goal.title as goalTitlesType
   if (goal.active) {
-    onboardInfo.goals.push(title);
-  } else {
-    onboardInfo.goals = onboardInfo.goals.filter((t) => t !== title);
+    onboardInfo.goals.push(title)
   }
-};
+  else {
+    onboardInfo.goals = onboardInfo.goals.filter(t => t !== title)
+  }
+}
 </script>
 
 <template>
   <TitleSection>
-    <template #title>What are your goals?</template>
+    <template #title>
+      What are your goals?
+    </template>
     <template #subtitle>
       Pick the ones that fit. We'll use this to tailor your home feed and
       recommendations. You can select more than one.

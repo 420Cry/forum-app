@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { useSupabaseAuth } from "~/composables";
+import { useSupabaseAuth } from '~/composables'
 
-const { refreshUser } = useSupabaseAuth();
+const { refreshUser } = useSupabaseAuth()
 onMounted(() => {
-  void refreshUser();
-});
+  void refreshUser()
+})
 
 useHead({
   link: [
-    { rel: "preconnect", href: "https://fonts.googleapis.com" },
-    { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
     {
-      rel: "stylesheet",
-      href: "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap",
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap',
     },
   ],
-});
+})
 </script>
 
 <template>

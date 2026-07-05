@@ -1,29 +1,29 @@
-import type { iconNameType } from "~/types/iconType";
-import type { goalsSelection } from "~/constants/onboardContent";
+import type { iconNameType } from '~/types/iconType'
+import type { goalsSelection } from '~/constants/onboardContent'
 
-export const roleTitles = ["Founder", "Investor"] as const;
-export type roleTitlesType = (typeof roleTitles)[number];
+export const roleTitles = ['Founder', 'Investor'] as const
+export type roleTitlesType = (typeof roleTitles)[number]
 
 export type roleSelectionType = {
-  roleTitle: roleTitlesType;
-  title: string;
-  description: string;
-  active: boolean;
-  iconName: iconNameType;
-};
+  roleTitle: roleTitlesType
+  title: string
+  description: string
+  active: boolean
+  iconName: iconNameType
+}
 
 export type goalListsType = {
-  iconName: iconNameType;
-  title: string;
-  subtitle: string;
-  active: boolean;
-};
+  iconName: iconNameType
+  title: string
+  subtitle: string
+  active: boolean
+}
 
 export type goalsSelectionType = {
-  role: roleTitlesType;
-  active: boolean;
-  goals: goalListsType[];
-};
+  role: roleTitlesType
+  active: boolean
+  goals: goalListsType[]
+}
 
-export type goalTitlesType =
-  (typeof goalsSelection)[number]["goals"][number]["title"];
+export type goalTitlesType
+  = (typeof goalsSelection)[number]['goals'][number]['title']

@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { useSupabaseAuth, useToast, useUserProfile } from "~/composables";
-import { postAuthPath } from "~/types/user";
-import BaseButton from "~/components/shared/BaseButton.vue";
-import BaseInput from "~/components/shared/BaseInput.vue";
+import { useSupabaseAuth, useToast, useUserProfile } from '~/composables'
+import { postAuthPath } from '~/types/user'
+import BaseButton from '~/components/shared/BaseButton.vue'
+import BaseInput from '~/components/shared/BaseInput.vue'
 
-definePageMeta({ layout: "auth" });
+definePageMeta({ layout: 'auth' })
 
-const { login, loading, error, clearError } = useSupabaseAuth();
-const { refreshProfile } = useUserProfile();
-const toast = useToast();
-const email = ref("");
-const password = ref("");
+const { login, loading, error, clearError } = useSupabaseAuth()
+const { refreshProfile } = useUserProfile()
+const toast = useToast()
+const email = ref('')
+const password = ref('')
 
 async function submit() {
-  clearError();
-  await login(email.value, password.value);
+  clearError()
+  await login(email.value, password.value)
   if (!error.value) {
-    toast.showSuccess("Signed in.", 1500);
-    const me = await refreshProfile(true);
-    await navigateTo(postAuthPath(me?.profile ?? null));
+    toast.showSuccess('Signed in.', 1500)
+    const me = await refreshProfile(true)
+    await navigateTo(postAuthPath(me?.profile ?? null))
   }
 }
 </script>
@@ -26,7 +26,9 @@ async function submit() {
 <template>
   <div>
     <div class="mb-6">
-      <h2 class="text-2xl font-bold text-ink">Sign in</h2>
+      <h2 class="text-2xl font-bold text-ink">
+        Sign in
+      </h2>
       <p class="mt-1 text-sm text-ink-3">
         Sign in to your account to use the forum
       </p>
@@ -34,7 +36,10 @@ async function submit() {
     <div
       class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-6"
     >
-      <form class="space-y-4" @submit.prevent="submit">
+      <form
+        class="space-y-4"
+        @submit.prevent="submit"
+      >
         <div>
           <BaseInput
             id="email"
@@ -47,7 +52,10 @@ async function submit() {
         </div>
         <div>
           <div class="mb-1 flex items-center justify-between">
-            <label for="password" class="text-sm font-semibold text-ink-2">
+            <label
+              for="password"
+              class="text-sm font-semibold text-ink-2"
+            >
               Password
             </label>
             <NuxtLink
@@ -67,7 +75,12 @@ async function submit() {
             placeholder="••••••••"
           />
         </div>
-        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        <p
+          v-if="error"
+          class="text-sm text-red-600"
+        >
+          {{ error }}
+        </p>
         <BaseButton
           type="submit"
           :disabled="loading"

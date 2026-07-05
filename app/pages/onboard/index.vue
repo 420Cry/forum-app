@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import OnboardNav from "@/components/onboard/shared/OnboardNav.vue";
-import OnboardProgress from "@/components/onboard/shared/OnboardProgress.vue";
-import { isOnboardingComplete } from "~/types/user";
+import OnboardNav from '@/components/onboard/shared/OnboardNav.vue'
+import OnboardProgress from '@/components/onboard/shared/OnboardProgress.vue'
+import { isOnboardingComplete } from '~/types/user'
 
-definePageMeta({ layout: "onboard" });
+definePageMeta({ layout: 'onboard' })
 
 const {
   currentPage,
@@ -14,23 +14,23 @@ const {
   backStep,
   updateOnboardPage,
   hydrateFromProfile,
-} = useOnboard();
-const { refreshProfile } = useUserProfile();
+} = useOnboard()
+const { refreshProfile } = useUserProfile()
 
-const totalSteps = onboardPage.value.length;
+const totalSteps = onboardPage.value.length
 
 onMounted(async () => {
-  const me = await refreshProfile(true);
-  const userProfile = me?.profile ?? null;
+  const me = await refreshProfile(true)
+  const userProfile = me?.profile ?? null
 
   if (isOnboardingComplete(userProfile)) {
-    await navigateTo("/home");
-    return;
+    await navigateTo('/home')
+    return
   }
 
-  hydrateFromProfile(userProfile);
-  updateOnboardPage();
-});
+  hydrateFromProfile(userProfile)
+  updateOnboardPage()
+})
 </script>
 
 <template>

@@ -17,7 +17,7 @@ export function useToast() {
     toasts.value = [...toasts.value, { id, message, type }]
     if (duration > 0) {
       setTimeout(() => {
-        toasts.value = toasts.value.filter((t) => t.id !== id)
+        toasts.value = toasts.value.filter(t => t.id !== id)
       }, duration)
     }
   }
@@ -35,7 +35,7 @@ export function useToast() {
   }
 
   function remove(id: number) {
-    toasts.value = toasts.value.filter((t) => t.id !== id)
+    toasts.value = toasts.value.filter(t => t.id !== id)
   }
 
   return { toasts, showSuccess, showError, showInfo, remove }

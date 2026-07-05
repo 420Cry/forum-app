@@ -1,37 +1,37 @@
-import type { RolePayload } from "~/types/onboard/schema/rolePayloadSchema";
-import { useApiConfig } from "../useApiConfig";
-import type { OnboardResponse } from "~/types/onboard/api";
-import type { OnboardInfo } from "~/types/onboard/schema/onboardInfoSchema";
+import type { RolePayload } from '~/types/onboard/schema/rolePayloadSchema'
+import { useApiConfig } from '../useApiConfig'
+import type { OnboardResponse } from '~/types/onboard/api'
+import type { OnboardInfo } from '~/types/onboard/schema/onboardInfoSchema'
 
 export function useOnboardApi() {
-  const { baseUrl, getAuthHeaders } = useApiConfig();
+  const { baseUrl, getAuthHeaders } = useApiConfig()
 
   async function saveUserRole(role: RolePayload) {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders()
     return await $fetch<OnboardResponse>(`${baseUrl}/user/role`, {
-      method: "POST",
+      method: 'POST',
       headers,
       body: role,
-    });
+    })
   }
 
   async function saveUserGoals(goals: string[]) {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders()
     return await $fetch<OnboardResponse>(`${baseUrl}/user/goals`, {
-      method: "POST",
+      method: 'POST',
       headers,
       body: { goals },
-    });
+    })
   }
 
   async function saveUserInfo(onboardInfo: OnboardInfo) {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders()
     return await $fetch<OnboardResponse>(`${baseUrl}/user/info`, {
-      method: "POST",
+      method: 'POST',
       headers,
       body: onboardInfo,
-    });
+    })
   }
 
-  return { saveUserRole, saveUserGoals, saveUserInfo };
+  return { saveUserRole, saveUserGoals, saveUserInfo }
 }

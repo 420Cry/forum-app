@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import BaseButton from "~/components/shared/BaseButton.vue";
-import BaseIcon from "~/components/shared/BaseIcon.vue";
+import BaseButton from '~/components/shared/BaseButton.vue'
+import BaseIcon from '~/components/shared/BaseIcon.vue'
 
-const emit = defineEmits(["next-page", "back-page"]);
+const emit = defineEmits(['next-page', 'back-page'])
 
 const props = defineProps<{
-  currentStep: number;
-  totalSteps: number;
-}>();
+  currentStep: number
+  totalSteps: number
+}>()
 
-const isFirstStep = computed(() => props.currentStep === 1);
-const isLastStep = computed(() => props.currentStep === props.totalSteps);
+const isFirstStep = computed(() => props.currentStep === 1)
+const isLastStep = computed(() => props.currentStep === props.totalSteps)
 </script>
 
 <template>
@@ -31,9 +31,15 @@ const isLastStep = computed(() => props.currentStep === props.totalSteps);
       <span class="hidden text-[13px] text-ink-4 sm:block">
         Complete each step to continue
       </span>
-      <BaseButton size="lg" @click="emit('next-page')">
+      <BaseButton
+        size="lg"
+        @click="emit('next-page')"
+      >
         {{ isLastStep ? "Finish & enter Fundedr" : "Continue" }}
-        <BaseIcon name="rightArrow" size="1.2em" />
+        <BaseIcon
+          name="rightArrow"
+          size="1.2em"
+        />
       </BaseButton>
     </div>
   </footer>
