@@ -44,11 +44,11 @@ function onAgeInput(event: Event) {
   </TitleSection>
 
   <div
-    class="mx-auto w-full max-w-[760px] bg-card border border-line rounded-[var(--radius-md)] shadow-[var(--shadow-1)] px-8 py-7"
+    class="mx-auto w-full max-w-[760px] bg-card border border-line rounded-md shadow-1 px-8 py-7"
   >
     <div class="flex items-center gap-[22px] mb-[26px]">
       <div
-        class="w-24 h-24 rounded-full border-2 border-dashed border-line-2 bg-surface-hover flex items-center justify-center text-ink-4 flex-none"
+        class="size-24  rounded-full border-2 border-dashed border-line-2 bg-surface-hover flex items-center justify-center text-ink-4 flex-none"
       >
         <BaseIcon
           name="camera"

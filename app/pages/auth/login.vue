@@ -38,7 +38,7 @@ async function submit() {
       </p>
     </div>
     <div
-      class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-6"
+      class="mx-auto max-w-md bg-card border border-line rounded-xl shadow-1 p-6"
     >
       <form
         class="space-y-4"

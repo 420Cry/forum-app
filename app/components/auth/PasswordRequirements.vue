@@ -38,7 +38,7 @@ const checks = computed(() => getPasswordChecks(props.password))
         :class="checks[requirementCheckKey[key]] ? 'text-green-700' : 'text-ink-4'"
       >
         <span
-          class="inline-flex h-4 w-4 items-center justify-center rounded-full border text-[10px]"
+          class="inline-flex size-4  items-center justify-center rounded-full border text-[10px]"
           :class="
             checks[requirementCheckKey[key]]
               ? 'border-green-600 bg-green-50'

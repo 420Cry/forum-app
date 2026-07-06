@@ -65,7 +65,7 @@ const toggleGoal = (goal: MutableGoal) => {
       <div
         v-for="goal in goalsByRole"
         :key="goal.key"
-        class="flex gap-[14px] items-start px-5 py-[18px] bg-card border-[1.5px] rounded-[var(--radius-md)] cursor-pointer transition-colors"
+        class="flex gap-[14px] items-start px-5 py-[18px] bg-card border-[1.5px] rounded-md cursor-pointer transition-colors"
         :class="
           goal.active
             ? 'border-brand bg-brand-tint'
@@ -74,7 +74,7 @@ const toggleGoal = (goal: MutableGoal) => {
         @click="toggleGoal(goal)"
       >
         <span
-          class="relative flex-none w-[18px] h-[18px] rounded-[4px] border-[1.5px] mt-px transition-colors"
+          class="relative flex-none size-[18px]  rounded-[4px] border-[1.5px] mt-px transition-colors"
           :class="
             goal.active ? 'bg-brand border-brand' : 'bg-card border-line-2'
           "
@@ -108,7 +108,7 @@ const toggleGoal = (goal: MutableGoal) => {
               t(goal.titleKey)
             }}</span>
           </div>
-          <p class="mt-1 text-[13px] text-ink-3 leading-[1.5]">
+          <p class="mt-1 text-[13px] text-ink-3 leading-normal">
             {{ t(goal.subtitleKey) }}
           </p>
         </div>

@@ -77,7 +77,7 @@ async function submit() {
 
 <template>
   <div
-    class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-6"
+    class="mx-auto max-w-md bg-card border border-line rounded-xl shadow-1 p-6"
   >
     <h2 class="text-2xl font-bold text-ink">
       {{ t('auth.heading.set_new_password') }}

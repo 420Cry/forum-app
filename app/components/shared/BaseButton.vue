@@ -7,7 +7,7 @@ const button = cva(
     'items-center',
     'gap-1.5',
     'font-semibold',
-    'rounded-[var(--radius-pill)]',
+    'rounded-pill',
     'transition-colors',
     'cursor-pointer',
     'select-none',

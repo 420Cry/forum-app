@@ -25,7 +25,7 @@ const computedIconClass = computed(() => {
 const computedCardClass = computed(() => {
   return [
     'relative flex flex-col gap-4 px-6 py-[26px] cursor-pointer border-[1.5px]',
-    'rounded-[var(--radius-lg)] transition-[border-color,box-shadow] duration-150',
+    'rounded-lg transition-[border-color,box-shadow] duration-150',
     {
       'bg-card border-line hover:border-line-2': !props.active,
       'bg-card border-brand shadow-[0_0_0_3px_var(--color-brand-tint)]':
@@ -38,7 +38,7 @@ const computedCardClass = computed(() => {
 <template>
   <div :class="computedCardClass">
     <span
-      class="absolute top-[18px] right-5 flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 transition"
+      class="absolute top-[18px] right-5 flex size-[22px]  items-center justify-center rounded-full border-2 transition"
       :class="props.active ? 'bg-brand border-brand' : 'bg-card border-line-2'"
     >
       <BaseIcon
@@ -50,7 +50,7 @@ const computedCardClass = computed(() => {
     </span>
 
     <div
-      class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-tint text-brand"
+      class="flex size-12  items-center justify-center rounded-full bg-brand-tint text-brand"
     >
       <BaseIcon
         :name="iconName"

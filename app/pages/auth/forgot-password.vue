@@ -29,7 +29,7 @@ async function submit() {
       </p>
     </div>
     <div
-      class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-6"
+      class="mx-auto max-w-md bg-card border border-line rounded-xl shadow-1 p-6"
     >
       <form
         v-if="!resetSent"
@@ -67,7 +67,7 @@ async function submit() {
       </form>
       <div
         v-else
-        class="rounded-[var(--radius-md)] border border-brand-200 bg-brand-50 p-4 text-sm text-brand"
+        class="rounded-md border border-brand-200 bg-brand-50 p-4 text-sm text-brand"
       >
         <p class="font-semibold">
           {{ t('auth.heading.check_email') }}

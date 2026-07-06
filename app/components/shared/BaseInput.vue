@@ -15,7 +15,7 @@ const input = cva(
   [
     'bg-card',
     'border',
-    'rounded-[var(--radius-md)]',
+    'rounded-md',
     'py-2.5',
     'px-3',
     'text-ink',

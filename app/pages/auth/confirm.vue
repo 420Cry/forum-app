@@ -72,7 +72,7 @@ async function retry() {
 
 <template>
   <div
-    class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-8 text-center"
+    class="mx-auto max-w-md bg-card border border-line rounded-xl shadow-1 p-8 text-center"
   >
     <p
       v-if="status === 'confirming'"
