@@ -77,7 +77,7 @@ export function useSupabaseAuth() {
     loading.value = true
     error.value = null
     try {
-      const { error: err } = await supabase.auth.signInWithPassword({
+      const { data, error: err } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
@@ -88,7 +88,16 @@ export function useSupabaseAuth() {
             : err.message
         return
       }
-      await refreshUser()
+      if (data.session) {
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        })
+        refreshedUser.value = data.session.user
+      }
+      else {
+        await refreshUser()
+      }
     }
     finally {
       loading.value = false
@@ -110,7 +119,10 @@ export function useSupabaseAuth() {
         },
       })
       if (err) {
-        error.value = err.message
+        error.value
+          = err.code === 'user_already_exists'
+            ? t('auth.error.user_already_exists')
+            : err.message
         return
       }
 
@@ -148,10 +160,18 @@ export function useSupabaseAuth() {
   }
 
   async function refreshUser(): Promise<boolean> {
-    await supabase.auth.refreshSession()
-    const { data } = await supabase.auth.getUser()
-    refreshedUser.value = data.user
-    return !!data.user?.email_confirmed_at
+    const { data: current } = await supabase.auth.getSession()
+    if (!current.session) return false
+
+    const { data, error } = await supabase.auth.refreshSession()
+    if (error || !data.session) {
+      refreshedUser.value = current.session.user
+      return !!current.session.user.email_confirmed_at
+    }
+
+    const { data: userData } = await supabase.auth.getUser()
+    refreshedUser.value = userData.user
+    return !!userData.user?.email_confirmed_at
   }
 
   async function resendVerificationEmail() {

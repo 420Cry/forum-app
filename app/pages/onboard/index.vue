@@ -11,18 +11,19 @@ const {
   currentPage,
   currentStep,
   currentStepLabel,
-  onboardPage,
+  totalSteps,
   bumpStep,
   backStep,
   updateOnboardPage,
   hydrateFromProfile,
+  isLoading,
 } = useOnboard()
-const { refreshProfile, unauthorized } = useUserProfile()
+const { refreshProfile, unauthorized, loading: profileLoading } = useUserProfile()
 
-const totalSteps = onboardPage.value.length
+const pageReady = ref(false)
 
 onMounted(async () => {
-  const me = await refreshProfile(true)
+  const me = await refreshProfile(false)
 
   if (unauthorized.value) {
     toast.showError(t('auth.error.session_invalid'), 4000)
@@ -39,23 +40,45 @@ onMounted(async () => {
 
   hydrateFromProfile(userProfile)
   updateOnboardPage()
+  pageReady.value = true
 })
 </script>
 
 <template>
   <OnboardProgress
+    v-if="pageReady"
     :step="currentStep"
     :total-steps="totalSteps"
     :label="currentStepLabel"
   />
 
-  <main class="flex-1 flex flex-col items-center px-8 pt-14 pb-10">
-    <component :is="currentPage" />
+  <main class="relative flex-1 flex flex-col items-center px-8 pt-14 pb-10">
+    <SharedLoadingSpinner
+      v-if="profileLoading || !pageReady"
+      size="lg"
+      :label="t('common.info.loading')"
+    />
+    <component
+      :is="currentPage"
+      v-else
+    />
+
+    <div
+      v-if="isLoading"
+      class="absolute inset-0 z-10 flex items-center justify-center bg-card/70 backdrop-blur-[1px]"
+    >
+      <SharedLoadingSpinner
+        size="md"
+        :label="t('onboard.action.finishing')"
+      />
+    </div>
   </main>
 
   <OnboardNav
+    v-if="pageReady"
     :current-step="currentStep"
     :total-steps="totalSteps"
+    :loading="isLoading"
     @next-page="bumpStep"
     @back-page="backStep"
   />

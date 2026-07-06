@@ -14,7 +14,8 @@
     },
     "info": {
       "selected_count": "Đã chọn {count}",
-      "update_anytime": "Bạn có thể cập nhật bất cứ lúc nào trong hồ sơ"
+      "update_anytime": "Bạn có thể cập nhật bất cứ lúc nào trong hồ sơ",
+      "loading": "Đang tải..."
     },
     "error": {
       "try_again": "Vui lòng thử lại",
@@ -89,7 +90,8 @@
       "password_uppercase": "Mật khẩu phải có ít nhất 1 chữ hoa",
       "password_lowercase": "Mật khẩu phải có ít nhất 1 chữ thường",
       "password_special": "Mật khẩu phải có ít nhất 1 ký tự đặc biệt",
-      "session_invalid": "Không thể xác minh phiên đăng nhập. Hãy đăng nhập lại sau khi xác minh email."
+      "session_invalid": "Không thể xác minh phiên đăng nhập. Hãy đăng nhập lại sau khi xác minh email.",
+      "user_already_exists": "Email này đã được đăng ký. Hãy đăng nhập. Trên môi trường dev, xóa user bằng: forum db:delete-user [email]"
     }
   },
   "onboard": {
@@ -144,6 +146,7 @@
     },
     "action": {
       "finish": "Hoàn tất & vào Fundedr",
+      "finishing": "Đang thiết lập...",
       "upload_photo": "Tải ảnh lên"
     },
     "error": {

@@ -2,8 +2,14 @@
 import { useSupabaseAuth } from '~/composables'
 
 const { refreshUser } = useSupabaseAuth()
-onMounted(() => {
-  void refreshUser()
+onMounted(async () => {
+  const supabase = useSupabaseClient()
+  const nuxtSession = useSupabaseSession()
+  const { data } = await supabase.auth.getSession()
+  const session = data.session ?? nuxtSession.value
+  if (session?.access_token) {
+    void refreshUser()
+  }
 })
 
 useHead({

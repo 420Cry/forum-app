@@ -32,6 +32,10 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      // Proxy dev traffic arrives with Host: app.forum.test (Vite 6+ blocks unknown hosts).
+      allowedHosts: ['app.forum.test', 'localhost', '127.0.0.1'],
+    },
   },
   eslint: {
     config: {
@@ -64,6 +68,11 @@ export default defineNuxtConfig({
       login: '/auth/login',
       callback: '/auth/confirm',
       exclude: ['/auth/confirm'],
+    },
+    cookieOptions: {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7,
     },
   },
 })

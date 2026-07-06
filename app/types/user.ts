@@ -1,11 +1,5 @@
-export type OnboardProcess
-  = | 'RoleSelection'
-    | 'GoalSelection'
-    | 'BasicInfo'
-    | 'Completed'
-
 export type UserProfile = {
-  onboard_process: OnboardProcess
+  onboarded: boolean
   role: 'Founder' | 'Investor' | null
   name: string | null
   occupation: string | null
@@ -23,19 +17,7 @@ export type AuthMeResponse = {
 export function isOnboardingComplete(
   profile: UserProfile | null | undefined,
 ): boolean {
-  return profile?.onboard_process === 'Completed'
-}
-
-export function onboardStepFromProcess(
-  process: OnboardProcess | null | undefined,
-): number {
-  if (!process || process === 'Completed') return 1
-  const stepByProcess: Record<Exclude<OnboardProcess, 'Completed'>, number> = {
-    RoleSelection: 1,
-    GoalSelection: 2,
-    BasicInfo: 3,
-  }
-  return stepByProcess[process]
+  return profile?.onboarded === true
 }
 
 export function postAuthPath(profile: UserProfile | null | undefined): string {

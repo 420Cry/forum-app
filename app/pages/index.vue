@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { hasAccessToken } from '~/utils/authSession'
 import { postAuthPath } from '~/types/user'
 
 const supabase = useSupabaseClient()
+const nuxtSession = useSupabaseSession()
 const { data: sessionData } = await supabase.auth.getSession()
+const session = sessionData.session ?? nuxtSession.value
 
-if (!hasAccessToken(sessionData.session)) {
+const hasSession = !!(session?.access_token)
+
+if (!hasSession) {
   await navigateTo('/auth/login', { replace: true })
 }
 else {
-  await supabase.auth.refreshSession()
   const { refreshProfile } = useUserProfile()
-  const me = await refreshProfile(true)
+  const me = await refreshProfile(false)
   await navigateTo(postAuthPath(me?.profile ?? null), { replace: true })
 }
 </script>

@@ -14,7 +14,8 @@
     },
     "info": {
       "selected_count": "{count} selected",
-      "update_anytime": "You can update these any time from your profile"
+      "update_anytime": "You can update these any time from your profile",
+      "loading": "Loading..."
     },
     "error": {
       "try_again": "Please try again",
@@ -89,7 +90,8 @@
       "password_uppercase": "Password must include at least 1 uppercase letter",
       "password_lowercase": "Password must include at least 1 lowercase letter",
       "password_special": "Password must include at least 1 special character",
-      "session_invalid": "Your session could not be verified. Sign in again after confirming your email."
+      "session_invalid": "Your session could not be verified. Sign in again after confirming your email.",
+      "user_already_exists": "This email is already registered. Sign in instead. For local dev, delete the auth user with: forum db:delete-user [email]"
     }
   },
   "onboard": {
@@ -144,6 +146,7 @@
     },
     "action": {
       "finish": "Finish & enter Fundedr",
+      "finishing": "Setting up...",
       "upload_photo": "Upload photo"
     },
     "error": {

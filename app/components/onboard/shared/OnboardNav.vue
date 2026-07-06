@@ -4,10 +4,14 @@ import BaseIcon from '~/components/shared/BaseIcon.vue'
 
 const emit = defineEmits(['next-page', 'back-page'])
 
-const props = defineProps<{
-  currentStep: number
-  totalSteps: number
-}>()
+const props = withDefaults(
+  defineProps<{
+    currentStep: number
+    totalSteps: number
+    loading?: boolean
+  }>(),
+  { loading: false },
+)
 
 const { t } = useI18n()
 const isFirstStep = computed(() => props.currentStep === 1)
@@ -22,6 +26,7 @@ const isLastStep = computed(() => props.currentStep === props.totalSteps)
       v-if="!isFirstStep"
       intent="secondary"
       size="sm"
+      :disabled="loading"
       @click="emit('back-page')"
     >
       <BaseIcon name="leftArrow" />
@@ -34,11 +39,14 @@ const isLastStep = computed(() => props.currentStep === props.totalSteps)
       </span>
       <BaseButton
         size="lg"
+        :disabled="loading"
         @click="emit('next-page')"
       >
         {{
           isLastStep
-            ? t('onboard.action.finish')
+            ? loading
+              ? t('onboard.action.finishing')
+              : t('onboard.action.finish')
             : t('common.action.continue')
         }}
         <BaseIcon

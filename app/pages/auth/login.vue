@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useSupabaseAuth, useToast, useUserProfile } from '~/composables'
+import { postAuthPath } from '~/types/user'
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
 
@@ -17,8 +18,9 @@ async function submit() {
   await login(email.value, password.value)
   if (!error.value) {
     toast.showSuccess(t('auth.info.signed_in_toast'), 1500)
-    void refreshProfile(true)
-    await navigateTo('/onboard', { replace: true })
+    const me = await refreshProfile(false)
+    const target = postAuthPath(me?.profile ?? null)
+    await navigateTo(target, { replace: true })
   }
 }
 </script>
@@ -86,6 +88,10 @@ async function submit() {
           size="md"
           class="w-full justify-center"
         >
+          <SharedLoadingSpinner
+            v-if="loading"
+            size="sm"
+          />
           {{
             loading ? t('auth.action.signing_in') : t('auth.action.sign_in')
           }}

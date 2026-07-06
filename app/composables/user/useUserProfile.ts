@@ -2,6 +2,7 @@ import type { AuthMeResponse } from '~/types/user'
 import { isOnboardingComplete } from '~/types/user'
 import { isFetchUnauthorized } from '~/utils/authSession'
 import { useUserApi } from '../api/useUserApi'
+import { useSupabaseToken } from '../auth/useSupabaseToken'
 
 export function useUserProfile() {
   const profile = useState<AuthMeResponse | null>('forum-user-me', () => null)
@@ -14,6 +15,14 @@ export function useUserProfile() {
 
   async function refreshProfile(force = false) {
     if (!force && profile.value) return profile.value
+
+    const { getAccessToken } = useSupabaseToken()
+    const token = await getAccessToken(force)
+    if (!token) {
+      profile.value = null
+      unauthorized.value = true
+      return null
+    }
 
     loading.value = true
     try {

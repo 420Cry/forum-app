@@ -6,6 +6,13 @@ export function useUserApi() {
 
   async function fetchMe(forceRefresh = false) {
     const headers = await getAuthHeaders(forceRefresh)
+    if (!headers.Authorization) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Missing access token',
+      })
+    }
+
     return $fetch<AuthMeResponse>(`${baseUrl}/auth/me`, {
       headers,
       credentials: 'include',

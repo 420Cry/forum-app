@@ -2,23 +2,18 @@ import { shallowRef, ref, computed, reactive, readonly } from 'vue'
 import BasicInfo from '@/components/onboard/BasicInfo.vue'
 import GoalSelection from '@/components/onboard/GoalSelection.vue'
 import RoleSelection from '@/components/onboard/RoleSelection.vue'
-import type {
-  goalTitlesType,
-  roleTitlesType,
-} from '~/types/onboard/onboardType'
+import type { goalKeyType, roleTitlesType } from '~/types/onboard/onboardType'
 import { useZodValidation } from '../validate/useZodValidation'
 import { createOnboardInfoSchema } from '~/types/onboard/schema/onboardInfoSchema'
 import { useOnboardApi } from '../api/onboard/useOnboardApi'
-import { createRolePayloadSchema } from '~/types/onboard/schema/rolePayloadSchema'
 import type { ApiErrResponse } from '~/types/api'
 import type { UserProfile } from '~/types/user'
-import { onboardStepFromProcess } from '~/types/user'
 import { isFetchUnauthorized } from '~/utils/authSession'
 import { useUserProfile } from '../user/useUserProfile'
 
 type onboardInfoType = {
   role: '' | roleTitlesType
-  goals: goalTitlesType[]
+  goals: goalKeyType[]
   firstName: string
   lastName: string
   age: string
@@ -26,15 +21,21 @@ type onboardInfoType = {
   occupation: string
 }
 
-const onboardInfo = reactive<onboardInfoType>({
-  role: '',
-  goals: [],
-  firstName: '',
-  lastName: '',
-  age: '',
-  location: '',
-  occupation: '',
-})
+function emptyOnboardInfo(): onboardInfoType {
+  return {
+    role: '',
+    goals: [],
+    firstName: '',
+    lastName: '',
+    age: '',
+    location: '',
+    occupation: '',
+  }
+}
+
+// Shared across the onboarding SPA session. Nothing is persisted to the backend
+// until the final step submits everything in one request.
+const onboardInfo = reactive<onboardInfoType>(emptyOnboardInfo())
 
 const stepLabelKeys: Record<number, string> = {
   1: 'onboard.heading.choose_role',
@@ -42,8 +43,8 @@ const stepLabelKeys: Record<number, string> = {
 }
 
 const infoErrors = ref<Record<string, string> | null>(null)
-
 const goalsRole = ref<'' | roleTitlesType>('')
+const currentStep = ref(1)
 
 export const useOnboard = () => {
   const { t } = useI18n()
@@ -53,8 +54,8 @@ export const useOnboard = () => {
     { step: 3, pageName: BasicInfo, active: false },
   ])
 
-  const currentStep = ref(1)
   const isLoading = ref(false)
+  const totalSteps = onboardPage.value.length
 
   const currentPage = computed(() => {
     const selectedPage = onboardPage.value.find(page => page.active === true)
@@ -81,19 +82,22 @@ export const useOnboard = () => {
   const toast = useToast()
   const { refreshProfile } = useUserProfile()
 
-  async function handleUnauthorized(err: unknown) {
-    if (!isFetchUnauthorized(err)) return false
-    toast.showError(t('auth.error.session_invalid'), 4000)
-    await navigateTo('/auth/login')
-    return true
+  const resetOnboarding = () => {
+    Object.assign(onboardInfo, emptyOnboardInfo())
+    infoErrors.value = null
+    goalsRole.value = ''
+    currentStep.value = 1
+    updateOnboardPage()
   }
 
+  // Prefill from an existing profile (edit flow / already-collected data).
   const hydrateFromProfile = (profile: UserProfile | null) => {
-    if (!profile || profile.onboard_process === 'Completed') return
+    if (!profile) return
 
     if (profile.role) onboardInfo.role = profile.role
     if (profile.goals.length > 0) {
-      onboardInfo.goals = profile.goals as goalTitlesType[]
+      onboardInfo.goals = profile.goals as goalKeyType[]
+      goalsRole.value = profile.role ?? ''
     }
     if (profile.name) {
       const [firstName, ...rest] = profile.name.trim().split(/\s+/)
@@ -103,147 +107,90 @@ export const useOnboard = () => {
     if (profile.age != null) onboardInfo.age = String(profile.age)
     if (profile.location) onboardInfo.location = profile.location
     if (profile.occupation) onboardInfo.occupation = profile.occupation
-
-    currentStep.value = onboardStepFromProcess(profile.onboard_process)
-    updateOnboardPage()
   }
 
-  const bumpStep = async () => {
-    const { formInputValidate } = useZodValidation()
-    if (currentStep.value === onboardPage.value.length) {
-      isLoading.value = true
-      const { saveUserInfo } = useOnboardApi()
-      const submitInput = computed(() => {
-        const { role, goals, ...rest } = onboardInfo
-        return rest
-      })
-      try {
-        const { data, errors } = formInputValidate(
-          submitInput.value,
-          createOnboardInfoSchema(t),
-        )
-        if (errors) {
-          infoErrors.value = errors
-          return
-        }
-        infoErrors.value = null
-        const res = await saveUserInfo(data)
-        if (!res.success) {
-          return toast.showError(t('common.error.try_again_later'), 1500)
-        }
-        toast.showSuccess(res.message, 2000)
-        await refreshProfile(true)
-        return await navigateTo('/home')
-      }
-      catch (err: unknown) {
-        if (await handleUnauthorized(err)) return
-        const error = (err as { data?: ApiErrResponse })?.data
-        if (!error) return toast.showError(t('common.error.try_again'), 2000)
-
-        if (typeof error.message === 'string') {
-          return toast.showError(error.message, 2000)
-        }
-
-        if (Array.isArray(error.message)) {
-          error.message.forEach((msg) => {
-            toast.showError(msg, 1500)
-          })
-          return
-        }
-      }
-      finally {
-        isLoading.value = false
-      }
-      return
+  const showApiError = (err: unknown) => {
+    const error = (err as { data?: ApiErrResponse })?.data
+    if (!error) return toast.showError(t('common.error.try_again'), 2000)
+    if (typeof error.message === 'string') {
+      return toast.showError(error.message, 2000)
     }
+    if (Array.isArray(error.message)) {
+      error.message.forEach(msg => toast.showError(msg, 1500))
+    }
+  }
 
+  async function submitOnboarding() {
+    const { formInputValidate } = useZodValidation()
+    const { role, goals, ...info } = onboardInfo
+
+    const { data, errors } = formInputValidate(
+      info,
+      createOnboardInfoSchema(t),
+    )
+    if (errors) {
+      infoErrors.value = errors
+      return false
+    }
+    infoErrors.value = null
+
+    isLoading.value = true
+    try {
+      const { saveOnboarding } = useOnboardApi()
+      const res = await saveOnboarding({
+        role: role as roleTitlesType,
+        goals,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        age: data.age,
+        location: data.location,
+        occupation: data.occupation,
+      })
+      if (!res.success) {
+        toast.showError(t('common.error.try_again_later'), 1500)
+        return false
+      }
+      await refreshProfile(true)
+      resetOnboarding()
+      await navigateTo('/home')
+      return true
+    }
+    catch (err: unknown) {
+      if (isFetchUnauthorized(err)) {
+        toast.showError(t('auth.error.session_invalid'), 4000)
+        await navigateTo('/auth/login')
+        return false
+      }
+      showApiError(err)
+      return false
+    }
+    finally {
+      isLoading.value = false
+    }
+  }
+
+  // Local-only navigation with per-step validation. No backend calls until
+  // the final step submits the whole payload.
+  const bumpStep = async () => {
     if (currentStep.value === 1) {
-      isLoading.value = true
-      const { saveUserRole } = useOnboardApi()
       if (!onboardInfo.role) {
-        isLoading.value = false
-        return toast.showError(
-          t('onboard.error.select_role'),
-          3000,
-        )
+        return toast.showError(t('onboard.error.select_role'), 3000)
       }
-      try {
-        const { data, errors } = formInputValidate(
-          { role: onboardInfo.role },
-          createRolePayloadSchema(t),
-        )
-        if (errors) {
-          return toast.showError(Object.values(errors)[0] as string, 3000)
-        }
-
-        const res = await saveUserRole(data)
-        toast.showSuccess(res.message, 1500)
-        await refreshProfile(true)
-        currentStep.value++
-        updateOnboardPage()
-        return
-      }
-      catch (err: unknown) {
-        if (await handleUnauthorized(err)) return
-        const error = (err as { data?: ApiErrResponse })?.data
-        if (!error) return toast.showError(t('common.error.try_again'), 2000)
-
-        if (typeof error.message === 'string') {
-          return toast.showError(error.message, 2000)
-        }
-
-        if (Array.isArray(error.message)) {
-          error.message.forEach((msg) => {
-            toast.showError(msg, 1500)
-          })
-          return
-        }
-      }
-      finally {
-        isLoading.value = false
-      }
-      return
     }
 
     if (currentStep.value === 2) {
-      isLoading.value = true
       if (onboardInfo.goals.length === 0) {
-        isLoading.value = false
-        return toast.showError(
-          t('onboard.error.select_goal'),
-          3000,
-        )
+        return toast.showError(t('onboard.error.select_goal'), 3000)
       }
-      const { saveUserGoals } = useOnboardApi()
-      try {
-        const res = await saveUserGoals(onboardInfo.goals)
-        toast.showSuccess(res.message, 1500)
-        await refreshProfile(true)
-        currentStep.value++
-        updateOnboardPage()
-        return
-      }
-      catch (err: unknown) {
-        if (await handleUnauthorized(err)) return
-        const error = (err as { data?: ApiErrResponse })?.data
-        if (!error) return toast.showError(t('common.error.try_again'), 2000)
+    }
 
-        if (typeof error.message === 'string') {
-          return toast.showError(error.message, 2000)
-        }
-
-        if (Array.isArray(error.message)) {
-          error.message.forEach((msg) => {
-            toast.showError(msg, 1500)
-          })
-        }
-        return
-      }
-      finally {
-        isLoading.value = false
-      }
+    if (currentStep.value === totalSteps) {
+      await submitOnboarding()
       return
     }
+
+    currentStep.value++
+    updateOnboardPage()
   }
 
   const clearInfoError = (field: string) => {
@@ -263,10 +210,12 @@ export const useOnboard = () => {
     currentStep,
     currentStepLabel,
     onboardPage,
+    totalSteps,
     bumpStep,
     backStep,
     updateOnboardPage,
     hydrateFromProfile,
+    resetOnboarding,
     onboardInfo,
     goalsRole,
     isLoading,

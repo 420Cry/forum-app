@@ -7,6 +7,7 @@ import {
 
 export default defineNuxtRouteMiddleware(async (to) => {
   const supabase = useSupabaseClient()
+  const nuxtSession = useSupabaseSession()
   const { data: sessionData } = await supabase.auth.getSession()
   const supabaseUser = useSupabaseUser()
 
@@ -16,7 +17,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const isHomeRoute = to.path.startsWith('/home')
   const isProtectedRoute = isOnboardRoute || isHomeRoute
 
-  const session = sessionData.session
+  const session = sessionData.session ?? nuxtSession.value
   const hasSession = hasAccessToken(session)
 
   if (!hasSession) {
@@ -26,13 +27,18 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return
   }
 
-  await supabase.auth.refreshSession()
-  const { data: userData } = await supabase.auth.getUser()
-  const authUser = resolveAuthUser(
-    supabaseUser.value,
-    session,
-    userData.user,
-  )
+  let authUser = resolveAuthUser(supabaseUser.value, session, null)
+
+  if (!authUser || !isEmailVerified(authUser)) {
+    await supabase.auth.refreshSession()
+    const { data: userData } = await supabase.auth.getUser()
+    authUser = resolveAuthUser(
+      supabaseUser.value,
+      session,
+      userData.user,
+    )
+  }
+
   const emailVerified = isEmailVerified(authUser)
 
   if (!authUser) {
@@ -52,8 +58,27 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return
   }
 
+  if (!import.meta.client) return
+
   const { profile, refreshProfile, unauthorized } = useUserProfile()
-  await refreshProfile(true)
+
+  // Protected routes: trust Supabase session on reload; don't block on forum-api profile fetch.
+  if (isOnboardRoute || isHomeRoute) {
+    void refreshProfile(false)
+
+    const cached = profile.value?.profile ?? null
+    if (isHomeRoute && cached && !isOnboardingComplete(cached)) {
+      return navigateTo('/onboard')
+    }
+    if (isOnboardRoute && cached && isOnboardingComplete(cached)) {
+      return navigateTo('/home')
+    }
+    return
+  }
+
+  if (!profile.value) {
+    await refreshProfile(false)
+  }
 
   if (unauthorized.value && isProtectedRoute) {
     return navigateTo('/auth/login')
@@ -61,14 +86,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const userProfile = profile.value?.profile ?? null
   const completed = isOnboardingComplete(userProfile)
-
-  if (completed && isOnboardRoute) {
-    return navigateTo('/home')
-  }
-
-  if (!completed && isHomeRoute) {
-    return navigateTo('/onboard')
-  }
 
   if (completed && isAuthRoute) {
     return navigateTo('/home')

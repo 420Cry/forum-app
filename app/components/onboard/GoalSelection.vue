@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type {
   goalsSelectionType,
-  goalTitlesType,
+  goalKeyType,
 } from '~/types/onboard/onboardType'
 import TitleSection from './shared/TitleSection.vue'
 import BaseIcon from '../shared/BaseIcon.vue'
@@ -12,8 +12,8 @@ const { t } = useI18n()
 const { onboardInfo, goalsRole } = useOnboard()
 
 type MutableGoal = {
+  key: goalKeyType
   iconName: iconNameType
-  title: string
   titleKey: string
   subtitleKey: string
   active: boolean
@@ -32,7 +32,7 @@ const match = goalsSelection.find(g => g.role === onboardInfo.role)
 const matchGoal = match ?? (goalsSelection[0] as goalsSelectionType)
 goalsByRole.value = matchGoal.goals.map(g => ({
   ...g,
-  active: onboardInfo.goals.includes(g.title as goalTitlesType),
+  active: onboardInfo.goals.includes(g.key as goalKeyType),
 }))
 
 const selectedCount = computed(
@@ -41,12 +41,11 @@ const selectedCount = computed(
 
 const toggleGoal = (goal: MutableGoal) => {
   goal.active = !goal.active
-  const title = goal.title as goalTitlesType
   if (goal.active) {
-    onboardInfo.goals.push(title)
+    onboardInfo.goals.push(goal.key)
   }
   else {
-    onboardInfo.goals = onboardInfo.goals.filter(item => item !== title)
+    onboardInfo.goals = onboardInfo.goals.filter(item => item !== goal.key)
   }
 }
 </script>
@@ -65,7 +64,7 @@ const toggleGoal = (goal: MutableGoal) => {
     <div class="grid grid-cols-2 gap-[14px]">
       <div
         v-for="goal in goalsByRole"
-        :key="goal.title"
+        :key="goal.key"
         class="flex gap-[14px] items-start px-5 py-[18px] bg-card border-[1.5px] rounded-[var(--radius-md)] cursor-pointer transition-colors"
         :class="
           goal.active
