@@ -1,9 +1,5 @@
 import { isOnboardingComplete } from '~/types/user'
-import {
-  hasAccessToken,
-  isEmailVerified,
-  resolveAuthUser,
-} from '~/utils/authSession'
+import { hasAccessToken, resolveAuthUser } from '~/utils/authSession'
 import { isProfileCacheStale } from '~/utils/profileCache'
 import type { AuthMeResponse } from '~/types/user'
 
@@ -34,7 +30,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const supabaseUser = useSupabaseUser()
 
   const isAuthRoute = path.startsWith('/auth')
-  const isConfirmRoute = path === '/auth/confirm'
   const isOnboardRoute = path === '/onboard'
   const isHomeRoute = path.startsWith('/home')
   const isProtectedRoute = isOnboardRoute || isHomeRoute
@@ -51,7 +46,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   let authUser = resolveAuthUser(supabaseUser.value, session, null)
 
-  if (!authUser || !isEmailVerified(authUser)) {
+  if (!authUser) {
     await supabase.auth.refreshSession()
     const { data: userData } = await supabase.auth.getUser()
     authUser = resolveAuthUser(
@@ -61,21 +56,9 @@ export default defineNuxtRouteMiddleware(async (to) => {
     )
   }
 
-  const emailVerified = isEmailVerified(authUser)
-
   if (!authUser) {
     if (isProtectedRoute) {
       return navigateTo('/auth/login')
-    }
-    return
-  }
-
-  if (!emailVerified) {
-    if (isProtectedRoute) {
-      return navigateTo('/auth')
-    }
-    if (isAuthRoute && !isConfirmRoute && path !== '/auth') {
-      return navigateTo('/auth')
     }
     return
   }

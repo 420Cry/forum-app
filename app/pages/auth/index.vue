@@ -1,41 +1,16 @@
 <script setup lang="ts">
 import { useSupabaseAuth } from '~/composables'
+import { postAuthPath } from '~/types/user'
 
 definePageMeta({ layout: 'auth' })
 
 const { t } = useI18n()
-const {
-  user,
-  logout,
-  isAuthenticated,
-  resendVerificationEmail,
-  refreshUser,
-  loading,
-  error,
-  clearError,
-} = useSupabaseAuth()
-const verificationResent = ref(false)
-const checkingVerification = ref(false)
-const isDev = import.meta.dev
+const { user, logout, isAuthenticated } = useSupabaseAuth()
+const { refreshProfile } = useUserProfile()
 
-onMounted(() => {
-  if (user.value && !user.value.emailVerified) {
-    void refreshUser()
-  }
-})
-
-async function handleCheckVerified() {
-  checkingVerification.value = true
-  clearError()
-  await refreshUser()
-  checkingVerification.value = false
-}
-
-async function handleResendVerification() {
-  verificationResent.value = false
-  clearError()
-  await resendVerificationEmail()
-  if (!error.value) verificationResent.value = true
+async function goToApp() {
+  const me = await refreshProfile(true)
+  await navigateTo(postAuthPath(me?.profile ?? null))
 }
 </script>
 
@@ -56,73 +31,19 @@ async function handleResendVerification() {
             {{ user.email }}
           </p>
           <p class="text-sm text-slate-500">
-            {{
-              user.emailVerified
-                ? t('auth.info.signed_in_status')
-                : t('auth.info.email_not_verified_status')
-            }}
+            {{ t('auth.info.signed_in_status') }}
           </p>
         </div>
       </div>
 
-      <div
-        v-if="!user.emailVerified"
-        class="mt-4 rounded border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800"
-      >
-        <p class="font-medium">
-          {{ t('auth.heading.verify_email') }}
-        </p>
-        <p class="mt-1 text-amber-700">
-          {{ t('auth.info.verify_email_prompt', { email: user.email }) }}
-        </p>
-        <p
-          v-if="isDev"
-          class="mt-2 text-xs text-amber-700"
-        >
-          {{ t('auth.info.local_dev_email_inbox') }}
-        </p>
-        <p
-          v-if="verificationResent"
-          class="mt-2 font-medium text-green-700"
-        >
-          {{ t('auth.info.verification_email_sent') }}
-        </p>
-        <p
-          v-if="error"
-          class="mt-2 text-red-600"
-        >
-          {{ error }}
-        </p>
+      <div class="mt-4 flex flex-wrap gap-3">
         <button
           type="button"
-          :disabled="loading || checkingVerification"
-          class="mt-3 mr-3 rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
-          @click="handleCheckVerified"
+          class="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+          @click="goToApp"
         >
-          {{
-            checkingVerification
-              ? t('auth.action.checking')
-              : t('auth.action.check_verified')
-          }}
+          {{ t('common.action.continue') }}
         </button>
-        <button
-          type="button"
-          :disabled="loading"
-          class="mt-3 rounded bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
-          @click="handleResendVerification"
-        >
-          {{
-            loading
-              ? t('auth.action.sending')
-              : t('auth.action.resend_verification')
-          }}
-        </button>
-      </div>
-
-      <div
-        v-if="user.emailVerified"
-        class="mt-4"
-      >
         <button
           type="button"
           class="rounded border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"

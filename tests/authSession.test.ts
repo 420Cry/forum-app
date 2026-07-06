@@ -1,26 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   hasAccessToken,
-  isEmailVerified,
   isFetchUnauthorized,
   resolveAuthUser,
 } from '~/utils/authSession'
 
 describe('authSession', () => {
-  describe('isEmailVerified', () => {
-    it('returns false for nullish or non-object values', () => {
-      expect(isEmailVerified(null)).toBe(false)
-      expect(isEmailVerified(undefined)).toBe(false)
-      expect(isEmailVerified('user')).toBe(false)
-    })
-
-    it('returns true when email_confirmed_at is set', () => {
-      expect(
-        isEmailVerified({ email_confirmed_at: '2026-07-06T00:00:00.000Z' }),
-      ).toBe(true)
-    })
-  })
-
   describe('hasAccessToken', () => {
     it('returns false without a session token', () => {
       expect(hasAccessToken(null)).toBe(false)
