@@ -14,21 +14,29 @@
     "preview": "nuxt preview --dotenv .env.production",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run --config vitest.config.mjs",
+    "test:watch": "vitest --config vitest.config.mjs"
   },
   "dependencies": {
     "@nuxt/eslint": "^1.14.0",
+    "@nuxtjs/i18n": "^10.4.0",
     "@nuxtjs/supabase": "^2.0.9",
+    "@supabase/supabase-js": "^2.110.0",
     "@tailwindcss/vite": "^4.1.18",
     "class-variance-authority": "^0.7.1",
     "nuxt": "^4.3.0",
     "tailwindcss": "^4.1.18",
     "vue": "^3.5.27",
+    "ws": "^8.21.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@iconify-json/material-symbols": "^1.2.61",
     "@nuxt/icon": "^2.2.1",
-    "typescript": "^5.9.3"
+    "@types/ws": "^8.18.1",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   }
 }

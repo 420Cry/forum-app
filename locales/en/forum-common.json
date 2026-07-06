@@ -1,0 +1,173 @@
+{
+  "common": {
+    "action": {
+      "back": "Back",
+      "continue": "Continue",
+      "dismiss": "Dismiss",
+      "sign_out": "Sign out"
+    },
+    "aria": {
+      "dismiss": "Dismiss"
+    },
+    "heading": {
+      "forum": "Forum"
+    },
+    "info": {
+      "selected_count": "{count} selected",
+      "update_anytime": "You can update these any time from your profile",
+      "loading": "Loading..."
+    },
+    "error": {
+      "try_again": "Please try again",
+      "try_again_later": "Please try again later"
+    }
+  },
+  "auth": {
+    "heading": {
+      "sign_in": "Sign in",
+      "create_account": "Create account",
+      "reset_password": "Reset password",
+      "set_new_password": "Set a new password",
+      "account": "Account",
+      "verify_email": "Verify your email",
+      "check_email": "Check your email"
+    },
+    "label": {
+      "email": "Email",
+      "password": "Password",
+      "new_password": "New password",
+      "email_placeholder": "you{'@'}example.com",
+      "password_placeholder": "••••••••"
+    },
+    "info": {
+      "sign_in_subtitle": "Sign in to your account to use the forum",
+      "create_account_subtitle": "Sign up to join the forum",
+      "reset_password_subtitle": "Enter your email and we'll send you a link to reset your password.",
+      "reset_link_sent": "We've sent a password reset link to {email}",
+      "open_reset_link": "Open the reset link from your email to continue.",
+      "password_requirements": "Password must include:",
+      "password_req_min_length": "At least 8 characters",
+      "password_req_number": "At least 1 number",
+      "password_req_uppercase": "At least 1 uppercase letter",
+      "password_req_lowercase": "At least 1 lowercase letter",
+      "password_req_special": "At least 1 special character",
+      "already_have_account": "Already have an account?",
+      "no_account": "Don't have an account?",
+      "confirming_email": "Confirming your email...",
+      "email_confirm_failed": "We could not confirm your email yet. Try again after clicking the link in your inbox.",
+      "verify_email_prompt": "We sent a verification link to {email}. Check your inbox or resend below.",
+      "verification_email_sent": "Verification email sent.",
+      "signed_in_status": "Signed in",
+      "email_not_verified_status": "Email not verified",
+      "sign_in_or_create": "Sign in or create an account to continue",
+      "signed_in_toast": "Signed in.",
+      "account_created_toast": "Account created. Check your email to verify your address.",
+      "password_updated_toast": "Password updated. You can sign in now.",
+      "local_dev_email_inbox": "Local dev: open http://127.0.0.1:54324 to read verification emails."
+    },
+    "action": {
+      "sign_in": "Sign in",
+      "signing_in": "Signing in...",
+      "create_account": "Create account",
+      "creating_account": "Creating account...",
+      "forgot_password": "Forgot password?",
+      "send_reset_link": "Send reset link",
+      "sending": "Sending...",
+      "update_password": "Update password",
+      "saving": "Saving...",
+      "check_again": "Check again",
+      "check_verified": "I've verified my email",
+      "checking": "Checking...",
+      "resend_verification": "Resend verification email",
+      "back_to_sign_in": "Back to sign in"
+    },
+    "error": {
+      "email_not_verified": "Please verify your email before signing in. Check your inbox for the verification link.",
+      "not_signed_in": "Not signed in",
+      "email_already_verified": "Email already verified",
+      "password_min_length": "Password must be at least 8 characters",
+      "password_number": "Password must include at least 1 number",
+      "password_uppercase": "Password must include at least 1 uppercase letter",
+      "password_lowercase": "Password must include at least 1 lowercase letter",
+      "password_special": "Password must include at least 1 special character",
+      "session_invalid": "Your session could not be verified. Sign in again after confirming your email.",
+      "user_already_exists": "This email is already registered. Sign in instead. For local dev, delete the auth user with: forum db:delete-user [email]"
+    }
+  },
+  "onboard": {
+    "heading": {
+      "choose_role": "Choose your role",
+      "founder_goals": "Your founder goals",
+      "investor_goals": "Your investor goals",
+      "about_yourself": "Tell us about yourself",
+      "goals": "What are your goals?",
+      "role_prompt": "What brings you to Fundedr?",
+      "founder_role_card": "I'm a Founder",
+      "investor_role_card": "I'm an Investor",
+      "goal_raise_capital": "Raise capital",
+      "goal_find_cofounders": "Find co-founders",
+      "goal_gather_feedback": "Gather feedback",
+      "goal_build_following": "Build a following",
+      "goal_discover_startups": "Discover startups",
+      "goal_build_deal_flow": "Build deal flow",
+      "goal_network_peers": "Network with peers",
+      "goal_market_insights": "Market insights",
+      "profile_photo": "Profile photo"
+    },
+    "label": {
+      "first_name": "First name",
+      "last_name": "Last name",
+      "age": "Age",
+      "location": "Location",
+      "occupation": "Occupation",
+      "first_name_placeholder": "e.g. Dao",
+      "last_name_placeholder": "e.g. Nguyen",
+      "age_placeholder": "e.g. 28",
+      "location_placeholder": "City, country",
+      "occupation_placeholder": "e.g. Founder & researcher"
+    },
+    "info": {
+      "role_subtitle": "Pick the option that fits you best. You can hold both roles later — this just sets up your home feed.",
+      "goals_subtitle": "Pick the ones that fit. We'll use this to tailor your home feed and recommendations. You can select more than one.",
+      "about_subtitle": "A few quick details. This is how others will see you across Fundedr.",
+      "complete_each_step": "Complete each step to continue",
+      "founder_role_card": "I'm building a company and want to share progress, meet investors, and grow a following.",
+      "investor_role_card": "I want to discover early-stage founders, track promising companies, and build my deal flow.",
+      "goal_raise_capital": "Connect with angels actively writing first cheques in your sector.",
+      "goal_find_cofounders": "Meet a technical or commercial partner the next chapter needs.",
+      "goal_gather_feedback": "Hear from operators before the round, while the product can still move.",
+      "goal_build_following": "Publish progress notes so the right readers find you over time.",
+      "goal_discover_startups": "Surface high-potential early-stage companies across industries you care about.",
+      "goal_build_deal_flow": "Track promising opportunities as they evolve, in real time, in one place.",
+      "goal_network_peers": "Read alongside other angels, scouts, and VC partners at the same edge.",
+      "goal_market_insights": "Stay close to trends and ecosystem shifts that change which bets make sense.",
+      "profile_photo_help": "A clear headshot helps people recognise you. JPG or PNG, up to 5 MB.",
+      "occupation_help": "This appears under your name on your profile and posts."
+    },
+    "action": {
+      "finish": "Finish & enter Fundedr",
+      "finishing": "Setting up...",
+      "upload_photo": "Upload photo"
+    },
+    "error": {
+      "select_role": "Please select your role before continue!",
+      "select_goal": "Please select at least one goal before continue!",
+      "first_name_required": "First name required",
+      "first_name_min": "First name must have at least 2 characters",
+      "first_name_special": "First name must not contain special characters",
+      "last_name_required": "Last name required",
+      "last_name_min": "Last name must have at least 2 characters",
+      "last_name_special": "Last name must not contain special characters",
+      "age_required": "Age required",
+      "age_min": "Age cannot be lower than 5",
+      "age_max": "Age cannot be bigger than 100",
+      "location_required": "Location required",
+      "location_min": "Location must have at least 2 characters",
+      "location_special": "Location must not contain special characters",
+      "occupation_required": "Occupation required",
+      "occupation_min": "Occupation must have at least 2 characters",
+      "occupation_special": "Occupation must not contain special characters",
+      "role_invalid": "User role can only be Founder or Investor"
+    }
+  }
+}

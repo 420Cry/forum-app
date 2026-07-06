@@ -1,11 +1,11 @@
 <script setup lang="ts">
 const props = defineProps<{
-  step: number;
-  totalSteps: number;
-  label: string;
-}>();
+  step: number
+  totalSteps: number
+  label: string
+}>()
 
-const fillPercent = computed(() => (props.step / props.totalSteps) * 100);
+const fillPercent = computed(() => (props.step / props.totalSteps) * 100)
 </script>
 
 <template>

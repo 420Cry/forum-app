@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useSupabaseAuth, useForumApi, useForumSession } from "~/composables";
+import { useSupabaseAuth } from '~/composables'
 
-definePageMeta({ layout: "auth" });
+definePageMeta({ layout: 'auth' })
 
+const { t } = useI18n()
 const {
   user,
   logout,
@@ -12,47 +13,37 @@ const {
   loading,
   error,
   clearError,
-} = useSupabaseAuth();
-const { fetchMe } = useForumApi();
-const { meResult } = useForumSession();
-const verificationResent = ref(false);
-const checkingVerification = ref(false);
+} = useSupabaseAuth()
+const verificationResent = ref(false)
+const checkingVerification = ref(false)
+const isDev = import.meta.dev
 
 onMounted(() => {
   if (user.value && !user.value.emailVerified) {
-    void refreshUser();
+    void refreshUser()
   }
-});
+})
 
 async function handleCheckVerified() {
-  checkingVerification.value = true;
-  clearError();
-  await refreshUser();
-  checkingVerification.value = false;
-}
-
-async function verifyApi() {
-  meResult.value = null;
-  try {
-    meResult.value = await fetchMe();
-  } catch (e: unknown) {
-    const err = e as { data?: { message?: string }; message?: string };
-    const msg =
-      err?.data?.message ?? (e instanceof Error ? e.message : String(e));
-    meResult.value = { error: msg };
-  }
+  checkingVerification.value = true
+  clearError()
+  await refreshUser()
+  checkingVerification.value = false
 }
 
 async function handleResendVerification() {
-  verificationResent.value = false;
-  clearError();
-  await resendVerificationEmail();
-  if (!error.value) verificationResent.value = true;
+  verificationResent.value = false
+  clearError()
+  await resendVerificationEmail()
+  if (!error.value) verificationResent.value = true
 }
 </script>
 
 <template>
-  <div v-if="isAuthenticated && user" class="space-y-6">
+  <div
+    v-if="isAuthenticated && user"
+    class="space-y-6"
+  >
     <div class="rounded-lg border bg-white p-6 shadow-sm">
       <div class="flex items-center gap-4">
         <div
@@ -65,7 +56,11 @@ async function handleResendVerification() {
             {{ user.email }}
           </p>
           <p class="text-sm text-slate-500">
-            {{ user.emailVerified ? "Signed in" : "Email not verified" }}
+            {{
+              user.emailVerified
+                ? t('auth.info.signed_in_status')
+                : t('auth.info.email_not_verified_status')
+            }}
           </p>
         </div>
       </div>
@@ -74,15 +69,28 @@ async function handleResendVerification() {
         v-if="!user.emailVerified"
         class="mt-4 rounded border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800"
       >
-        <p class="font-medium">Verify your email</p>
+        <p class="font-medium">
+          {{ t('auth.heading.verify_email') }}
+        </p>
         <p class="mt-1 text-amber-700">
-          We sent a verification link to {{ user.email }}. Check your inbox or
-          resend below.
+          {{ t('auth.info.verify_email_prompt', { email: user.email }) }}
         </p>
-        <p v-if="verificationResent" class="mt-2 font-medium text-green-700">
-          Verification email sent.
+        <p
+          v-if="isDev"
+          class="mt-2 text-xs text-amber-700"
+        >
+          {{ t('auth.info.local_dev_email_inbox') }}
         </p>
-        <p v-if="error" class="mt-2 text-red-600">
+        <p
+          v-if="verificationResent"
+          class="mt-2 font-medium text-green-700"
+        >
+          {{ t('auth.info.verification_email_sent') }}
+        </p>
+        <p
+          v-if="error"
+          class="mt-2 text-red-600"
+        >
           {{ error }}
         </p>
         <button
@@ -91,7 +99,11 @@ async function handleResendVerification() {
           class="mt-3 mr-3 rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50"
           @click="handleCheckVerified"
         >
-          {{ checkingVerification ? "Checking..." : "I've verified my email" }}
+          {{
+            checkingVerification
+              ? t('auth.action.checking')
+              : t('auth.action.check_verified')
+          }}
         </button>
         <button
           type="button"
@@ -99,39 +111,25 @@ async function handleResendVerification() {
           class="mt-3 rounded bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
           @click="handleResendVerification"
         >
-          {{ loading ? "Sending..." : "Resend verification email" }}
+          {{
+            loading
+              ? t('auth.action.sending')
+              : t('auth.action.resend_verification')
+          }}
         </button>
       </div>
 
-      <div v-if="user.emailVerified" class="mt-4 flex flex-wrap gap-3">
-        <button
-          type="button"
-          class="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
-          @click="verifyApi"
-        >
-          Verify API token
-        </button>
+      <div
+        v-if="user.emailVerified"
+        class="mt-4"
+      >
         <button
           type="button"
           class="rounded border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           @click="logout"
         >
-          Sign out
+          {{ t('common.action.sign_out') }}
         </button>
-      </div>
-
-      <div
-        v-if="user.emailVerified && meResult"
-        class="mt-4 rounded border p-4 text-sm font-mono overflow-auto max-h-64"
-        :class="
-          'error' in meResult
-            ? 'border-red-200 bg-red-50 text-red-800'
-            : 'border-green-200 bg-green-50 text-green-800'
-        "
-      >
-        <pre class="whitespace-pre-wrap">{{
-          JSON.stringify(meResult, null, 2)
-        }}</pre>
       </div>
     </div>
   </div>
@@ -140,20 +138,24 @@ async function handleResendVerification() {
     v-else
     class="mx-auto max-w-md rounded-lg border bg-white p-8 shadow-sm text-center"
   >
-    <h2 class="text-xl font-semibold text-slate-800">Account</h2>
-    <p class="mt-2 text-slate-500">Sign in or create an account to continue</p>
+    <h2 class="text-xl font-semibold text-slate-800">
+      {{ t('auth.heading.account') }}
+    </h2>
+    <p class="mt-2 text-slate-500">
+      {{ t('auth.info.sign_in_or_create') }}
+    </p>
     <div class="mt-6 flex flex-col gap-3">
       <NuxtLink
         to="/auth/login"
         class="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
       >
-        Sign in
+        {{ t('auth.action.sign_in') }}
       </NuxtLink>
       <NuxtLink
         to="/auth/register"
         class="rounded border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
       >
-        Create account
+        {{ t('auth.action.create_account') }}
       </NuxtLink>
     </div>
   </div>

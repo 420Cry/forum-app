@@ -1,59 +1,62 @@
 <script setup lang="ts">
 import type {
   goalsSelectionType,
-  goalTitlesType,
-} from "~/types/onboard/onboardType";
-import TitleSection from "./shared/TitleSection.vue";
-import BaseIcon from "../shared/BaseIcon.vue";
-import { goalsSelection } from "~/constants/onboardContent";
-import type { iconNameType } from "~/types/iconType";
+  goalKeyType,
+} from '~/types/onboard/onboardType'
+import TitleSection from './shared/TitleSection.vue'
+import BaseIcon from '../shared/BaseIcon.vue'
+import { goalsSelection } from '~/constants/onboardContent'
+import type { iconNameType } from '~/types/iconType'
 
-const { onboardInfo, goalsRole } = useOnboard();
+const { t } = useI18n()
+const { onboardInfo, goalsRole } = useOnboard()
 
 type MutableGoal = {
-  iconName: iconNameType;
-  title: string;
-  subtitle: string;
-  active: boolean;
-};
-
-const goalsByRole = ref<MutableGoal[]>([]);
-
-const isRoleChange =
-  goalsRole.value !== "" && goalsRole.value !== onboardInfo.role;
-if (isRoleChange) {
-  onboardInfo.goals = [];
+  key: goalKeyType
+  iconName: iconNameType
+  titleKey: string
+  subtitleKey: string
+  active: boolean
 }
-goalsRole.value = onboardInfo.role;
 
-const match = goalsSelection.find((g) => g.role === onboardInfo.role);
-const matchGoal = match ?? (goalsSelection[0] as goalsSelectionType);
-goalsByRole.value = matchGoal.goals.map((g) => ({
+const goalsByRole = ref<MutableGoal[]>([])
+
+const isRoleChange
+  = goalsRole.value !== '' && goalsRole.value !== onboardInfo.role
+if (isRoleChange) {
+  onboardInfo.goals = []
+}
+goalsRole.value = onboardInfo.role
+
+const match = goalsSelection.find(g => g.role === onboardInfo.role)
+const matchGoal = match ?? (goalsSelection[0] as goalsSelectionType)
+goalsByRole.value = matchGoal.goals.map(g => ({
   ...g,
-  active: onboardInfo.goals.includes(g.title as goalTitlesType),
-}));
+  active: onboardInfo.goals.includes(g.key as goalKeyType),
+}))
 
 const selectedCount = computed(
-  () => goalsByRole.value.filter((g) => g.active).length,
-);
+  () => goalsByRole.value.filter(g => g.active).length,
+)
 
 const toggleGoal = (goal: MutableGoal) => {
-  goal.active = !goal.active;
-  const title = goal.title as goalTitlesType;
+  goal.active = !goal.active
   if (goal.active) {
-    onboardInfo.goals.push(title);
-  } else {
-    onboardInfo.goals = onboardInfo.goals.filter((t) => t !== title);
+    onboardInfo.goals.push(goal.key)
   }
-};
+  else {
+    onboardInfo.goals = onboardInfo.goals.filter(item => item !== goal.key)
+  }
+}
 </script>
 
 <template>
   <TitleSection>
-    <template #title>What are your goals?</template>
+    <template #title>
+      {{ t('onboard.heading.goals') }}
+    </template>
     <template #subtitle>
-      Pick the ones that fit. We'll use this to tailor your home feed and
-      recommendations. You can select more than one.
+      {{ t('onboard.info.goals_subtitle') }}
     </template>
   </TitleSection>
 
@@ -61,7 +64,7 @@ const toggleGoal = (goal: MutableGoal) => {
     <div class="grid grid-cols-2 gap-[14px]">
       <div
         v-for="goal in goalsByRole"
-        :key="goal.title"
+        :key="goal.key"
         class="flex gap-[14px] items-start px-5 py-[18px] bg-card border-[1.5px] rounded-[var(--radius-md)] cursor-pointer transition-colors"
         :class="
           goal.active
@@ -70,7 +73,6 @@ const toggleGoal = (goal: MutableGoal) => {
         "
         @click="toggleGoal(goal)"
       >
-        <!-- Square checkbox -->
         <span
           class="relative flex-none w-[18px] h-[18px] rounded-[4px] border-[1.5px] mt-px transition-colors"
           :class="
@@ -95,7 +97,6 @@ const toggleGoal = (goal: MutableGoal) => {
           </svg>
         </span>
 
-        <!-- Content -->
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1">
             <BaseIcon
@@ -104,19 +105,21 @@ const toggleGoal = (goal: MutableGoal) => {
               :class="goal.active ? 'text-brand' : 'text-ink-3'"
             />
             <span class="text-[14.5px] font-semibold text-ink">{{
-              goal.title
+              t(goal.titleKey)
             }}</span>
           </div>
           <p class="mt-1 text-[13px] text-ink-3 leading-[1.5]">
-            {{ goal.subtitle }}
+            {{ t(goal.subtitleKey) }}
           </p>
         </div>
       </div>
     </div>
 
     <p class="mt-[18px] text-center text-[13px] text-ink-4">
-      <b class="text-brand font-semibold">{{ selectedCount }} selected</b>
-      &nbsp;·&nbsp;You can update these any time from your profile
+      <b class="text-brand font-semibold">{{
+        t('common.info.selected_count', { count: selectedCount })
+      }}</b>
+      &nbsp;·&nbsp;{{ t('common.info.update_anytime') }}
     </p>
   </div>
 </template>

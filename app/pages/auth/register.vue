@@ -1,23 +1,34 @@
 <script setup lang="ts">
-import { useSupabaseAuth, useToast } from "~/composables";
-import BaseButton from "~/components/shared/BaseButton.vue";
-import BaseInput from "~/components/shared/BaseInput.vue";
+import { useSupabaseAuth, useToast } from '~/composables'
+import BaseButton from '~/components/shared/BaseButton.vue'
+import BaseInput from '~/components/shared/BaseInput.vue'
+import PasswordRequirements from '~/components/auth/PasswordRequirements.vue'
+import { createPasswordSchema } from '~/utils/passwordSchema'
 
-definePageMeta({ layout: "auth" });
+definePageMeta({ layout: 'auth' })
 
-const { register, loading, error, clearError } = useSupabaseAuth();
-const toast = useToast();
-const email = ref("");
-const password = ref("");
+const { t } = useI18n()
+const { register, loading, error, clearError } = useSupabaseAuth()
+const toast = useToast()
+const email = ref('')
+const password = ref('')
+const passwordError = ref<string | null>(null)
 
 async function submit() {
-  clearError();
-  await register(email.value, password.value);
+  clearError()
+  passwordError.value = null
+
+  const passwordSchema = createPasswordSchema(t)
+  const validation = passwordSchema.safeParse(password.value)
+  if (!validation.success) {
+    passwordError.value = validation.error.issues[0]?.message ?? null
+    return
+  }
+
+  await register(email.value, password.value)
   if (!error.value) {
-    toast.showSuccess(
-      "Account created. Check your email to verify your address.",
-    );
-    await navigateTo("/auth");
+    toast.showSuccess(t('auth.info.account_created_toast'))
+    await navigateTo('/auth', { replace: true })
   }
 }
 </script>
@@ -25,49 +36,69 @@ async function submit() {
 <template>
   <div>
     <div class="mb-6">
-      <h2 class="text-2xl font-bold text-ink">Create account</h2>
-      <p class="mt-1 text-sm text-ink-3">Sign up to join the forum</p>
+      <h2 class="text-2xl font-bold text-ink">
+        {{ t('auth.heading.create_account') }}
+      </h2>
+      <p class="mt-1 text-sm text-ink-3">
+        {{ t('auth.info.create_account_subtitle') }}
+      </p>
     </div>
     <div
       class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-6"
     >
-      <form class="space-y-4" @submit.prevent="submit">
+      <form
+        class="space-y-4"
+        @submit.prevent="submit"
+      >
         <div>
           <BaseInput
             id="email"
             v-model="email"
-            label="Email"
+            :label="t('auth.label.email')"
             type="email"
             required
-            placeholder="you@example.com"
+            :placeholder="t('auth.label.email_placeholder')"
           />
         </div>
         <div>
           <BaseInput
             id="password"
             v-model="password"
-            label="Password"
+            :label="t('auth.label.password')"
             type="password"
             required
-            minlength="6"
-            placeholder="••••••••"
+            :placeholder="t('auth.label.password_placeholder')"
+            :intent="passwordError ? 'error' : 'primary'"
+            :error-msg="passwordError ?? undefined"
           />
-          <p class="mt-1 text-xs text-ink-4">At least 6 characters</p>
+          <PasswordRequirements :password="password" />
         </div>
-        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        <p
+          v-if="error"
+          class="text-sm text-red-600"
+        >
+          {{ error }}
+        </p>
         <BaseButton
           type="submit"
           :disabled="loading"
           size="md"
           class="w-full justify-center"
         >
-          {{ loading ? "Creating account..." : "Create account" }}
+          {{
+            loading
+              ? t('auth.action.creating_account')
+              : t('auth.action.create_account')
+          }}
         </BaseButton>
       </form>
       <p class="mt-4 text-center text-sm text-ink-3">
-        Already have an account?
-        <NuxtLink to="/auth/login" class="font-semibold text-brand hover:text-brand-hover">
-          Sign in
+        {{ t('auth.info.already_have_account') }}
+        <NuxtLink
+          to="/auth/login"
+          class="font-semibold text-brand hover:text-brand-hover"
+        >
+          {{ t('auth.action.sign_in') }}
         </NuxtLink>
       </p>
     </div>

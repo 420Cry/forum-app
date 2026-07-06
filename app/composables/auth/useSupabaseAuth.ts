@@ -1,93 +1,115 @@
-import type { User as SupabaseUser } from "@supabase/supabase-js";
-import { useForumSession } from "../session/useForumSession";
-import { useSupabaseToken } from "./useSupabaseToken";
+import type { User as SupabaseUser } from '@supabase/supabase-js'
+import { useSupabaseToken } from './useSupabaseToken'
+import { useUserProfile } from '../user/useUserProfile'
+import { isEmailVerified } from '~/utils/authSession'
 
 export interface AuthUser {
-  id: string;
-  email: string | null;
-  emailVerified: boolean;
+  id: string
+  email: string | null
+  emailVerified: boolean
+}
+
+export interface RegisterResult {
+  needsVerification: boolean
 }
 
 function toAuthUser(u: SupabaseUser | null | undefined): AuthUser | null {
-  if (!u) return null;
+  if (!u) return null
   return {
     id: u.id,
     email: u.email ?? null,
-    emailVerified: !!u.email_confirmed_at,
-  };
+    emailVerified: isEmailVerified(u),
+  }
 }
 
 function getAppOrigin(): string {
   if (import.meta.client) {
-    return window.location.origin;
+    return window.location.origin
   }
-  return useRequestURL().origin;
+  return useRequestURL().origin
 }
 
 function isSupabaseUser(u: unknown): u is SupabaseUser {
-  return !!u && typeof u === "object" && "id" in u;
+  return !!u && typeof u === 'object' && 'id' in u
 }
 
 export function useSupabaseAuth() {
-  const supabase = useSupabaseClient();
-  const supabaseUser = useSupabaseUser();
+  const { t } = useI18n()
+  const supabase = useSupabaseClient()
+  const supabaseUser = useSupabaseUser()
   const refreshedUser = useState<SupabaseUser | null>(
-    "supabase-refreshed-user",
+    'supabase-refreshed-user',
     () => null,
-  );
-  const { getAccessToken } = useSupabaseToken();
+  )
+  const { getAccessToken } = useSupabaseToken()
 
-  const loading = ref(false);
-  const error = ref<string | null>(null);
+  const loading = ref(false)
+  const error = ref<string | null>(null)
 
   const user = computed(() => {
-    const current = refreshedUser.value ?? supabaseUser.value;
-    return isSupabaseUser(current) ? toAuthUser(current) : null;
-  });
-  const isAuthenticated = computed(() => !!user.value);
+    const current = refreshedUser.value ?? supabaseUser.value
+    return isSupabaseUser(current) ? toAuthUser(current) : null
+  })
+  const isAuthenticated = computed(() => !!user.value)
+  const canAccessApp = computed(
+    () => !!user.value?.emailVerified && !!supabaseUser.value,
+  )
 
   if (import.meta.client) {
     const handleVisibilityChange = () => {
       if (
-        document.visibilityState === "visible" &&
-        user.value &&
-        !user.value.emailVerified
+        document.visibilityState === 'visible'
+        && user.value
+        && !user.value.emailVerified
       ) {
-        void refreshUser();
+        void refreshUser()
       }
-    };
+    }
     onMounted(() =>
-      document.addEventListener("visibilitychange", handleVisibilityChange),
-    );
+      document.addEventListener('visibilitychange', handleVisibilityChange),
+    )
     onUnmounted(() =>
-      document.removeEventListener("visibilitychange", handleVisibilityChange),
-    );
+      document.removeEventListener('visibilitychange', handleVisibilityChange),
+    )
   }
 
   async function login(email: string, password: string) {
-    loading.value = true;
-    error.value = null;
+    loading.value = true
+    error.value = null
     try {
-      const { error: err } = await supabase.auth.signInWithPassword({
+      const { data, error: err } = await supabase.auth.signInWithPassword({
         email,
         password,
-      });
+      })
       if (err) {
-        error.value =
-          err.code === "email_not_confirmed"
-            ? "Please verify your email before signing in. Check your inbox for the verification link."
-            : err.message;
-        return;
+        error.value
+          = err.code === 'email_not_confirmed'
+            ? t('auth.error.email_not_verified')
+            : err.message
+        return
       }
-      await refreshUser();
-    } finally {
-      loading.value = false;
+      if (data.session) {
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        })
+        refreshedUser.value = data.session.user
+      }
+      else {
+        await refreshUser()
+      }
+    }
+    finally {
+      loading.value = false
     }
   }
 
-  async function register(email: string, password: string) {
-    loading.value = true;
-    error.value = null;
+  async function register(
+    email: string,
+    password: string,
+  ): Promise<RegisterResult | undefined> {
+    loading.value = true
+    error.value = null
     try {
       const { data, error: err } = await supabase.auth.signUp({
         email,
@@ -95,71 +117,91 @@ export function useSupabaseAuth() {
         options: {
           emailRedirectTo: `${getAppOrigin()}/auth/confirm`,
         },
-      });
+      })
       if (err) {
-        error.value = err.message;
-        return;
+        error.value
+          = err.code === 'user_already_exists'
+            ? t('auth.error.user_already_exists')
+            : err.message
+        return
       }
-      refreshedUser.value = data.user;
-    } finally {
-      loading.value = false;
+
+      refreshedUser.value = data.user
+
+      const needsVerification
+        = !data.session && !isEmailVerified(data.user)
+
+      return { needsVerification }
+    }
+    finally {
+      loading.value = false
     }
   }
 
   async function logout() {
-    useForumSession().clear();
-    error.value = null;
-    refreshedUser.value = null;
-    await supabase.auth.signOut();
+    useUserProfile().clearProfile()
+    error.value = null
+    refreshedUser.value = null
+    await supabase.auth.signOut()
   }
 
   async function resetPassword(email: string) {
-    loading.value = true;
-    error.value = null;
+    loading.value = true
+    error.value = null
     try {
       const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${getAppOrigin()}/auth/reset-password`,
-      });
-      if (err) error.value = err.message;
-    } finally {
-      loading.value = false;
+      })
+      if (err) error.value = err.message
+    }
+    finally {
+      loading.value = false
     }
   }
 
   async function refreshUser(): Promise<boolean> {
-    await supabase.auth.refreshSession();
-    const { data } = await supabase.auth.getUser();
-    refreshedUser.value = data.user;
-    return !!data.user?.email_confirmed_at;
+    const { data: current } = await supabase.auth.getSession()
+    if (!current.session) return false
+
+    const { data, error } = await supabase.auth.refreshSession()
+    if (error || !data.session) {
+      refreshedUser.value = current.session.user
+      return !!current.session.user.email_confirmed_at
+    }
+
+    const { data: userData } = await supabase.auth.getUser()
+    refreshedUser.value = userData.user
+    return !!userData.user?.email_confirmed_at
   }
 
   async function resendVerificationEmail() {
     if (!user.value?.email) {
-      error.value = "Not signed in";
-      return;
+      error.value = t('auth.error.not_signed_in')
+      return
     }
     if (user.value.emailVerified) {
-      error.value = "Email already verified";
-      return;
+      error.value = t('auth.error.email_already_verified')
+      return
     }
-    loading.value = true;
-    error.value = null;
+    loading.value = true
+    error.value = null
     try {
       const { error: err } = await supabase.auth.resend({
-        type: "signup",
+        type: 'signup',
         email: user.value.email,
         options: {
           emailRedirectTo: `${getAppOrigin()}/auth/confirm`,
         },
-      });
-      if (err) error.value = err.message;
-    } finally {
-      loading.value = false;
+      })
+      if (err) error.value = err.message
+    }
+    finally {
+      loading.value = false
     }
   }
 
   function clearError() {
-    error.value = null;
+    error.value = null
   }
 
   return {
@@ -168,6 +210,7 @@ export function useSupabaseAuth() {
     error,
     clearError,
     isAuthenticated,
+    canAccessApp,
     login,
     register,
     logout,
@@ -175,5 +218,5 @@ export function useSupabaseAuth() {
     resetPassword,
     refreshUser,
     resendVerificationEmail,
-  };
+  }
 }

@@ -1,29 +1,37 @@
 <script setup lang="ts">
-import { useSupabaseAuth } from "~/composables";
-import BaseButton from "~/components/shared/BaseButton.vue";
+import { useSupabaseAuth } from '~/composables'
+import { postAuthPath } from '~/types/user'
+import BaseButton from '~/components/shared/BaseButton.vue'
 
-definePageMeta({ layout: "auth" });
+definePageMeta({ layout: 'auth' })
 
-const { refreshUser } = useSupabaseAuth();
-const status = ref<"confirming" | "verified" | "failed">("confirming");
+const { t } = useI18n()
+const { refreshUser } = useSupabaseAuth()
+const { refreshProfile } = useUserProfile()
+const status = ref<'confirming' | 'verified' | 'failed'>('confirming')
+
+async function goToPostAuth() {
+  const me = await refreshProfile(true)
+  await navigateTo(postAuthPath(me?.profile ?? null))
+}
 
 onMounted(async () => {
-  const verified = await refreshUser();
+  const verified = await refreshUser()
   if (verified) {
-    await navigateTo("/auth");
-    return;
+    await goToPostAuth()
+    return
   }
-  status.value = "failed";
-});
+  status.value = 'failed'
+})
 
 async function retry() {
-  status.value = "confirming";
-  const verified = await refreshUser();
+  status.value = 'confirming'
+  const verified = await refreshUser()
   if (verified) {
-    await navigateTo("/auth");
-    return;
+    await goToPostAuth()
+    return
   }
-  status.value = "failed";
+  status.value = 'failed'
 }
 </script>
 
@@ -31,12 +39,17 @@ async function retry() {
   <div
     class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-8 text-center"
   >
-    <p v-if="status === 'confirming'" class="text-ink-3">
-      Confirming your email...
+    <p
+      v-if="status === 'confirming'"
+      class="text-ink-3"
+    >
+      {{ t('auth.info.confirming_email') }}
     </p>
-    <p v-else-if="status === 'failed'" class="text-ink-3">
-      We could not confirm your email yet. Try again after clicking the link in
-      your inbox.
+    <p
+      v-else-if="status === 'failed'"
+      class="text-ink-3"
+    >
+      {{ t('auth.info.email_confirm_failed') }}
     </p>
     <BaseButton
       v-if="status === 'failed'"
@@ -45,7 +58,7 @@ async function retry() {
       class="mt-4"
       @click="retry"
     >
-      Check again
+      {{ t('auth.action.check_again') }}
     </BaseButton>
   </div>
 </template>

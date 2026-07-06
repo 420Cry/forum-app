@@ -1,32 +1,34 @@
-import * as z from "zod";
+import * as z from 'zod'
 
-const noSpecialChars = /^[a-zA-Z0-9\s]+$/;
+const noSpecialChars = /^[a-zA-Z0-9\s]+$/
 
-export const OnboardInfo = z.object({
-  firstName: z
-    .string("First name required")
-    .min(2, "First name must have at least 2 characters")
-    .regex(noSpecialChars, "First name must not contain special characters"),
-  lastName: z
-    .string("Last name required")
-    .min(2, "Last name must have at least 2 characters")
-    .regex(noSpecialChars, "Last name must not contain special characters"),
-  age: z.coerce
-    .number()
-    .pipe(
-      z
-        .number("Age required")
-        .min(5, "Age cannot be lower than 5")
-        .max(100, "Age cannot be bigger than 100"),
-    ),
-  location: z
-    .string("Location required")
-    .min(2, "Location must have at least 2 characters")
-    .regex(noSpecialChars, "Location must not contain special characters"),
-  occupation: z
-    .string("Occupation required")
-    .min(2, "Occupation must have at least 2 characters")
-    .regex(noSpecialChars, "Occupation must not contain special characters"),
-});
+export function createOnboardInfoSchema(t: (key: string) => string) {
+  return z.object({
+    firstName: z
+      .string(t('onboard.error.first_name_required'))
+      .min(2, t('onboard.error.first_name_min'))
+      .regex(noSpecialChars, t('onboard.error.first_name_special')),
+    lastName: z
+      .string(t('onboard.error.last_name_required'))
+      .min(2, t('onboard.error.last_name_min'))
+      .regex(noSpecialChars, t('onboard.error.last_name_special')),
+    age: z.coerce
+      .number()
+      .pipe(
+        z
+          .number(t('onboard.error.age_required'))
+          .min(5, t('onboard.error.age_min'))
+          .max(100, t('onboard.error.age_max')),
+      ),
+    location: z
+      .string(t('onboard.error.location_required'))
+      .min(2, t('onboard.error.location_min'))
+      .regex(noSpecialChars, t('onboard.error.location_special')),
+    occupation: z
+      .string(t('onboard.error.occupation_required'))
+      .min(2, t('onboard.error.occupation_min'))
+      .regex(noSpecialChars, t('onboard.error.occupation_special')),
+  })
+}
 
-export type OnboardInfo = z.infer<typeof OnboardInfo>;
+export type OnboardInfo = z.infer<ReturnType<typeof createOnboardInfoSchema>>

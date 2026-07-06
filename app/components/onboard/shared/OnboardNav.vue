@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import BaseButton from "~/components/shared/BaseButton.vue";
-import BaseIcon from "~/components/shared/BaseIcon.vue";
+import BaseButton from '~/components/shared/BaseButton.vue'
+import BaseIcon from '~/components/shared/BaseIcon.vue'
 
-const emit = defineEmits(["next-page", "back-page"]);
+const emit = defineEmits(['next-page', 'back-page'])
 
-const props = defineProps<{
-  currentStep: number;
-  totalSteps: number;
-}>();
+const props = withDefaults(
+  defineProps<{
+    currentStep: number
+    totalSteps: number
+    loading?: boolean
+  }>(),
+  { loading: false },
+)
 
-const isFirstStep = computed(() => props.currentStep === 1);
-const isLastStep = computed(() => props.currentStep === props.totalSteps);
+const { t } = useI18n()
+const isFirstStep = computed(() => props.currentStep === 1)
+const isLastStep = computed(() => props.currentStep === props.totalSteps)
 </script>
 
 <template>
@@ -21,19 +26,33 @@ const isLastStep = computed(() => props.currentStep === props.totalSteps);
       v-if="!isFirstStep"
       intent="secondary"
       size="sm"
+      :disabled="loading"
       @click="emit('back-page')"
     >
       <BaseIcon name="leftArrow" />
-      Back
+      {{ t('common.action.back') }}
     </BaseButton>
 
     <div class="flex w-full justify-end items-center gap-4">
       <span class="hidden text-[13px] text-ink-4 sm:block">
-        You can change any of this later in Settings
+        {{ t('onboard.info.complete_each_step') }}
       </span>
-      <BaseButton size="lg" @click="emit('next-page')">
-        {{ isLastStep ? "Finish & enter Fundedr" : "Continue" }}
-        <BaseIcon name="rightArrow" size="1.2em" />
+      <BaseButton
+        size="lg"
+        :disabled="loading"
+        @click="emit('next-page')"
+      >
+        {{
+          isLastStep
+            ? loading
+              ? t('onboard.action.finishing')
+              : t('onboard.action.finish')
+            : t('common.action.continue')
+        }}
+        <BaseIcon
+          name="rightArrow"
+          size="1.2em"
+        />
       </BaseButton>
     </div>
   </footer>

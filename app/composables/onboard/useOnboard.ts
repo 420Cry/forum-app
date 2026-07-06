@@ -1,228 +1,285 @@
-import { shallowRef, ref, computed, reactive, readonly } from "vue";
-import BasicInfo from "@/components/onboard/BasicInfo.vue";
-import GoalSelection from "@/components/onboard/GoalSelection.vue";
-import RoleSelection from "@/components/onboard/RoleSelection.vue";
-import type {
-  goalTitlesType,
-  roleTitlesType,
-} from "~/types/onboard/onboardType";
-import { useZodValidation } from "../validate/useZodValidation";
-import { OnboardInfo } from "~/types/onboard/schema/onboardInfoSchema";
-import { useOnboardApi } from "../api/onboard/useOnboardApi";
-import { RolePayload } from "~/types/onboard/schema/rolePayloadSchema";
-import type { ApiErrResponse } from "~/types/api";
+import { shallowRef, ref, computed, reactive, readonly, watch, onUnmounted } from 'vue'
+import BasicInfo from '@/components/onboard/BasicInfo.vue'
+import GoalSelection from '@/components/onboard/GoalSelection.vue'
+import RoleSelection from '@/components/onboard/RoleSelection.vue'
+import type { goalKeyType, roleTitlesType } from '~/types/onboard/onboardType'
+import { buildOnboardDraftPayload } from '~/utils/onboardDraft'
+import { useZodValidation } from '../validate/useZodValidation'
+import { createOnboardInfoSchema } from '~/types/onboard/schema/onboardInfoSchema'
+import { useOnboardApi } from '../api/onboard/useOnboardApi'
+import type { ApiErrResponse } from '~/types/api'
+import type { UserProfile } from '~/types/user'
+import { inferOnboardingStep } from '~/types/user'
+import { isFetchUnauthorized } from '~/utils/authSession'
+import { useUserProfile } from '../user/useUserProfile'
 
 type onboardInfoType = {
-  role: "" | roleTitlesType;
-  goals: goalTitlesType[];
-  firstName: string;
-  lastName: string;
-  age: string;
-  location: string;
-  occupation: string;
-};
+  role: '' | roleTitlesType
+  goals: goalKeyType[]
+  firstName: string
+  lastName: string
+  age: string
+  location: string
+  occupation: string
+}
 
-const onboardInfo = reactive<onboardInfoType>({
-  role: "",
-  goals: [],
-  firstName: "",
-  lastName: "",
-  age: "",
-  location: "",
-  occupation: "",
-});
+function emptyOnboardInfo(): onboardInfoType {
+  return {
+    role: '',
+    goals: [],
+    firstName: '',
+    lastName: '',
+    age: '',
+    location: '',
+    occupation: '',
+  }
+}
 
-const stepLabels: Record<number, string> = {
-  1: "Choose your role",
-  3: "Tell us about yourself",
-};
+// Shared across the onboarding SPA session. Draft fields sync to the server
+// debounced; completion still requires the final POST /user/onboarding.
+const onboardInfo = reactive<onboardInfoType>(emptyOnboardInfo())
 
-const infoErrors = ref<Record<string, string> | null>(null);
+const stepLabelKeys: Record<number, string> = {
+  1: 'onboard.heading.choose_role',
+  3: 'onboard.heading.about_yourself',
+}
 
-const goalsRole = ref<"" | roleTitlesType>("");
+const infoErrors = ref<Record<string, string> | null>(null)
+const goalsRole = ref<'' | roleTitlesType>('')
+const currentStep = ref(1)
+const isLoading = ref(false)
+const draftSyncEnabled = ref(false)
+let draftTimer: ReturnType<typeof setTimeout> | undefined
+
+async function persistDraft() {
+  if (!draftSyncEnabled.value || isLoading.value) return
+
+  try {
+    const { saveOnboardingDraft } = useOnboardApi()
+    await saveOnboardingDraft(buildOnboardDraftPayload({
+      step: currentStep.value,
+      role: onboardInfo.role,
+      goals: onboardInfo.goals,
+      firstName: onboardInfo.firstName,
+      lastName: onboardInfo.lastName,
+      age: onboardInfo.age,
+      location: onboardInfo.location,
+      occupation: onboardInfo.occupation,
+    }))
+  }
+  catch {
+    // Background save — final submit still validates and surfaces errors.
+  }
+}
+
+function scheduleDraftSave() {
+  if (!import.meta.client || !draftSyncEnabled.value || isLoading.value) return
+  clearTimeout(draftTimer)
+  draftTimer = setTimeout(() => {
+    void persistDraft()
+  }, 800)
+}
+
+function enableDraftSync() {
+  draftSyncEnabled.value = true
+}
+
+function disableDraftSync() {
+  draftSyncEnabled.value = false
+  clearTimeout(draftTimer)
+}
+
+if (import.meta.client) {
+  watch(
+    [onboardInfo, currentStep],
+    () => scheduleDraftSave(),
+    { deep: true },
+  )
+}
 
 export const useOnboard = () => {
+  const { t } = useI18n()
   const onboardPage = shallowRef([
     { step: 1, pageName: RoleSelection, active: false },
     { step: 2, pageName: GoalSelection, active: false },
     { step: 3, pageName: BasicInfo, active: false },
-  ]);
+  ])
 
-  const currentStep = ref(1);
-  const isLoading = ref(false);
+  const totalSteps = onboardPage.value.length
 
   const currentPage = computed(() => {
-    const selectedPage = onboardPage.value.find((page) => page.active === true);
-    return selectedPage?.pageName;
-  });
+    const selectedPage = onboardPage.value.find(page => page.active === true)
+    return selectedPage?.pageName
+  })
 
   const currentStepLabel = computed(() => {
     if (currentStep.value === 2) {
-      return onboardInfo.role === "Investor"
-        ? "Your investor goals"
-        : "Your founder goals";
+      return onboardInfo.role === 'Investor'
+        ? t('onboard.heading.investor_goals')
+        : t('onboard.heading.founder_goals')
     }
-    return stepLabels[currentStep.value] ?? "";
-  });
+    const key = stepLabelKeys[currentStep.value]
+    return key ? t(key) : ''
+  })
 
   const updateOnboardPage = () => {
-    onboardPage.value = onboardPage.value.map((onboardStep) => ({
+    onboardPage.value = onboardPage.value.map(onboardStep => ({
       ...onboardStep,
       active: onboardStep.step === currentStep.value,
-    }));
-  };
+    }))
+  }
 
-  const toast = useToast();
+  const toast = useToast()
+  const { refreshProfile } = useUserProfile()
 
-  const bumpStep = async () => {
-    const { formInputValidate } = useZodValidation();
-    if (currentStep.value === onboardPage.value.length) {
-      isLoading.value = true;
-      const { saveUserInfo } = useOnboardApi();
-      const submitInput = computed(() => {
-        const { role, goals, ...rest } = onboardInfo;
-        return rest;
-      });
-      try {
-        const { data, errors } = formInputValidate(
-          submitInput.value,
-          OnboardInfo,
-        );
-        if (errors) {
-          infoErrors.value = errors;
-          return;
-        }
-        infoErrors.value = null;
-        const res = await saveUserInfo(data);
-        if (!res.success) {
-          return toast.showError("Please try again later", 1500);
-        }
-        toast.showSuccess(res.message, 2000);
-        return await navigateTo("/home");
-      } catch (err: unknown) {
-        const error = (err as { data?: ApiErrResponse })?.data;
-        if (!error) return toast.showError("Please try again", 2000);
+  const resetOnboarding = () => {
+    disableDraftSync()
+    Object.assign(onboardInfo, emptyOnboardInfo())
+    infoErrors.value = null
+    goalsRole.value = ''
+    currentStep.value = 1
+    updateOnboardPage()
+  }
 
-        if (typeof error.message === "string") {
-          return toast.showError(error.message, 2000);
-        }
+  // Prefill from an existing profile (edit flow / already-collected data).
+  const hydrateFromProfile = (profile: UserProfile | null) => {
+    if (!profile) return
 
-        if (Array.isArray(error.message)) {
-          error.message.forEach((msg) => {
-            toast.showError(msg, 1500);
-          });
-          return;
-        }
-      } finally {
-        isLoading.value = false;
-      }
-      return;
+    if (profile.role) onboardInfo.role = profile.role
+    if (profile.goals.length > 0) {
+      onboardInfo.goals = profile.goals as goalKeyType[]
+      goalsRole.value = profile.role ?? ''
     }
+    if (profile.name) {
+      const [firstName, ...rest] = profile.name.trim().split(/\s+/)
+      onboardInfo.firstName = firstName ?? ''
+      onboardInfo.lastName = rest.join(' ')
+    }
+    if (profile.age != null) onboardInfo.age = String(profile.age)
+    if (profile.location) onboardInfo.location = profile.location
+    if (profile.occupation) onboardInfo.occupation = profile.occupation
 
-    if (currentStep.value === 1) {
-      isLoading.value = true;
-      const { saveUserRole } = useOnboardApi();
-      if (!onboardInfo.role) {
-        isLoading.value = false;
-        return toast.showError(
-          "Please select your role before continue!",
-          3000,
-        );
+    currentStep.value = inferOnboardingStep(profile)
+  }
+
+  const showApiError = (err: unknown) => {
+    const error = (err as { data?: ApiErrResponse })?.data
+    if (!error) return toast.showError(t('common.error.try_again'), 2000)
+    if (typeof error.message === 'string') {
+      return toast.showError(error.message, 2000)
+    }
+    if (Array.isArray(error.message)) {
+      error.message.forEach(msg => toast.showError(msg, 1500))
+    }
+  }
+
+  async function submitOnboarding() {
+    const { formInputValidate } = useZodValidation()
+    const { role, goals, ...info } = onboardInfo
+
+    const { data, errors } = formInputValidate(
+      info,
+      createOnboardInfoSchema(t),
+    )
+    if (errors) {
+      infoErrors.value = errors
+      return false
+    }
+    infoErrors.value = null
+
+    isLoading.value = true
+    disableDraftSync()
+    try {
+      const { saveOnboarding } = useOnboardApi()
+      const res = await saveOnboarding({
+        role: role as roleTitlesType,
+        goals,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        age: data.age,
+        location: data.location,
+        occupation: data.occupation,
+      })
+      if (!res.success) {
+        toast.showError(t('common.error.try_again_later'), 1500)
+        return false
       }
-      try {
-        const { data, errors } = formInputValidate(
-          { role: onboardInfo.role },
-          RolePayload,
-        );
-        if (errors) {
-          return toast.showError(Object.values(errors)[0] as string, 3000);
-        }
+      await refreshProfile(true)
+      resetOnboarding()
+      await navigateTo('/home', { replace: true })
+      return true
+    }
+    catch (err: unknown) {
+      if (isFetchUnauthorized(err)) {
+        toast.showError(t('auth.error.session_invalid'), 4000)
+        await navigateTo('/auth/login')
+        return false
+      }
+      showApiError(err)
+      return false
+    }
+    finally {
+      isLoading.value = false
+    }
+  }
 
-        const res = await saveUserRole(data);
-        toast.showSuccess(res.message, 1500);
-      } catch (err: unknown) {
-        const error = (err as { data?: ApiErrResponse })?.data;
-        if (!error) return toast.showError("Please try again", 2000);
-
-        if (typeof error.message === "string") {
-          return toast.showError(error.message, 2000);
-        }
-
-        if (Array.isArray(error.message)) {
-          error.message.forEach((msg) => {
-            toast.showError(msg, 1500);
-          });
-          return;
-        }
-      } finally {
-        isLoading.value = false;
+  // Local-only navigation with per-step validation. Draft syncs debounced
+  // to the server; the final step submits the whole payload.
+  const bumpStep = async () => {
+    if (currentStep.value === 1) {
+      if (!onboardInfo.role) {
+        return toast.showError(t('onboard.error.select_role'), 3000)
       }
     }
 
     if (currentStep.value === 2) {
-      isLoading.value = true;
       if (onboardInfo.goals.length === 0) {
-        isLoading.value = false;
-        return toast.showError(
-          "Please select at least one goal before continue!",
-          3000,
-        );
-      }
-      const { saveUserGoals } = useOnboardApi();
-      try {
-        const res = await saveUserGoals(onboardInfo.goals);
-        toast.showSuccess(res.message, 1500);
-      } catch (err: unknown) {
-        const error = (err as { data?: ApiErrResponse })?.data;
-        if (!error) return toast.showError("Please try again", 2000);
-
-        if (typeof error.message === "string") {
-          return toast.showError(error.message, 2000);
-        }
-
-        if (Array.isArray(error.message)) {
-          error.message.forEach((msg) => {
-            toast.showError(msg, 1500);
-          });
-        }
-        return;
-      } finally {
-        isLoading.value = false;
+        return toast.showError(t('onboard.error.select_goal'), 3000)
       }
     }
 
-    currentStep.value++;
-    updateOnboardPage();
-  };
+    if (currentStep.value === totalSteps) {
+      await submitOnboarding()
+      return
+    }
+
+    currentStep.value++
+    updateOnboardPage()
+  }
 
   const clearInfoError = (field: string) => {
-    if (!infoErrors.value) return;
-    const { [field]: _, ...rest } = infoErrors.value;
-    infoErrors.value = Object.keys(rest).length > 0 ? rest : null;
-  };
+    if (!infoErrors.value) return
+    const { [field]: _, ...rest } = infoErrors.value
+    infoErrors.value = Object.keys(rest).length > 0 ? rest : null
+  }
 
   const backStep = () => {
-    if (currentStep.value === 1) {
-      // "Skip for now" — navigate away
-      navigateTo("/");
-      return;
-    }
-    currentStep.value--;
-    updateOnboardPage();
-  };
+    if (currentStep.value === 1) return
+    currentStep.value--
+    updateOnboardPage()
+  }
+
+  onUnmounted(() => {
+    disableDraftSync()
+  })
 
   return {
     currentPage,
     currentStep,
     currentStepLabel,
     onboardPage,
+    totalSteps,
     bumpStep,
     backStep,
     updateOnboardPage,
+    hydrateFromProfile,
+    resetOnboarding,
+    enableDraftSync,
+    disableDraftSync,
     onboardInfo,
     goalsRole,
     isLoading,
     infoErrors: readonly(infoErrors),
     clearInfoError,
-  };
-};
+  }
+}

@@ -1,21 +1,27 @@
 <script setup lang="ts">
-import { useSupabaseAuth, useToast } from "~/composables";
-import BaseButton from "~/components/shared/BaseButton.vue";
-import BaseInput from "~/components/shared/BaseInput.vue";
+import { useSupabaseAuth, useToast, useUserProfile } from '~/composables'
+import { postAuthPath } from '~/types/user'
+import BaseButton from '~/components/shared/BaseButton.vue'
+import BaseInput from '~/components/shared/BaseInput.vue'
 
-definePageMeta({ layout: "auth" });
+definePageMeta({ layout: 'auth' })
 
-const { login, loading, error, clearError } = useSupabaseAuth();
-const toast = useToast();
-const email = ref("");
-const password = ref("");
+const { t } = useI18n()
+const { login, loading, error, clearError } = useSupabaseAuth()
+const { refreshProfile, clearProfile } = useUserProfile()
+const toast = useToast()
+const email = ref('')
+const password = ref('')
 
 async function submit() {
-  clearError();
-  await login(email.value, password.value);
+  clearError()
+  await login(email.value, password.value)
   if (!error.value) {
-    toast.showSuccess("Signed in.", 1500);
-    await navigateTo("/onboard");
+    toast.showSuccess(t('auth.info.signed_in_toast'), 1500)
+    clearProfile()
+    const me = await refreshProfile(false)
+    const target = postAuthPath(me?.profile ?? null)
+    await navigateTo(target, { replace: true })
   }
 }
 </script>
@@ -23,35 +29,43 @@ async function submit() {
 <template>
   <div>
     <div class="mb-6">
-      <h2 class="text-2xl font-bold text-ink">Sign in</h2>
+      <h2 class="text-2xl font-bold text-ink">
+        {{ t('auth.heading.sign_in') }}
+      </h2>
       <p class="mt-1 text-sm text-ink-3">
-        Sign in to your account to use the forum
+        {{ t('auth.info.sign_in_subtitle') }}
       </p>
     </div>
     <div
       class="mx-auto max-w-md bg-card border border-line rounded-[var(--radius-xl)] shadow-[var(--shadow-1)] p-6"
     >
-      <form class="space-y-4" @submit.prevent="submit">
+      <form
+        class="space-y-4"
+        @submit.prevent="submit"
+      >
         <div>
           <BaseInput
             id="email"
             v-model="email"
-            label="Email"
+            :label="t('auth.label.email')"
             type="email"
             required
-            placeholder="you@example.com"
+            :placeholder="t('auth.label.email_placeholder')"
           />
         </div>
         <div>
           <div class="mb-1 flex items-center justify-between">
-            <label for="password" class="text-sm font-semibold text-ink-2">
-              Password
+            <label
+              for="password"
+              class="text-sm font-semibold text-ink-2"
+            >
+              {{ t('auth.label.password') }}
             </label>
             <NuxtLink
               to="/auth/forgot-password"
               class="text-sm text-ink-3 hover:text-ink"
             >
-              Forgot password?
+              {{ t('auth.action.forgot_password') }}
             </NuxtLink>
           </div>
           <BaseInput
@@ -60,27 +74,37 @@ async function submit() {
             label=""
             type="password"
             required
-            minlength="6"
-            placeholder="••••••••"
+            :placeholder="t('auth.label.password_placeholder')"
           />
         </div>
-        <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+        <p
+          v-if="error"
+          class="text-sm text-red-600"
+        >
+          {{ error }}
+        </p>
         <BaseButton
           type="submit"
           :disabled="loading"
           size="md"
           class="w-full justify-center"
         >
-          {{ loading ? "Signing in..." : "Sign in" }}
+          <SharedLoadingSpinner
+            v-if="loading"
+            size="sm"
+          />
+          {{
+            loading ? t('auth.action.signing_in') : t('auth.action.sign_in')
+          }}
         </BaseButton>
       </form>
       <p class="mt-4 text-center text-sm text-ink-3">
-        Don't have an account?
+        {{ t('auth.info.no_account') }}
         <NuxtLink
           to="/auth/register"
           class="font-semibold text-brand hover:text-brand-hover"
         >
-          Create account
+          {{ t('auth.action.create_account') }}
         </NuxtLink>
       </p>
     </div>

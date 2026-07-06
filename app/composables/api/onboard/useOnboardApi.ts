@@ -1,37 +1,40 @@
-import type { RolePayload } from "~/types/onboard/schema/rolePayloadSchema";
-import { useApiConfig } from "../useApiConfig";
-import type { OnboardResponse } from "~/types/onboard/api";
-import type { OnboardInfo } from "~/types/onboard/schema/onboardInfoSchema";
+import { useApiConfig } from '../useApiConfig'
+import type {
+  OnboardDraftPayload,
+  OnboardPayload,
+  OnboardResponse,
+  ProfileUpdatePayload,
+} from '~/types/onboard/api'
 
 export function useOnboardApi() {
-  const { baseUrl, getAuthHeaders } = useApiConfig();
+  const { baseUrl, getAuthHeaders } = useApiConfig()
 
-  async function saveUserRole(role: RolePayload) {
-    const headers = await getAuthHeaders();
-    return await $fetch<OnboardResponse>(`${baseUrl}/user/role`, {
-      method: "POST",
+  async function saveOnboarding(payload: OnboardPayload) {
+    const headers = await getAuthHeaders()
+    return await $fetch<OnboardResponse>(`${baseUrl}/user/onboarding`, {
+      method: 'POST',
       headers,
-      body: role,
-    });
+      body: payload,
+    })
   }
 
-  async function saveUserGoals(goals: string[]) {
-    const headers = await getAuthHeaders();
-    return await $fetch<OnboardResponse>(`${baseUrl}/user/goals`, {
-      method: "POST",
+  async function updateProfile(payload: ProfileUpdatePayload) {
+    const headers = await getAuthHeaders()
+    return await $fetch<OnboardResponse>(`${baseUrl}/user/profile`, {
+      method: 'PATCH',
       headers,
-      body: { goals },
-    });
+      body: payload,
+    })
   }
 
-  async function saveUserInfo(onboardInfo: OnboardInfo) {
-    const headers = await getAuthHeaders();
-    return await $fetch<OnboardResponse>(`${baseUrl}/user/info`, {
-      method: "POST",
+  async function saveOnboardingDraft(payload: OnboardDraftPayload) {
+    const headers = await getAuthHeaders()
+    return await $fetch<OnboardResponse>(`${baseUrl}/user/onboarding/draft`, {
+      method: 'PATCH',
       headers,
-      body: onboardInfo,
-    });
+      body: payload,
+    })
   }
 
-  return { saveUserRole, saveUserGoals, saveUserInfo };
+  return { saveOnboarding, saveOnboardingDraft, updateProfile }
 }
