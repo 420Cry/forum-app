@@ -3,9 +3,34 @@ import BaseInput from '../shared/BaseInput.vue'
 import BaseButton from '../shared/BaseButton.vue'
 import BaseIcon from '../shared/BaseIcon.vue'
 import TitleSection from './shared/TitleSection.vue'
+import { sanitizeAgeInput, sanitizePersonName } from '~/utils/onboardInput'
 
 const { t } = useI18n()
 const { onboardInfo, infoErrors, clearInfoError } = useOnboard()
+
+function onFirstNameInput(event: Event) {
+  const el = event.target as HTMLInputElement
+  const next = sanitizePersonName(el.value)
+  if (next !== el.value) el.value = next
+  onboardInfo.firstName = next
+  clearInfoError('firstName')
+}
+
+function onLastNameInput(event: Event) {
+  const el = event.target as HTMLInputElement
+  const next = sanitizePersonName(el.value)
+  if (next !== el.value) el.value = next
+  onboardInfo.lastName = next
+  clearInfoError('lastName')
+}
+
+function onAgeInput(event: Event) {
+  const el = event.target as HTMLInputElement
+  const next = sanitizeAgeInput(el.value)
+  if (next !== el.value) el.value = next
+  onboardInfo.age = next
+  clearInfoError('age')
+}
 </script>
 
 <template>
@@ -57,7 +82,8 @@ const { onboardInfo, infoErrors, clearInfoError } = useOnboard()
             :placeholder="t('onboard.label.first_name_placeholder')"
             :intent="infoErrors?.firstName ? 'error' : 'primary'"
             :error-msg="infoErrors?.firstName"
-            @input="clearInfoError('firstName')"
+            autocomplete="given-name"
+            @input="onFirstNameInput"
           />
         </div>
         <div class="flex flex-col gap-1">
@@ -68,7 +94,8 @@ const { onboardInfo, infoErrors, clearInfoError } = useOnboard()
             :placeholder="t('onboard.label.last_name_placeholder')"
             :intent="infoErrors?.lastName ? 'error' : 'primary'"
             :error-msg="infoErrors?.lastName"
-            @input="clearInfoError('lastName')"
+            autocomplete="family-name"
+            @input="onLastNameInput"
           />
         </div>
       </div>
@@ -82,7 +109,9 @@ const { onboardInfo, infoErrors, clearInfoError } = useOnboard()
             :placeholder="t('onboard.label.age_placeholder')"
             :intent="infoErrors?.age ? 'error' : 'primary'"
             :error-msg="infoErrors?.age"
-            @input="clearInfoError('age')"
+            inputmode="numeric"
+            autocomplete="off"
+            @input="onAgeInput"
           />
         </div>
         <div class="flex flex-col gap-1">

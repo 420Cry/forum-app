@@ -2,9 +2,10 @@
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
 
-definePageMeta({ layout: 'auth' })
+definePageMeta({ layout: 'auth', access: 'guest' })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const { resetPassword, loading, error, clearError } = useSupabaseAuth()
 const email = ref('')
 const resetSent = ref(false)
@@ -75,7 +76,7 @@ async function submit() {
           {{ t('auth.info.reset_link_sent', { email }) }}
         </p>
         <NuxtLink
-          to="/auth/login"
+          :to="localePath('/auth/login')"
           class="mt-3 inline-block text-sm font-semibold text-brand hover:text-brand-hover"
         >
           {{ t('auth.action.back_to_sign_in') }}
@@ -86,7 +87,7 @@ async function submit() {
         class="mt-4 text-center text-sm text-ink-3"
       >
         <NuxtLink
-          to="/auth/login"
+          :to="localePath('/auth/login')"
           class="font-semibold text-brand hover:text-brand-hover"
         >
           ← {{ t('auth.action.back_to_sign_in') }}

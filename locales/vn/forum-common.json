@@ -17,6 +17,9 @@
       "update_anytime": "Bạn có thể cập nhật bất cứ lúc nào trong hồ sơ",
       "loading": "Đang tải..."
     },
+    "header": {
+      "language": "Ngôn ngữ"
+    },
     "error": {
       "try_again": "Vui lòng thử lại",
       "try_again_later": "Vui lòng thử lại sau"
@@ -29,7 +32,6 @@
       "reset_password": "Đặt lại mật khẩu",
       "set_new_password": "Đặt mật khẩu mới",
       "account": "Tài khoản",
-      "verify_email": "Xác minh email",
       "check_email": "Kiểm tra email"
     },
     "label": {
@@ -54,16 +56,13 @@
       "already_have_account": "Đã có tài khoản?",
       "no_account": "Chưa có tài khoản?",
       "confirming_email": "Đang xác minh email...",
+      "email_confirm_success": "Email của bạn đã được xác minh.",
+      "email_confirm_redirect": "Đang chuyển bạn về trang chủ...",
       "email_confirm_failed": "Chưa xác minh được email. Hãy thử lại sau khi nhấp liên kết trong hộp thư.",
-      "verify_email_prompt": "Chúng tôi đã gửi liên kết xác minh tới {email}. Kiểm tra hộp thư hoặc gửi lại bên dưới.",
-      "verification_email_sent": "Đã gửi email xác minh.",
-      "signed_in_status": "Đã đăng nhập",
-      "email_not_verified_status": "Email chưa xác minh",
       "sign_in_or_create": "Đăng nhập hoặc tạo tài khoản để tiếp tục",
       "signed_in_toast": "Đã đăng nhập.",
       "account_created_toast": "Tài khoản đã được tạo. Kiểm tra email để xác minh địa chỉ.",
-      "password_updated_toast": "Mật khẩu đã được cập nhật. Bạn có thể đăng nhập ngay.",
-      "local_dev_email_inbox": "Môi trường local: mở http://127.0.0.1:54324 để đọc email xác minh."
+      "password_updated_toast": "Mật khẩu đã được cập nhật."
     },
     "action": {
       "sign_in": "Đăng nhập",
@@ -76,22 +75,30 @@
       "update_password": "Cập nhật mật khẩu",
       "saving": "Đang lưu...",
       "check_again": "Kiểm tra lại",
-      "check_verified": "Tôi đã xác minh email",
-      "checking": "Đang kiểm tra...",
-      "resend_verification": "Gửi lại email xác minh",
+      "continue_to_home": "Tiếp tục về trang chủ",
       "back_to_sign_in": "Quay lại đăng nhập"
     },
     "error": {
       "email_not_verified": "Vui lòng xác minh email trước khi đăng nhập. Kiểm tra hộp thư để lấy liên kết xác minh.",
-      "not_signed_in": "Chưa đăng nhập",
-      "email_already_verified": "Email đã được xác minh",
       "password_min_length": "Mật khẩu phải có ít nhất 8 ký tự",
       "password_number": "Mật khẩu phải có ít nhất 1 chữ số",
       "password_uppercase": "Mật khẩu phải có ít nhất 1 chữ hoa",
       "password_lowercase": "Mật khẩu phải có ít nhất 1 chữ thường",
       "password_special": "Mật khẩu phải có ít nhất 1 ký tự đặc biệt",
-      "session_invalid": "Không thể xác minh phiên đăng nhập. Hãy đăng nhập lại sau khi xác minh email.",
-      "user_already_exists": "Email này đã được đăng ký. Hãy đăng nhập. Trên môi trường dev, xóa user bằng: forum db:delete-user [email]"
+      "session_invalid": "Không thể xác minh phiên đăng nhập. Hãy đăng nhập lại sau khi xác nhận email.",
+      "user_already_exists": "Email này đã được đăng ký. Đăng nhập hoặc đặt lại mật khẩu nếu bạn quên.",
+      "email_invalid_format": "Nhập địa chỉ email hợp lệ (ví dụ ten{'@'}example.com).",
+      "email_rate_limit": "Đã gửi quá nhiều email xác minh. Hãy đợi khoảng một giờ, hoặc khởi động lại Supabase local sau khi cập nhật giới hạn (forum down && forum dev).",
+      "email_cooldown": "Vui lòng đợi một lát trước khi yêu cầu gửi email lại.",
+      "redirect_not_allowed": "URL chuyển hướng auth chưa được cấu hình. Kiểm tra additional_redirect_urls trong supabase/config.toml.",
+      "invalid_credentials": "Email hoặc mật khẩu không đúng. Thử lại hoặc đặt lại mật khẩu.",
+      "password_weak": "Mật khẩu không đáp ứng yêu cầu.",
+      "same_password": "Hãy chọn mật khẩu khác với mật khẩu hiện tại.",
+      "signup_disabled": "Hiện không thể đăng ký tài khoản mới.",
+      "user_not_found": "Không tìm thấy tài khoản với email này.",
+      "link_expired": "Liên kết không hợp lệ hoặc đã hết hạn. Hãy yêu cầu liên kết mới.",
+      "validation_failed": "Không thể xác thực một số thông tin. Kiểm tra lại và thử lại.",
+      "unexpected": "Đã xảy ra lỗi. Vui lòng thử lại."
     }
   },
   "onboard": {
@@ -104,7 +111,7 @@
       "role_prompt": "Điều gì đưa bạn đến Fundedr?",
       "founder_role_card": "Tôi là Founder",
       "investor_role_card": "Tôi là Nhà đầu tư",
-      "goal_raise_capital": "Huy động vốn",
+      "goal_raise_capital": "Gọi vốn",
       "goal_find_cofounders": "Tìm đồng sáng lập",
       "goal_gather_feedback": "Thu thập phản hồi",
       "goal_build_following": "Xây dựng lượng theo dõi",
@@ -120,28 +127,28 @@
       "age": "Tuổi",
       "location": "Địa điểm",
       "occupation": "Nghề nghiệp",
-      "first_name_placeholder": "vd. Dao",
-      "last_name_placeholder": "vd. Nguyen",
+      "first_name_placeholder": "vd. Alex",
+      "last_name_placeholder": "vd. Morgan",
       "age_placeholder": "vd. 28",
       "location_placeholder": "Thành phố, quốc gia",
-      "occupation_placeholder": "vd. Founder & researcher"
+      "occupation_placeholder": "vd. Founder & nhà nghiên cứu"
     },
     "info": {
-      "role_subtitle": "Chọn phương án phù hợp nhất. Bạn có thể giữ cả hai vai trò sau này — bước này chỉ thiết lập bảng tin.",
+      "role_subtitle": "Chọn phương án phù hợp nhất. Bạn có thể giữ cả hai vai trò sau — bước này chỉ thiết lập bảng tin chính.",
       "goals_subtitle": "Chọn những mục tiêu phù hợp. Chúng tôi dùng thông tin này để cá nhân hóa bảng tin và gợi ý. Bạn có thể chọn nhiều hơn một.",
-      "about_subtitle": "Vài thông tin nhanh. Đây là cách người khác nhìn thấy bạn trên Fundedr.",
+      "about_subtitle": "Vài thông tin nhanh. Đây là cách người khác sẽ thấy bạn trên Fundedr.",
       "complete_each_step": "Hoàn thành từng bước để tiếp tục",
       "founder_role_card": "Tôi đang xây dựng công ty và muốn chia sẻ tiến độ, gặp nhà đầu tư và phát triển lượng theo dõi.",
-      "investor_role_card": "Tôi muốn khám phá founder giai đoạn đầu, theo dõi công ty triển vọng và xây dựng deal flow.",
-      "goal_raise_capital": "Kết nối với các nhà đầu tư thiên thần đang rót vốn trong lĩnh vực của bạn.",
+      "investor_role_card": "Tôi muốn khám phá founder giai đoạn đầu, theo dõi công ty tiềm năng và xây dựng deal flow.",
+      "goal_raise_capital": "Kết nối với các nhà đầu tư thiên thần đang rót vốn đầu tiên trong lĩnh vực của bạn.",
       "goal_find_cofounders": "Gặp đối tác kỹ thuật hoặc thương mại mà giai đoạn tiếp theo cần.",
       "goal_gather_feedback": "Lắng nghe từ các operator trước vòng gọi vốn, khi sản phẩm vẫn còn thay đổi.",
-      "goal_build_following": "Đăng tiến độ để đúng độc giả tìm thấy bạn theo thời gian.",
-      "goal_discover_startups": "Tìm các công ty tiềm năng giai đoạn đầu trong ngành bạn quan tâm.",
-      "goal_build_deal_flow": "Theo dõi cơ hội triển vọng theo thời gian thực, tại một nơi.",
+      "goal_build_following": "Đăng cập nhật tiến độ để đúng độc giả tìm thấy bạn theo thời gian.",
+      "goal_discover_startups": "Tìm các công ty giai đoạn đầu tiềm năng trong ngành bạn quan tâm.",
+      "goal_build_deal_flow": "Theo dõi cơ hội hứa hẹn khi chúng phát triển, theo thời gian thực, ở một nơi.",
       "goal_network_peers": "Đọc cùng các nhà đầu tư thiên thần, scout và đối tác VC khác.",
       "goal_market_insights": "Bám sát xu hướng và thay đổi hệ sinh thái ảnh hưởng đến quyết định đầu tư.",
-      "profile_photo_help": "Ảnh chân dung rõ giúp mọi người nhận ra bạn. JPG hoặc PNG, tối đa 5 MB.",
+      "profile_photo_help": "Ảnh chân dung rõ ràng giúp mọi người nhận ra bạn. JPG hoặc PNG, tối đa 5 MB.",
       "occupation_help": "Hiển thị dưới tên bạn trên hồ sơ và bài đăng."
     },
     "action": {
@@ -154,13 +161,13 @@
       "select_goal": "Vui lòng chọn ít nhất một mục tiêu trước khi tiếp tục!",
       "first_name_required": "Bắt buộc nhập tên",
       "first_name_min": "Tên phải có ít nhất 2 ký tự",
-      "first_name_special": "Tên không được chứa ký tự đặc biệt",
+      "first_name_special": "Tên chỉ được chứa chữ cái (không có số hoặc ký tự đặc biệt)",
       "last_name_required": "Bắt buộc nhập họ",
       "last_name_min": "Họ phải có ít nhất 2 ký tự",
-      "last_name_special": "Họ không được chứa ký tự đặc biệt",
+      "last_name_special": "Họ chỉ được chứa chữ cái (không có số hoặc ký tự đặc biệt)",
       "age_required": "Bắt buộc nhập tuổi",
-      "age_min": "Tuổi không thể nhỏ hơn 5",
-      "age_max": "Tuổi không thể lớn hơn 100",
+      "age_invalid": "Tuổi phải là số nguyên",
+      "age_min": "Bạn phải trên 16 tuổi",
       "location_required": "Bắt buộc nhập địa điểm",
       "location_min": "Địa điểm phải có ít nhất 2 ký tự",
       "location_special": "Địa điểm không được chứa ký tự đặc biệt",

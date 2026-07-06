@@ -26,8 +26,10 @@ export default defineNuxtConfig({
     '@constants': resolve(currentDir, 'app/constants'),
   },
   routeRules: {
-    '/auth/confirm': { ssr: false },
-    '/auth/reset-password': { ssr: false },
+    '/en/auth/confirm': { ssr: false },
+    '/vn/auth/confirm': { ssr: false },
+    '/en/auth/reset-password': { ssr: false },
+    '/vn/auth/reset-password': { ssr: false },
   },
   compatibilityDate: '2025-07-15',
   vite: {
@@ -52,11 +54,12 @@ export default defineNuxtConfig({
       { code: 'vn', name: 'Tiếng Việt', file: 'vn/forum-common.json' },
     ],
     langDir: 'locales',
-    strategy: 'no_prefix',
+    strategy: 'prefix',
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: 'forum_locale',
       fallbackLocale: 'en',
+      redirectOn: 'root',
     },
   },
   icon: {
@@ -64,6 +67,13 @@ export default defineNuxtConfig({
   },
   supabase: {
     redirect: false,
+    clientOptions: {
+      auth: {
+        // Email links use token_hash or hash tokens — not same-browser PKCE code.
+        detectSessionInUrl: false,
+        flowType: 'implicit',
+      },
+    },
     redirectOptions: {
       login: '/auth/login',
       callback: '/auth/confirm',

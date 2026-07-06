@@ -1,24 +1,54 @@
 <script setup lang="ts">
-import { useToast } from '~/composables'
+import { useSupabaseAuth, useToast, useUserProfile } from '~/composables'
+import { postAuthPath } from '~/types/user'
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
 import PasswordRequirements from '~/components/auth/PasswordRequirements.vue'
 import { createPasswordSchema } from '~/utils/passwordSchema'
+import { completeAuthCallbackFromUrl } from '~/utils/supabaseAuthCallback'
+import { mapAuthErrorString, mapSupabaseAuthError } from '~/utils/authErrors'
+import { ensureLocaleMessagesLoaded } from '~/utils/ensureLocaleMessages'
 
-definePageMeta({ layout: 'auth' })
+definePageMeta({ layout: 'auth', access: 'callback' })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
+const route = useRoute()
 const supabase = useSupabaseClient()
+const { refreshUser } = useSupabaseAuth()
+const { refreshProfile, clearProfile } = useUserProfile()
 const toast = useToast()
 const password = ref('')
 const loading = ref(false)
 const error = ref<string | null>(null)
 const passwordError = ref<string | null>(null)
-const ready = ref(false)
+const status = ref<'loading' | 'ready' | 'failed'>('loading')
 
-onMounted(async () => {
+async function initFromResetLink() {
+  status.value = 'loading'
+  error.value = null
+  await ensureLocaleMessagesLoaded()
+
+  const callback = await completeAuthCallbackFromUrl(supabase, route.query)
+  if (!callback.ok) {
+    status.value = 'failed'
+    error.value = mapAuthErrorString(
+      callback.error,
+      t,
+      callback.errorCode,
+    )
+    return
+  }
+
   const { data } = await supabase.auth.getSession()
-  ready.value = !!data.session
+  status.value = data.session ? 'ready' : 'failed'
+  if (!data.session) {
+    error.value = t('auth.info.open_reset_link')
+  }
+}
+
+onMounted(() => {
+  void initFromResetLink()
 })
 
 async function submit() {
@@ -39,11 +69,15 @@ async function submit() {
   })
   loading.value = false
   if (err) {
-    error.value = err.message
+    error.value = mapSupabaseAuthError(err, t)
     return
   }
-  toast.showSuccess(t('auth.info.password_updated_toast'))
-  await navigateTo('/auth/login')
+
+  await refreshUser()
+  toast.showSuccess(t('auth.info.password_updated_toast'), 1500)
+  clearProfile()
+  const me = await refreshProfile(false)
+  await navigateTo(localePath(postAuthPath(me?.profile ?? null)), { replace: true })
 }
 </script>
 
@@ -55,10 +89,16 @@ async function submit() {
       {{ t('auth.heading.set_new_password') }}
     </h2>
     <p
-      v-if="!ready"
+      v-if="status === 'loading'"
       class="mt-2 text-sm text-ink-3"
     >
-      {{ t('auth.info.open_reset_link') }}
+      {{ t('common.info.loading') }}
+    </p>
+    <p
+      v-else-if="status === 'failed'"
+      class="mt-2 text-sm text-red-600"
+    >
+      {{ error ?? t('auth.info.open_reset_link') }}
     </p>
     <form
       v-else

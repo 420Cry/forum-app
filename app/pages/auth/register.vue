@@ -6,10 +6,11 @@ import BaseInput from '~/components/shared/BaseInput.vue'
 import PasswordRequirements from '~/components/auth/PasswordRequirements.vue'
 import { createPasswordSchema } from '~/utils/passwordSchema'
 
-definePageMeta({ layout: 'auth' })
+definePageMeta({ layout: 'auth', access: 'guest' })
 
 const { t } = useI18n()
-const { register, loading, error, clearError } = useSupabaseAuth()
+const localePath = useLocalePath()
+const { register, loading, error, errorAction, clearError } = useSupabaseAuth()
 const { refreshProfile, clearProfile } = useUserProfile()
 const toast = useToast()
 const email = ref('')
@@ -27,13 +28,17 @@ async function submit() {
     return
   }
 
-  await register(email.value, password.value)
+  const result = await register(email.value, password.value)
   if (!error.value) {
-    toast.showSuccess(t('auth.info.account_created_toast'), 1500)
+    if (result?.needsVerification) {
+      toast.showSuccess(t('auth.info.account_created_toast'), 1500)
+      await navigateTo(localePath('/auth/login'), { replace: true })
+      return
+    }
     clearProfile()
     const me = await refreshProfile(false)
     const target = postAuthPath(me?.profile ?? null)
-    await navigateTo(target, { replace: true })
+    await navigateTo(localePath(target), { replace: true })
   }
 }
 </script>
@@ -84,6 +89,17 @@ async function submit() {
         >
           {{ error }}
         </p>
+        <p
+          v-if="errorAction === 'forgot_password'"
+          class="text-sm text-ink-3"
+        >
+          <NuxtLink
+            :to="localePath('/auth/forgot-password')"
+            class="font-semibold text-brand hover:text-brand-hover"
+          >
+            {{ t('auth.action.forgot_password') }}
+          </NuxtLink>
+        </p>
         <BaseButton
           type="submit"
           :disabled="loading"
@@ -100,7 +116,7 @@ async function submit() {
       <p class="mt-4 text-center text-sm text-ink-3">
         {{ t('auth.info.already_have_account') }}
         <NuxtLink
-          to="/auth/login"
+          :to="localePath('/auth/login')"
           class="font-semibold text-brand hover:text-brand-hover"
         >
           {{ t('auth.action.sign_in') }}

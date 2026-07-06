@@ -9,7 +9,7 @@ import { createOnboardInfoSchema } from '~/types/onboard/schema/onboardInfoSchem
 import { useOnboardApi } from '../api/onboard/useOnboardApi'
 import type { ApiErrResponse } from '~/types/api'
 import type { UserProfile } from '~/types/user'
-import { inferOnboardingStep } from '~/types/user'
+import { inferOnboardingStep, isOnboardingComplete } from '~/types/user'
 import { isFetchUnauthorized } from '~/utils/authSession'
 import { useUserProfile } from '../user/useUserProfile'
 
@@ -50,6 +50,7 @@ const currentStep = ref(1)
 const isLoading = ref(false)
 const draftSyncEnabled = ref(false)
 let draftTimer: ReturnType<typeof setTimeout> | undefined
+let sessionActive = false
 
 async function persistDraft() {
   if (!draftSyncEnabled.value || isLoading.value) return
@@ -99,6 +100,7 @@ if (import.meta.client) {
 
 export const useOnboard = () => {
   const { t } = useI18n()
+  const localePath = useLocalePath()
   const onboardPage = shallowRef([
     { step: 1, pageName: RoleSelection, active: false },
     { step: 2, pageName: GoalSelection, active: false },
@@ -134,6 +136,7 @@ export const useOnboard = () => {
 
   const resetOnboarding = () => {
     disableDraftSync()
+    sessionActive = false
     Object.assign(onboardInfo, emptyOnboardInfo())
     infoErrors.value = null
     goalsRole.value = ''
@@ -160,6 +163,17 @@ export const useOnboard = () => {
     if (profile.occupation) onboardInfo.occupation = profile.occupation
 
     currentStep.value = inferOnboardingStep(profile)
+    sessionActive = true
+  }
+
+  /** Keep wizard progress when the page remounts (e.g. locale switch). */
+  const restoreOnboardSession = (
+    profile: UserProfile | null,
+  ): boolean => {
+    if (!sessionActive) return false
+    if (isOnboardingComplete(profile)) return false
+    updateOnboardPage()
+    return true
   }
 
   const showApiError = (err: unknown) => {
@@ -206,13 +220,13 @@ export const useOnboard = () => {
       }
       await refreshProfile(true)
       resetOnboarding()
-      await navigateTo('/home', { replace: true })
+      await navigateTo(localePath('/home'), { replace: true })
       return true
     }
     catch (err: unknown) {
       if (isFetchUnauthorized(err)) {
         toast.showError(t('auth.error.session_invalid'), 4000)
-        await navigateTo('/auth/login')
+        await navigateTo(localePath('/auth/login'))
         return false
       }
       showApiError(err)
@@ -273,6 +287,7 @@ export const useOnboard = () => {
     backStep,
     updateOnboardPage,
     hydrateFromProfile,
+    restoreOnboardSession,
     resetOnboarding,
     enableDraftSync,
     disableDraftSync,

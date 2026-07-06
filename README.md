@@ -33,22 +33,50 @@ Set in `.env` / `.env.local`:
 | `NUXT_PUBLIC_SUPABASE_URL` | Supabase API URL (`http://supabase.forum.test` locally) |
 | `NUXT_PUBLIC_SUPABASE_KEY` | Supabase publishable (anon) key — run `forum env:sync` |
 
-Add redirect URLs in the Supabase dashboard (or local `supabase/config.toml`):
+Add redirect URLs in the Supabase dashboard (or local `supabase/config.toml`). With locale-prefixed routes, include both `en` and `vn`:
 
-- `http://app.forum.test/auth/confirm`
-- `http://localhost:3000/auth/confirm`
-- `http://app.forum.test/auth/reset-password`
-- `http://localhost:3000/auth/reset-password`
+- `http://app.forum.test/en/auth/confirm`
+- `http://app.forum.test/vn/auth/confirm`
+- `http://localhost:3000/en/auth/confirm`
+- `http://localhost:3000/vn/auth/confirm`
+- `http://app.forum.test/en/auth/reset-password`
+- `http://app.forum.test/vn/auth/reset-password`
+- `http://localhost:3000/en/auth/reset-password`
+- `http://localhost:3000/vn/auth/reset-password`
+
+Local `config.toml` uses `http://app.forum.test/**` wildcards, so prefixed paths are already allowed.
+
+Local signup verification emails are captured by Supabase Inbucket. With `forum dev`, open **http://mail.forum.test** (also printed when the stack starts).
+
+### Locales
+
+Routes use a language prefix (`strategy: 'prefix'`): `/en/home`, `/vn/auth/login`. Visiting `/` redirects to the browser locale or `en`. Switch language from the header (EN / VN).
 
 ### Local hosts
 
-Add to `/etc/hosts` when using forum-server:
+Add forum dev hostnames when using forum-server:
+
+```sh
+# All forum hosts (safe to re-run)
+for host in app.forum.test api.forum.test supabase.forum.test mail.forum.test; do
+  grep -q "$host" /etc/hosts || echo "127.0.0.1 $host" | sudo tee -a /etc/hosts
+done
+```
+
+Or only the email inbox:
+
+```sh
+grep -q 'mail.forum.test' /etc/hosts || echo '127.0.0.1 mail.forum.test' | sudo tee -a /etc/hosts
+```
 
 ```
 127.0.0.1 app.forum.test
 127.0.0.1 api.forum.test
 127.0.0.1 supabase.forum.test
+127.0.0.1 mail.forum.test
 ```
+
+**Email testing:** register at http://app.forum.test/auth/register, then open http://mail.forum.test for the verification email (also linked on the `/auth` verify screen in dev).
 
 ## Development
 
@@ -72,8 +100,8 @@ App URL with forum-server: **http://app.forum.test**
 - Sign-in uses Supabase (`@nuxtjs/supabase`). After login, the app fetches `/auth/me` and routes via `postAuthPath()`:
   - `profile.onboarded === true` → `/home`
   - otherwise → `/onboard`
-- Global middleware (`app/middleware/setup.global.ts`) protects `/home` and `/onboard`. On reload it trusts the Supabase session and refreshes the forum profile in the background.
-- Email confirmation and password reset pages are client-only (`routeRules` in `nuxt.config.ts`).
+- Each page declares its access level via `definePageMeta({ access: 'guest' | 'callback' | 'protected' })`. Global middleware (`app/middleware/setup.global.ts`) reads this meta and delegates to `app/utils/routeGuards.ts`. See [AGENTS.md](./AGENTS.md) and [../ARCHITECTURE.md](../ARCHITECTURE.md).
+- Email confirmation and password reset pages use `access: 'callback'` and are never redirected by middleware.
 
 ## Onboarding
 
@@ -83,9 +111,9 @@ Goal selections use stable API keys (`raise_capital`, `find_cofounders`, …) de
 
 ## Translations
 
-User-facing copy uses `@nuxtjs/i18n`. Locale files: `locales/en/forum-common.json`, `locales/vn/forum-common.json`.
+User-facing copy uses `@nuxtjs/i18n`. Locale file: `locales/en/forum-common.json`.
 
-**Before adding or changing `t(...)` calls**, read [`docs/conventions/translations.md`](docs/conventions/translations.md) — keys must follow `<prefix>.<purpose>.<identifier>` (e.g. `auth.heading.sign_in`). Update both `en` and `vn` in the same PR.
+**Before adding or changing `t(...)` calls**, read [`docs/conventions/translations.md`](docs/conventions/translations.md) — keys must follow `<prefix>.<purpose>.<identifier>` (e.g. `auth.heading.sign_in`).
 
 ## Scripts
 

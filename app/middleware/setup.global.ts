@@ -1,7 +1,8 @@
-import { isOnboardingComplete } from '~/types/user'
-import { hasAccessToken, resolveAuthUser } from '~/utils/authSession'
-import { isProfileCacheStale } from '~/utils/profileCache'
 import type { AuthMeResponse } from '~/types/user'
+import type { RouteAccess } from '~/types/routes'
+import { isProfileCacheStale } from '~/utils/profileCache'
+import { stripLocalePrefix } from '~/utils/localePath'
+import { onboardingRedirect, resolveVerifiedUser } from '~/utils/routeGuards'
 
 const REDIRECT_REPLACE = { replace: true } as const
 
@@ -24,95 +25,53 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const path = typeof to.path === 'string' ? to.path : ''
   if (!path) return
 
+  const localePath = useLocalePath()
+  const barePath = stripLocalePrefix(path)
+
+  const access: RouteAccess = to.meta.access ?? 'public'
+  if (access === 'public' || access === 'callback') return
+
   const supabase = useSupabaseClient()
   const nuxtSession = useSupabaseSession()
   const { data: sessionData } = await supabase.auth.getSession()
-  const supabaseUser = useSupabaseUser()
-
-  const isAuthRoute = path.startsWith('/auth')
-  const isOnboardRoute = path === '/onboard'
-  const isHomeRoute = path.startsWith('/home')
-  const isProtectedRoute = isOnboardRoute || isHomeRoute
-
   const session = sessionData.session ?? nuxtSession.value
-  const hasSession = hasAccessToken(session)
 
-  if (!hasSession) {
-    if (isProtectedRoute) {
-      return navigateTo('/auth/login')
+  const auth = await resolveVerifiedUser(
+    supabase,
+    session,
+    useSupabaseUser().value,
+  )
+
+  if (access === 'guest') {
+    if (auth.status === 'verified') {
+      return navigateTo(localePath('/home'), REDIRECT_REPLACE)
     }
     return
   }
 
-  let authUser = resolveAuthUser(supabaseUser.value, session, null)
-
-  if (!authUser) {
-    await supabase.auth.refreshSession()
-    const { data: userData } = await supabase.auth.getUser()
-    authUser = resolveAuthUser(
-      supabaseUser.value,
-      session,
-      userData.user,
-    )
-  }
-
-  if (!authUser) {
-    if (isProtectedRoute) {
-      return navigateTo('/auth/login')
-    }
-    return
+  // access === 'protected'
+  if (auth.status !== 'verified' || !auth.user) {
+    return navigateTo(localePath('/auth/login'))
   }
 
   if (!import.meta.client) return
 
   const { profile, refreshProfile, unauthorized } = useUserProfile()
-  const authUserId = authUser.id
+  const isHomeRoute = barePath.startsWith('/home')
 
-  if (isHomeRoute) {
-    await syncProfile(
-      refreshProfile,
-      profile.value?.id,
-      authUserId,
-      { alwaysAwait: true },
-    )
+  await syncProfile(
+    refreshProfile,
+    profile.value?.id,
+    auth.user.id,
+    { alwaysAwait: isHomeRoute },
+  )
 
-    if (!isOnboardingComplete(profile.value?.profile ?? null)) {
-      return navigateTo('/onboard', REDIRECT_REPLACE)
-    }
-    return
+  if (unauthorized.value) {
+    return navigateTo(localePath('/auth/login'))
   }
 
-  if (isOnboardRoute) {
-    await syncProfile(
-      refreshProfile,
-      profile.value?.id,
-      authUserId,
-      { alwaysAwait: false },
-    )
-
-    const cached = profile.value?.profile ?? null
-    if (cached && isOnboardingComplete(cached)) {
-      return navigateTo('/home', REDIRECT_REPLACE)
-    }
-    return
-  }
-
-  if (!profile.value) {
-    await refreshProfile(false)
-  }
-
-  if (unauthorized.value && isProtectedRoute) {
-    return navigateTo('/auth/login')
-  }
-
-  const userProfile = profile.value?.profile ?? null
-  const completed = isOnboardingComplete(userProfile)
-
-  if (completed && isAuthRoute) {
-    return navigateTo('/home')
-  }
-
-  if (!completed && isAuthRoute && path !== '/auth/confirm') {
-    return navigateTo('/onboard')
+  const redirect = onboardingRedirect(path, profile.value?.profile ?? null)
+  if (redirect) {
+    return navigateTo(localePath(redirect), REDIRECT_REPLACE)
   }
 })
