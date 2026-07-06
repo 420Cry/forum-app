@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { useSupabaseAuth } from '~/composables'
 import BaseButton from '~/components/shared/BaseButton.vue'
-import { completeAuthCallbackFromUrl } from '~/utils/supabaseAuthCallback'
-import { mapAuthErrorString } from '~/utils/authErrors'
-import { ensureLocaleMessagesLoaded } from '~/utils/ensureLocaleMessages'
+import { useAuthCallbackPage } from '~/composables/auth/useAuthCallbackPage'
 import { hasAccessToken } from '~/utils/authSession'
 
 definePageMeta({ layout: 'auth', access: 'callback' })
@@ -12,10 +10,10 @@ const REDIRECT_DELAY_MS = 1500
 
 const { t } = useI18n()
 const localePath = useLocalePath()
-const route = useRoute()
 const supabase = useSupabaseClient()
 const { refreshUser } = useSupabaseAuth()
 const { refreshProfile } = useUserProfile()
+const { resolveFromUrl } = useAuthCallbackPage()
 const status = ref<'confirming' | 'success' | 'failed'>('confirming')
 const failureMessage = ref<string | null>(null)
 
@@ -42,16 +40,11 @@ function scheduleRedirect() {
 async function confirmFromLink() {
   status.value = 'confirming'
   failureMessage.value = null
-  await ensureLocaleMessagesLoaded()
 
-  const callback = await completeAuthCallbackFromUrl(supabase, route.query)
+  const callback = await resolveFromUrl()
   if (!callback.ok) {
     status.value = 'failed'
-    failureMessage.value = mapAuthErrorString(
-      callback.error,
-      t,
-      callback.errorCode,
-    )
+    failureMessage.value = callback.message
     return
   }
 

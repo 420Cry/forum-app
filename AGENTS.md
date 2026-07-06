@@ -17,7 +17,7 @@ Read [../ARCHITECTURE.md](../ARCHITECTURE.md) for the cross-repo system map.
 
 ```bash
 bun run lint    # must exit 0
-bun run test    # vitest --run; must exit 0
+bun run test    # vitest --run; must exit 0 (includes locale parity in tests/localeParity.test.ts)
 ```
 
 From the monorepo dev-server: `forum lint:fix` runs eslint --fix in both forum-app and forum-api.
@@ -44,7 +44,7 @@ From the monorepo dev-server: `forum lint:fix` runs eslint --fix in both forum-a
 | If you are touching… | Read first |
 |---|---|
 | Route protection / redirects | `app/middleware/setup.global.ts`, `app/utils/routeGuards.ts`, `app/types/routes.ts` |
-| Auth (login, register, reset) | `app/composables/auth/useSupabaseAuth.ts`, `app/utils/supabaseAuthCallback.ts` |
+| Auth (login, register, reset) | `app/composables/auth/useSupabaseAuth.ts`, `app/composables/auth/useAuthCallbackPage.ts`, `app/utils/supabaseAuthCallback.ts`, `app/utils/authErrors.ts` |
 | Profile / `/auth/me` | `app/composables/user/useUserProfile.ts`, `app/composables/api/useUserApi.ts` |
 | Onboarding wizard | `app/composables/onboard/useOnboard.ts`, `app/pages/onboard/index.vue` |
 | API calls | `app/composables/api/useApiConfig.ts` |
@@ -72,7 +72,9 @@ Protected-route profile sync and onboarding redirects run **client-only** (`impo
 
 ## Auth callback pages
 
-`/auth/confirm` and `/auth/reset-password` use `completeAuthCallbackFromUrl()` to handle Supabase email links (hash tokens, `token_hash`, PKCE). Supabase client config: `detectSessionInUrl: false`, `flowType: 'implicit'` in `nuxt.config.ts`.
+`/auth/confirm` and `/auth/reset-password` use `useAuthCallbackPage()` → `completeAuthCallbackFromUrl()` for Supabase email links (hash tokens, `token_hash`, PKCE). URL param parsing lives in `app/utils/authCallbackParams.ts`. Supabase client config: `detectSessionInUrl: false`, `flowType: 'implicit'` in `nuxt.config.ts`.
+
+Auth errors from Supabase or callback URLs go through `app/utils/authErrors.ts` (`mapSupabaseAuthError`, `mapAuthErrorString`) — never show raw API English.
 
 ## API integration
 

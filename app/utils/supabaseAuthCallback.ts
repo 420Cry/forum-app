@@ -1,90 +1,33 @@
-import type { EmailOtpType, SupabaseClient } from '@supabase/supabase-js'
-
-const EMAIL_OTP_TYPES = new Set<string>([
-  'signup',
-  'invite',
-  'magiclink',
-  'recovery',
-  'email_change',
-  'email',
-])
-
-export function isEmailOtpType(type: string): type is EmailOtpType {
-  return EMAIL_OTP_TYPES.has(type)
-}
-
-export function getAuthCallbackQuery(query: Record<string, unknown>) {
-  const tokenHash
-    = typeof query.token_hash === 'string' ? query.token_hash : undefined
-  const type = typeof query.type === 'string' ? query.type : undefined
-  const code = typeof query.code === 'string' ? query.code : undefined
-  const errorCode
-    = typeof query.error_code === 'string' ? query.error_code : undefined
-  const urlError
-    = typeof query.error_description === 'string'
-      ? query.error_description
-      : typeof query.error === 'string'
-        ? query.error
-        : undefined
-
-  return { tokenHash, type, code, errorCode, urlError }
-}
-
-export function parseHashAuthParams(hash: string) {
-  const params = new URLSearchParams(hash.replace(/^#/, ''))
-  return {
-    tokenHash: params.get('token_hash') ?? undefined,
-    type: params.get('type') ?? undefined,
-    code: params.get('code') ?? undefined,
-    errorCode: params.get('error_code') ?? undefined,
-    urlError:
-      params.get('error_description')
-      ?? params.get('error')
-      ?? undefined,
-    accessToken: params.get('access_token') ?? undefined,
-    refreshToken: params.get('refresh_token') ?? undefined,
-  }
-}
-
-export function mergeAuthCallbackParams(
-  query: Record<string, unknown>,
-  hash = '',
-) {
-  const fromQuery = getAuthCallbackQuery(query)
-  const fromHash = parseHashAuthParams(hash)
-
-  return {
-    tokenHash: fromQuery.tokenHash ?? fromHash.tokenHash,
-    type: fromQuery.type ?? fromHash.type,
-    code: fromQuery.code ?? fromHash.code,
-    errorCode: fromQuery.errorCode ?? fromHash.errorCode,
-    urlError: fromQuery.urlError ?? fromHash.urlError,
-    accessToken: fromHash.accessToken,
-    refreshToken: fromHash.refreshToken,
-  }
-}
+import type { SupabaseClient } from '@supabase/supabase-js'
+import {
+  isEmailOtpType,
+  mergeAuthCallbackParams,
+  stripAuthParamsFromUrl,
+} from '~/utils/authCallbackParams'
 
 export type AuthCallbackResult
   = | { ok: true }
     | { ok: false, error?: string, errorCode?: string }
 
-export function stripAuthParamsFromUrl() {
-  if (!import.meta.client) return
+export {
+  getAuthCallbackQuery,
+  isEmailOtpType,
+  mergeAuthCallbackParams,
+  parseHashAuthParams,
+  stripAuthParamsFromUrl,
+} from '~/utils/authCallbackParams'
 
-  const url = new URL(window.location.href)
-  for (const key of [
-    'token_hash',
-    'type',
-    'code',
-    'error',
-    'error_description',
-    'error_code',
-  ]) {
-    url.searchParams.delete(key)
+type AuthErrorLike = { message?: string, code?: string }
+
+function authFail(
+  error?: AuthErrorLike,
+  fallbackCode?: string,
+): Extract<AuthCallbackResult, { ok: false }> {
+  return {
+    ok: false,
+    error: error?.message,
+    errorCode: error?.code ?? fallbackCode,
   }
-  url.hash = ''
-  const next = `${url.pathname}${url.search}`
-  window.history.replaceState(window.history.state, '', next)
 }
 
 export async function waitForAuthSession(
@@ -160,62 +103,36 @@ export async function completeAuthCallbackFromUrl(
   query: Record<string, unknown>,
 ): Promise<AuthCallbackResult> {
   const hash = import.meta.client ? window.location.hash : ''
-  const {
-    tokenHash,
-    type,
-    code,
-    errorCode,
-    urlError,
-    accessToken,
-    refreshToken,
-  } = mergeAuthCallbackParams(query, hash)
+  const params = mergeAuthCallbackParams(query, hash)
 
-  if (urlError || errorCode) {
-    return { ok: false, error: urlError, errorCode }
+  if (params.urlError || params.errorCode) {
+    return { ok: false, error: params.urlError, errorCode: params.errorCode }
   }
 
-  if (tokenHash && type && isEmailOtpType(type)) {
+  if (params.tokenHash && params.type && isEmailOtpType(params.type)) {
     const { data, error } = await supabase.auth.verifyOtp({
-      token_hash: tokenHash,
-      type,
+      token_hash: params.tokenHash,
+      type: params.type,
     })
-    if (error) {
-      return {
-        ok: false,
-        error: error.message,
-        errorCode: error.code,
-      }
-    }
+    if (error) return authFail(error)
     await persistSession(supabase, data.session)
     stripAuthParamsFromUrl()
     return { ok: true }
   }
 
-  if (accessToken && refreshToken) {
+  if (params.accessToken && params.refreshToken) {
     const { error } = await supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
+      access_token: params.accessToken,
+      refresh_token: params.refreshToken,
     })
-    if (error) {
-      return {
-        ok: false,
-        error: error.message,
-        errorCode: error.code,
-      }
-    }
+    if (error) return authFail(error)
     stripAuthParamsFromUrl()
     return { ok: true }
   }
 
-  if (code && await hasPkceCodeVerifier(supabase)) {
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-    if (error) {
-      return {
-        ok: false,
-        error: error.message,
-        errorCode: error.code,
-      }
-    }
+  if (params.code && await hasPkceCodeVerifier(supabase)) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(params.code)
+    if (error) return authFail(error)
     await persistSession(supabase, data.session)
     stripAuthParamsFromUrl()
     return { ok: true }
@@ -227,12 +144,7 @@ export async function completeAuthCallbackFromUrl(
     return { ok: true }
   }
 
-  if (code) {
-    return {
-      ok: false,
-      errorCode: 'flow_state_not_found',
-    }
-  }
+  if (params.code) return authFail(undefined, 'flow_state_not_found')
 
   return { ok: false }
 }

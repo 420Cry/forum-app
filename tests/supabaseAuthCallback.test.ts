@@ -4,9 +4,9 @@ import {
   isEmailOtpType,
   mergeAuthCallbackParams,
   parseHashAuthParams,
-} from '~/utils/supabaseAuthCallback'
+} from '~/utils/authCallbackParams'
 
-describe('supabaseAuthCallback', () => {
+describe('authCallbackParams', () => {
   describe('isEmailOtpType', () => {
     it('accepts known Supabase email OTP types', () => {
       expect(isEmailOtpType('signup')).toBe(true)

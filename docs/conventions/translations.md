@@ -75,11 +75,14 @@ await navigateTo(localePath('/auth/login'))
 - Keep JSON nested by segment (`auth.heading.sign_in` → `auth → heading → sign_in`).
 - Goal **display** text lives in i18n (`onboard.heading.goal_*`, `onboard.info.goal_*`). Goal **API** values use stable keys from `app/constants/onboardContent.ts` — never send translated labels to the API.
 - Interpolation uses `{name}` placeholders (e.g. `{email}`, `{count}`).
-- Use `localePath()` for internal links and redirects; route guards compare logical paths via `stripLocalePrefix()`.
-- Supabase auth errors must go through `mapSupabaseAuthError()` / `mapAuthErrorString()` in `app/utils/authErrors.ts` — never show raw API English in the UI.
+- Use `localePath()` for internal links and redirects; route guards compare logical paths via `stripLocalePrefix()` (`app/utils/localePath.ts`).
+- Supabase auth errors must go through `mapSupabaseAuthError()` / `mapAuthErrorString()` in `app/utils/authErrors.ts` — never show raw API English in the UI. Add matching keys under `auth.error.*` in both locale files when extending `authErrors.ts`.
+- Locale files are lazy-loaded per language. Auth callback pages use `useAuthCallbackPage()` so messages are loaded before errors are translated.
+- `tests/localeParity.test.ts` guards `en`/`vn` key parity and that code references only defined keys — run via `bun run test`.
 
 ## Workflow
 
 1. Add or change a `t('...')` call in code.
 2. Add the matching entry under the same path in both locale files.
-3. Spot-check the string in the app at `/en/...` and `/vn/...`.
+3. Run `bun run test` — `localeParity.test.ts` fails if keys are missing or `en`/`vn` drift apart.
+4. Spot-check the string in the app at `/en/...` and `/vn/...`.

@@ -5,18 +5,17 @@ import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
 import PasswordRequirements from '~/components/auth/PasswordRequirements.vue'
 import { createPasswordSchema } from '~/utils/passwordSchema'
-import { completeAuthCallbackFromUrl } from '~/utils/supabaseAuthCallback'
-import { mapAuthErrorString, mapSupabaseAuthError } from '~/utils/authErrors'
-import { ensureLocaleMessagesLoaded } from '~/utils/ensureLocaleMessages'
+import { useAuthCallbackPage } from '~/composables/auth/useAuthCallbackPage'
+import { mapSupabaseAuthError } from '~/utils/authErrors'
 
 definePageMeta({ layout: 'auth', access: 'callback' })
 
 const { t } = useI18n()
 const localePath = useLocalePath()
-const route = useRoute()
 const supabase = useSupabaseClient()
 const { refreshUser } = useSupabaseAuth()
 const { refreshProfile, clearProfile } = useUserProfile()
+const { resolveFromUrl } = useAuthCallbackPage()
 const toast = useToast()
 const password = ref('')
 const loading = ref(false)
@@ -27,16 +26,11 @@ const status = ref<'loading' | 'ready' | 'failed'>('loading')
 async function initFromResetLink() {
   status.value = 'loading'
   error.value = null
-  await ensureLocaleMessagesLoaded()
 
-  const callback = await completeAuthCallbackFromUrl(supabase, route.query)
+  const callback = await resolveFromUrl()
   if (!callback.ok) {
     status.value = 'failed'
-    error.value = mapAuthErrorString(
-      callback.error,
-      t,
-      callback.errorCode,
-    )
+    error.value = callback.message
     return
   }
 
