@@ -81,6 +81,12 @@ Three UI steps (role → goals → basic info). State is kept client-side and **
 
 Goal selections use stable API keys (`raise_capital`, `find_cofounders`, …) defined in `app/constants/onboardContent.ts`. Display text comes from i18n keys under `onboard.heading.goal_*` / `onboard.info.goal_*`.
 
+## Translations
+
+User-facing copy uses `@nuxtjs/i18n`. Locale files: `locales/en/forum-common.json`, `locales/vn/forum-common.json`.
+
+**Before adding or changing `t(...)` calls**, read [`docs/conventions/translations.md`](docs/conventions/translations.md) — keys must follow `<prefix>.<purpose>.<identifier>` (e.g. `auth.heading.sign_in`). Update both `en` and `vn` in the same PR.
+
 ## Scripts
 
 ```bash
