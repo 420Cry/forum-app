@@ -16,3 +16,7 @@ export interface OnboardPayload {
 }
 
 export type ProfileUpdatePayload = Partial<OnboardPayload>
+
+export type OnboardDraftPayload = Partial<OnboardPayload> & {
+  step?: number
+}

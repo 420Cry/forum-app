@@ -77,7 +77,7 @@ App URL with forum-server: **http://app.forum.test**
 
 ## Onboarding
 
-Three UI steps (role → goals → basic info). State is kept client-side until the final step; a single `POST /user/onboarding` submits everything.
+Three UI steps (role → goals → basic info). State is kept client-side and **auto-saved as a draft** to `PATCH /user/onboarding/draft` (debounced ~800ms). Final step still submits everything via `POST /user/onboarding`. On return, `/auth/me` restores saved fields and `onboardingStep`.
 
 Goal selections use stable API keys (`raise_capital`, `find_cofounders`, …) defined in `app/constants/onboardContent.ts`. Display text comes from i18n keys under `onboard.heading.goal_*` / `onboard.info.goal_*`.
 

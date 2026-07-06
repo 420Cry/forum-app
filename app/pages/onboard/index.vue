@@ -16,6 +16,7 @@ const {
   backStep,
   updateOnboardPage,
   hydrateFromProfile,
+  enableDraftSync,
   isLoading,
 } = useOnboard()
 const { refreshProfile, unauthorized, loading: profileLoading } = useUserProfile()
@@ -34,12 +35,13 @@ onMounted(async () => {
   const userProfile = me?.profile ?? null
 
   if (isOnboardingComplete(userProfile)) {
-    await navigateTo('/home')
+    await navigateTo('/home', { replace: true })
     return
   }
 
   hydrateFromProfile(userProfile)
   updateOnboardPage()
+  enableDraftSync()
   pageReady.value = true
 })
 </script>

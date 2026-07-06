@@ -8,7 +8,7 @@ definePageMeta({ layout: 'auth' })
 
 const { t } = useI18n()
 const { login, loading, error, clearError } = useSupabaseAuth()
-const { refreshProfile } = useUserProfile()
+const { refreshProfile, clearProfile } = useUserProfile()
 const toast = useToast()
 const email = ref('')
 const password = ref('')
@@ -18,6 +18,7 @@ async function submit() {
   await login(email.value, password.value)
   if (!error.value) {
     toast.showSuccess(t('auth.info.signed_in_toast'), 1500)
+    clearProfile()
     const me = await refreshProfile(false)
     const target = postAuthPath(me?.profile ?? null)
     await navigateTo(target, { replace: true })

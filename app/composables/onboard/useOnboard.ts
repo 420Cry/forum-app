@@ -1,13 +1,15 @@
-import { shallowRef, ref, computed, reactive, readonly } from 'vue'
+import { shallowRef, ref, computed, reactive, readonly, watch, onUnmounted } from 'vue'
 import BasicInfo from '@/components/onboard/BasicInfo.vue'
 import GoalSelection from '@/components/onboard/GoalSelection.vue'
 import RoleSelection from '@/components/onboard/RoleSelection.vue'
 import type { goalKeyType, roleTitlesType } from '~/types/onboard/onboardType'
+import { buildOnboardDraftPayload } from '~/utils/onboardDraft'
 import { useZodValidation } from '../validate/useZodValidation'
 import { createOnboardInfoSchema } from '~/types/onboard/schema/onboardInfoSchema'
 import { useOnboardApi } from '../api/onboard/useOnboardApi'
 import type { ApiErrResponse } from '~/types/api'
 import type { UserProfile } from '~/types/user'
+import { inferOnboardingStep } from '~/types/user'
 import { isFetchUnauthorized } from '~/utils/authSession'
 import { useUserProfile } from '../user/useUserProfile'
 
@@ -33,8 +35,8 @@ function emptyOnboardInfo(): onboardInfoType {
   }
 }
 
-// Shared across the onboarding SPA session. Nothing is persisted to the backend
-// until the final step submits everything in one request.
+// Shared across the onboarding SPA session. Draft fields sync to the server
+// debounced; completion still requires the final POST /user/onboarding.
 const onboardInfo = reactive<onboardInfoType>(emptyOnboardInfo())
 
 const stepLabelKeys: Record<number, string> = {
@@ -45,6 +47,55 @@ const stepLabelKeys: Record<number, string> = {
 const infoErrors = ref<Record<string, string> | null>(null)
 const goalsRole = ref<'' | roleTitlesType>('')
 const currentStep = ref(1)
+const isLoading = ref(false)
+const draftSyncEnabled = ref(false)
+let draftTimer: ReturnType<typeof setTimeout> | undefined
+
+async function persistDraft() {
+  if (!draftSyncEnabled.value || isLoading.value) return
+
+  try {
+    const { saveOnboardingDraft } = useOnboardApi()
+    await saveOnboardingDraft(buildOnboardDraftPayload({
+      step: currentStep.value,
+      role: onboardInfo.role,
+      goals: onboardInfo.goals,
+      firstName: onboardInfo.firstName,
+      lastName: onboardInfo.lastName,
+      age: onboardInfo.age,
+      location: onboardInfo.location,
+      occupation: onboardInfo.occupation,
+    }))
+  }
+  catch {
+    // Background save — final submit still validates and surfaces errors.
+  }
+}
+
+function scheduleDraftSave() {
+  if (!import.meta.client || !draftSyncEnabled.value || isLoading.value) return
+  clearTimeout(draftTimer)
+  draftTimer = setTimeout(() => {
+    void persistDraft()
+  }, 800)
+}
+
+function enableDraftSync() {
+  draftSyncEnabled.value = true
+}
+
+function disableDraftSync() {
+  draftSyncEnabled.value = false
+  clearTimeout(draftTimer)
+}
+
+if (import.meta.client) {
+  watch(
+    [onboardInfo, currentStep],
+    () => scheduleDraftSave(),
+    { deep: true },
+  )
+}
 
 export const useOnboard = () => {
   const { t } = useI18n()
@@ -54,7 +105,6 @@ export const useOnboard = () => {
     { step: 3, pageName: BasicInfo, active: false },
   ])
 
-  const isLoading = ref(false)
   const totalSteps = onboardPage.value.length
 
   const currentPage = computed(() => {
@@ -83,6 +133,7 @@ export const useOnboard = () => {
   const { refreshProfile } = useUserProfile()
 
   const resetOnboarding = () => {
+    disableDraftSync()
     Object.assign(onboardInfo, emptyOnboardInfo())
     infoErrors.value = null
     goalsRole.value = ''
@@ -107,6 +158,8 @@ export const useOnboard = () => {
     if (profile.age != null) onboardInfo.age = String(profile.age)
     if (profile.location) onboardInfo.location = profile.location
     if (profile.occupation) onboardInfo.occupation = profile.occupation
+
+    currentStep.value = inferOnboardingStep(profile)
   }
 
   const showApiError = (err: unknown) => {
@@ -135,6 +188,7 @@ export const useOnboard = () => {
     infoErrors.value = null
 
     isLoading.value = true
+    disableDraftSync()
     try {
       const { saveOnboarding } = useOnboardApi()
       const res = await saveOnboarding({
@@ -152,7 +206,7 @@ export const useOnboard = () => {
       }
       await refreshProfile(true)
       resetOnboarding()
-      await navigateTo('/home')
+      await navigateTo('/home', { replace: true })
       return true
     }
     catch (err: unknown) {
@@ -169,8 +223,8 @@ export const useOnboard = () => {
     }
   }
 
-  // Local-only navigation with per-step validation. No backend calls until
-  // the final step submits the whole payload.
+  // Local-only navigation with per-step validation. Draft syncs debounced
+  // to the server; the final step submits the whole payload.
   const bumpStep = async () => {
     if (currentStep.value === 1) {
       if (!onboardInfo.role) {
@@ -205,6 +259,10 @@ export const useOnboard = () => {
     updateOnboardPage()
   }
 
+  onUnmounted(() => {
+    disableDraftSync()
+  })
+
   return {
     currentPage,
     currentStep,
@@ -216,6 +274,8 @@ export const useOnboard = () => {
     updateOnboardPage,
     hydrateFromProfile,
     resetOnboarding,
+    enableDraftSync,
+    disableDraftSync,
     onboardInfo,
     goalsRole,
     isLoading,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  inferOnboardingStep,
   isOnboardingComplete,
   postAuthPath,
   type UserProfile,
@@ -7,6 +8,7 @@ import {
 
 const incompleteProfile: UserProfile = {
   onboarded: false,
+  onboardingStep: null,
   role: 'Founder',
   name: null,
   occupation: null,
@@ -17,6 +19,7 @@ const incompleteProfile: UserProfile = {
 
 const completeProfile: UserProfile = {
   onboarded: true,
+  onboardingStep: null,
   role: 'Investor',
   name: 'Dao Nguyen',
   occupation: 'Angel',
@@ -46,6 +49,22 @@ describe('user profile helpers', () => {
 
     it('routes onboarded users to home', () => {
       expect(postAuthPath(completeProfile)).toBe('/home')
+    })
+  })
+
+  describe('inferOnboardingStep', () => {
+    it('uses saved onboardingStep when present', () => {
+      expect(
+        inferOnboardingStep({ ...incompleteProfile, onboardingStep: 2 }),
+      ).toBe(2)
+    })
+
+    it('infers step from profile fields when step is missing', () => {
+      expect(inferOnboardingStep(incompleteProfile)).toBe(2)
+      expect(
+        inferOnboardingStep({ ...incompleteProfile, goals: ['raise_capital'] }),
+      ).toBe(3)
+      expect(inferOnboardingStep(null)).toBe(1)
     })
   })
 })

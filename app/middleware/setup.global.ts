@@ -4,17 +4,39 @@ import {
   isEmailVerified,
   resolveAuthUser,
 } from '~/utils/authSession'
+import { isProfileCacheStale } from '~/utils/profileCache'
+import type { AuthMeResponse } from '~/types/user'
+
+const REDIRECT_REPLACE = { replace: true } as const
+
+type RefreshProfile = (force?: boolean) => Promise<AuthMeResponse | null>
+
+async function syncProfile(
+  refreshProfile: RefreshProfile,
+  cachedId: string | null | undefined,
+  authUserId: string,
+  options: { alwaysAwait: boolean },
+) {
+  const stale = isProfileCacheStale(cachedId, authUserId)
+  const task = stale ? refreshProfile(true) : refreshProfile(false)
+
+  if (options.alwaysAwait || stale) await task
+  else void task
+}
 
 export default defineNuxtRouteMiddleware(async (to) => {
+  const path = typeof to.path === 'string' ? to.path : ''
+  if (!path) return
+
   const supabase = useSupabaseClient()
   const nuxtSession = useSupabaseSession()
   const { data: sessionData } = await supabase.auth.getSession()
   const supabaseUser = useSupabaseUser()
 
-  const isAuthRoute = to.path.startsWith('/auth')
-  const isConfirmRoute = to.path === '/auth/confirm'
-  const isOnboardRoute = to.path === '/onboard'
-  const isHomeRoute = to.path.startsWith('/home')
+  const isAuthRoute = path.startsWith('/auth')
+  const isConfirmRoute = path === '/auth/confirm'
+  const isOnboardRoute = path === '/onboard'
+  const isHomeRoute = path.startsWith('/home')
   const isProtectedRoute = isOnboardRoute || isHomeRoute
 
   const session = sessionData.session ?? nuxtSession.value
@@ -52,7 +74,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     if (isProtectedRoute) {
       return navigateTo('/auth')
     }
-    if (isAuthRoute && !isConfirmRoute && to.path !== '/auth') {
+    if (isAuthRoute && !isConfirmRoute && path !== '/auth') {
       return navigateTo('/auth')
     }
     return
@@ -61,17 +83,33 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!import.meta.client) return
 
   const { profile, refreshProfile, unauthorized } = useUserProfile()
+  const authUserId = authUser.id
 
-  // Protected routes: trust Supabase session on reload; don't block on forum-api profile fetch.
-  if (isOnboardRoute || isHomeRoute) {
-    void refreshProfile(false)
+  if (isHomeRoute) {
+    await syncProfile(
+      refreshProfile,
+      profile.value?.id,
+      authUserId,
+      { alwaysAwait: true },
+    )
+
+    if (!isOnboardingComplete(profile.value?.profile ?? null)) {
+      return navigateTo('/onboard', REDIRECT_REPLACE)
+    }
+    return
+  }
+
+  if (isOnboardRoute) {
+    await syncProfile(
+      refreshProfile,
+      profile.value?.id,
+      authUserId,
+      { alwaysAwait: false },
+    )
 
     const cached = profile.value?.profile ?? null
-    if (isHomeRoute && cached && !isOnboardingComplete(cached)) {
-      return navigateTo('/onboard')
-    }
-    if (isOnboardRoute && cached && isOnboardingComplete(cached)) {
-      return navigateTo('/home')
+    if (cached && isOnboardingComplete(cached)) {
+      return navigateTo('/home', REDIRECT_REPLACE)
     }
     return
   }
@@ -91,7 +129,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo('/home')
   }
 
-  if (!completed && isAuthRoute && to.path !== '/auth/confirm') {
+  if (!completed && isAuthRoute && path !== '/auth/confirm') {
     return navigateTo('/onboard')
   }
 })

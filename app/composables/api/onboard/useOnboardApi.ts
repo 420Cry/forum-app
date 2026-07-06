@@ -1,5 +1,6 @@
 import { useApiConfig } from '../useApiConfig'
 import type {
+  OnboardDraftPayload,
   OnboardPayload,
   OnboardResponse,
   ProfileUpdatePayload,
@@ -26,5 +27,14 @@ export function useOnboardApi() {
     })
   }
 
-  return { saveOnboarding, updateProfile }
+  async function saveOnboardingDraft(payload: OnboardDraftPayload) {
+    const headers = await getAuthHeaders()
+    return await $fetch<OnboardResponse>(`${baseUrl}/user/onboarding/draft`, {
+      method: 'PATCH',
+      headers,
+      body: payload,
+    })
+  }
+
+  return { saveOnboarding, saveOnboardingDraft, updateProfile }
 }
