@@ -1,16 +1,10 @@
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { useSupabaseToken } from './useSupabaseToken'
 import { useUserProfile } from '../user/useUserProfile'
-import { isEmailVerified } from '~/utils/authSession'
 
 export interface AuthUser {
   id: string
   email: string | null
-  emailVerified: boolean
-}
-
-export interface RegisterResult {
-  needsVerification: boolean
 }
 
 function toAuthUser(u: SupabaseUser | null | undefined): AuthUser | null {
@@ -18,7 +12,6 @@ function toAuthUser(u: SupabaseUser | null | undefined): AuthUser | null {
   return {
     id: u.id,
     email: u.email ?? null,
-    emailVerified: isEmailVerified(u),
   }
 }
 
@@ -51,27 +44,6 @@ export function useSupabaseAuth() {
     return isSupabaseUser(current) ? toAuthUser(current) : null
   })
   const isAuthenticated = computed(() => !!user.value)
-  const canAccessApp = computed(
-    () => !!user.value?.emailVerified && !!supabaseUser.value,
-  )
-
-  if (import.meta.client) {
-    const handleVisibilityChange = () => {
-      if (
-        document.visibilityState === 'visible'
-        && user.value
-        && !user.value.emailVerified
-      ) {
-        void refreshUser()
-      }
-    }
-    onMounted(() =>
-      document.addEventListener('visibilitychange', handleVisibilityChange),
-    )
-    onUnmounted(() =>
-      document.removeEventListener('visibilitychange', handleVisibilityChange),
-    )
-  }
 
   async function login(email: string, password: string) {
     loading.value = true
@@ -82,10 +54,7 @@ export function useSupabaseAuth() {
         password,
       })
       if (err) {
-        error.value
-          = err.code === 'email_not_confirmed'
-            ? t('auth.error.email_not_verified')
-            : err.message
+        error.value = err.message
         return
       }
       if (data.session) {
@@ -104,10 +73,7 @@ export function useSupabaseAuth() {
     }
   }
 
-  async function register(
-    email: string,
-    password: string,
-  ): Promise<RegisterResult | undefined> {
+  async function register(email: string, password: string) {
     loading.value = true
     error.value = null
     try {
@@ -128,10 +94,13 @@ export function useSupabaseAuth() {
 
       refreshedUser.value = data.user
 
-      const needsVerification
-        = !data.session && !isEmailVerified(data.user)
-
-      return { needsVerification }
+      if (data.session) {
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        })
+        refreshedUser.value = data.session.user
+      }
     }
     finally {
       loading.value = false
@@ -166,38 +135,12 @@ export function useSupabaseAuth() {
     const { data, error } = await supabase.auth.refreshSession()
     if (error || !data.session) {
       refreshedUser.value = current.session.user
-      return !!current.session.user.email_confirmed_at
+      return true
     }
 
     const { data: userData } = await supabase.auth.getUser()
     refreshedUser.value = userData.user
-    return !!userData.user?.email_confirmed_at
-  }
-
-  async function resendVerificationEmail() {
-    if (!user.value?.email) {
-      error.value = t('auth.error.not_signed_in')
-      return
-    }
-    if (user.value.emailVerified) {
-      error.value = t('auth.error.email_already_verified')
-      return
-    }
-    loading.value = true
-    error.value = null
-    try {
-      const { error: err } = await supabase.auth.resend({
-        type: 'signup',
-        email: user.value.email,
-        options: {
-          emailRedirectTo: `${getAppOrigin()}/auth/confirm`,
-        },
-      })
-      if (err) error.value = err.message
-    }
-    finally {
-      loading.value = false
-    }
+    return true
   }
 
   function clearError() {
@@ -210,13 +153,11 @@ export function useSupabaseAuth() {
     error,
     clearError,
     isAuthenticated,
-    canAccessApp,
     login,
     register,
     logout,
     getAccessToken,
     resetPassword,
     refreshUser,
-    resendVerificationEmail,
   }
 }

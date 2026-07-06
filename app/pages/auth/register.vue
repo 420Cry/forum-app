@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useSupabaseAuth, useToast } from '~/composables'
+import { useSupabaseAuth, useToast, useUserProfile } from '~/composables'
+import { postAuthPath } from '~/types/user'
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
 import PasswordRequirements from '~/components/auth/PasswordRequirements.vue'
@@ -9,6 +10,7 @@ definePageMeta({ layout: 'auth' })
 
 const { t } = useI18n()
 const { register, loading, error, clearError } = useSupabaseAuth()
+const { refreshProfile, clearProfile } = useUserProfile()
 const toast = useToast()
 const email = ref('')
 const password = ref('')
@@ -27,8 +29,11 @@ async function submit() {
 
   await register(email.value, password.value)
   if (!error.value) {
-    toast.showSuccess(t('auth.info.account_created_toast'))
-    await navigateTo('/auth', { replace: true })
+    toast.showSuccess(t('auth.info.account_created_toast'), 1500)
+    clearProfile()
+    const me = await refreshProfile(false)
+    const target = postAuthPath(me?.profile ?? null)
+    await navigateTo(target, { replace: true })
   }
 }
 </script>

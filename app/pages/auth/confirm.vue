@@ -8,7 +8,7 @@ definePageMeta({ layout: 'auth' })
 const { t } = useI18n()
 const { refreshUser } = useSupabaseAuth()
 const { refreshProfile } = useUserProfile()
-const status = ref<'confirming' | 'verified' | 'failed'>('confirming')
+const status = ref<'confirming' | 'failed'>('confirming')
 
 async function goToPostAuth() {
   const me = await refreshProfile(true)
@@ -16,8 +16,8 @@ async function goToPostAuth() {
 }
 
 onMounted(async () => {
-  const verified = await refreshUser()
-  if (verified) {
+  const hasSession = await refreshUser()
+  if (hasSession) {
     await goToPostAuth()
     return
   }
@@ -26,8 +26,8 @@ onMounted(async () => {
 
 async function retry() {
   status.value = 'confirming'
-  const verified = await refreshUser()
-  if (verified) {
+  const hasSession = await refreshUser()
+  if (hasSession) {
     await goToPostAuth()
     return
   }
@@ -46,7 +46,7 @@ async function retry() {
       {{ t('auth.info.confirming_email') }}
     </p>
     <p
-      v-else-if="status === 'failed'"
+      v-else
       class="text-ink-3"
     >
       {{ t('auth.info.email_confirm_failed') }}
