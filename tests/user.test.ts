@@ -21,10 +21,10 @@ const completeProfile: UserProfile = {
   onboarded: true,
   onboardingStep: null,
   role: 'Investor',
-  name: 'Dao Nguyen',
+  name: 'Alex Morgan',
   occupation: 'Angel',
   age: 30,
-  location: 'Hanoi',
+  location: 'Austin',
   goals: ['discover_startups'],
 }
 

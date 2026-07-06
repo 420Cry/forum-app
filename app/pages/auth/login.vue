@@ -4,9 +4,10 @@ import { postAuthPath } from '~/types/user'
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
 
-definePageMeta({ layout: 'auth' })
+definePageMeta({ layout: 'auth', access: 'guest' })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const { login, loading, error, clearError } = useSupabaseAuth()
 const { refreshProfile, clearProfile } = useUserProfile()
 const toast = useToast()
@@ -21,7 +22,7 @@ async function submit() {
     clearProfile()
     const me = await refreshProfile(false)
     const target = postAuthPath(me?.profile ?? null)
-    await navigateTo(target, { replace: true })
+    await navigateTo(localePath(target), { replace: true })
   }
 }
 </script>
@@ -62,7 +63,7 @@ async function submit() {
               {{ t('auth.label.password') }}
             </label>
             <NuxtLink
-              to="/auth/forgot-password"
+              :to="localePath('/auth/forgot-password')"
               class="text-sm text-ink-3 hover:text-ink"
             >
               {{ t('auth.action.forgot_password') }}
@@ -101,7 +102,7 @@ async function submit() {
       <p class="mt-4 text-center text-sm text-ink-3">
         {{ t('auth.info.no_account') }}
         <NuxtLink
-          to="/auth/register"
+          :to="localePath('/auth/register')"
           class="font-semibold text-brand hover:text-brand-hover"
         >
           {{ t('auth.action.create_account') }}

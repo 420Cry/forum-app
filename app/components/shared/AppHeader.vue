@@ -1,34 +1,41 @@
 <script setup lang="ts">
 import BaseButton from '~/components/shared/BaseButton.vue'
+import LocaleSwitcher from '~/components/shared/LocaleSwitcher.vue'
 
-const { showSignOut = false } = defineProps<{
+const { showSignOut = false, constrained = false } = defineProps<{
   showSignOut?: boolean
+  /** Match auth layout content width (max-w-3xl). */
+  constrained?: boolean
 }>()
 
 const { t } = useI18n()
 const { logout } = useSupabaseAuth()
+const localePath = useLocalePath()
 
 async function handleLogout() {
   await logout()
-  await navigateTo('/')
+  await navigateTo(localePath('/'), { replace: true })
 }
 </script>
 
 <template>
-  <header
-    class="h-14 flex items-center justify-between px-8 bg-card border-b border-line"
-  >
-    <SharedAppLogo />
-    <div class="flex items-center gap-3">
-      <LocaleSwitcher />
-      <BaseButton
-        v-if="showSignOut"
-        intent="ghost"
-        size="sm"
-        @click="handleLogout"
-      >
-        {{ t('common.action.sign_out') }}
-      </BaseButton>
+  <header class="border-b border-line bg-card">
+    <div
+      class="mx-auto flex h-14 w-full items-center justify-between px-6"
+      :class="constrained ? 'max-w-3xl' : 'max-w-5xl'"
+    >
+      <SharedAppLogo />
+      <div class="flex items-center gap-3">
+        <LocaleSwitcher />
+        <BaseButton
+          v-if="showSignOut"
+          intent="ghost"
+          size="sm"
+          @click="handleLogout"
+        >
+          {{ t('common.action.sign_out') }}
+        </BaseButton>
+      </div>
     </div>
   </header>
 </template>

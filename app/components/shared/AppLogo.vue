@@ -1,7 +1,22 @@
+<script setup lang="ts">
+import fundedrLogo from '~/assets/logo/FundedrLogo.png'
+
+const localePath = useLocalePath()
+const { t } = useI18n()
+</script>
+
 <template>
-  <span
-    class="font-wordmark text-2xl font-bold tracking-tight text-ink select-none"
+  <NuxtLink
+    :to="localePath('/')"
+    class="inline-flex shrink-0"
+    :aria-label="t('common.heading.forum')"
   >
-    fund<span class="text-accent">e</span>dr
-  </span>
+    <img
+      :src="fundedrLogo"
+      alt="Fundedr"
+      class="h-7 w-auto"
+      width="120"
+      height="28"
+    />
+  </NuxtLink>
 </template>

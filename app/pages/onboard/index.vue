@@ -3,9 +3,10 @@ import OnboardNav from '@/components/onboard/shared/OnboardNav.vue'
 import OnboardProgress from '@/components/onboard/shared/OnboardProgress.vue'
 import { isOnboardingComplete } from '~/types/user'
 
-definePageMeta({ layout: 'onboard' })
+definePageMeta({ layout: 'onboard', access: 'protected' })
 
 const { t } = useI18n()
+const localePath = useLocalePath()
 const toast = useToast()
 const {
   currentPage,
@@ -16,6 +17,7 @@ const {
   backStep,
   updateOnboardPage,
   hydrateFromProfile,
+  restoreOnboardSession,
   enableDraftSync,
   isLoading,
 } = useOnboard()
@@ -28,14 +30,20 @@ onMounted(async () => {
 
   if (unauthorized.value) {
     toast.showError(t('auth.error.session_invalid'), 4000)
-    await navigateTo('/auth/login')
+    await navigateTo(localePath('/auth/login'))
     return
   }
 
   const userProfile = me?.profile ?? null
 
   if (isOnboardingComplete(userProfile)) {
-    await navigateTo('/home', { replace: true })
+    await navigateTo(localePath('/home'), { replace: true })
+    return
+  }
+
+  if (restoreOnboardSession(userProfile)) {
+    enableDraftSync()
+    pageReady.value = true
     return
   }
 

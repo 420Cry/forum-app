@@ -17,6 +17,9 @@
       "update_anytime": "You can update these any time from your profile",
       "loading": "Loading..."
     },
+    "header": {
+      "language": "Language"
+    },
     "error": {
       "try_again": "Please try again",
       "try_again_later": "Please try again later"
@@ -29,7 +32,6 @@
       "reset_password": "Reset password",
       "set_new_password": "Set a new password",
       "account": "Account",
-      "verify_email": "Verify your email",
       "check_email": "Check your email"
     },
     "label": {
@@ -54,16 +56,13 @@
       "already_have_account": "Already have an account?",
       "no_account": "Don't have an account?",
       "confirming_email": "Confirming your email...",
+      "email_confirm_success": "Your email is verified.",
+      "email_confirm_redirect": "Taking you to the homepage...",
       "email_confirm_failed": "We could not confirm your email yet. Try again after clicking the link in your inbox.",
-      "verify_email_prompt": "We sent a verification link to {email}. Check your inbox or resend below.",
-      "verification_email_sent": "Verification email sent.",
-      "signed_in_status": "Signed in",
-      "email_not_verified_status": "Email not verified",
       "sign_in_or_create": "Sign in or create an account to continue",
       "signed_in_toast": "Signed in.",
       "account_created_toast": "Account created. Check your email to verify your address.",
-      "password_updated_toast": "Password updated. You can sign in now.",
-      "local_dev_email_inbox": "Local dev: open http://127.0.0.1:54324 to read verification emails."
+      "password_updated_toast": "Password updated."
     },
     "action": {
       "sign_in": "Sign in",
@@ -76,22 +75,30 @@
       "update_password": "Update password",
       "saving": "Saving...",
       "check_again": "Check again",
-      "check_verified": "I've verified my email",
-      "checking": "Checking...",
-      "resend_verification": "Resend verification email",
+      "continue_to_home": "Continue to homepage",
       "back_to_sign_in": "Back to sign in"
     },
     "error": {
       "email_not_verified": "Please verify your email before signing in. Check your inbox for the verification link.",
-      "not_signed_in": "Not signed in",
-      "email_already_verified": "Email already verified",
       "password_min_length": "Password must be at least 8 characters",
       "password_number": "Password must include at least 1 number",
       "password_uppercase": "Password must include at least 1 uppercase letter",
       "password_lowercase": "Password must include at least 1 lowercase letter",
       "password_special": "Password must include at least 1 special character",
       "session_invalid": "Your session could not be verified. Sign in again after confirming your email.",
-      "user_already_exists": "This email is already registered. Sign in instead. For local dev, delete the auth user with: forum db:delete-user [email]"
+      "user_already_exists": "This email is already registered. Sign in, or reset your password if you forgot it.",
+      "email_invalid_format": "Enter a valid email address (for example name{'@'}example.com).",
+      "email_rate_limit": "Too many verification emails sent. Wait about an hour, or restart local Supabase after updating rate limits (forum down && forum dev).",
+      "email_cooldown": "Please wait a moment before requesting another email.",
+      "redirect_not_allowed": "Auth redirect URL is not configured. Check supabase/config.toml additional_redirect_urls.",
+      "invalid_credentials": "Incorrect email or password. Try again or reset your password.",
+      "password_weak": "Password does not meet the requirements.",
+      "same_password": "Choose a password that is different from your current one.",
+      "signup_disabled": "New signups are not available right now.",
+      "user_not_found": "No account found with this email.",
+      "link_expired": "This link is invalid or has expired. Request a new one.",
+      "validation_failed": "Some details could not be validated. Check your input and try again.",
+      "unexpected": "Something went wrong. Please try again."
     }
   },
   "onboard": {
@@ -120,8 +127,8 @@
       "age": "Age",
       "location": "Location",
       "occupation": "Occupation",
-      "first_name_placeholder": "e.g. Dao",
-      "last_name_placeholder": "e.g. Nguyen",
+      "first_name_placeholder": "e.g. Alex",
+      "last_name_placeholder": "e.g. Morgan",
       "age_placeholder": "e.g. 28",
       "location_placeholder": "City, country",
       "occupation_placeholder": "e.g. Founder & researcher"
@@ -154,13 +161,13 @@
       "select_goal": "Please select at least one goal before continue!",
       "first_name_required": "First name required",
       "first_name_min": "First name must have at least 2 characters",
-      "first_name_special": "First name must not contain special characters",
+      "first_name_special": "First name can only contain letters (no numbers or symbols)",
       "last_name_required": "Last name required",
       "last_name_min": "Last name must have at least 2 characters",
-      "last_name_special": "Last name must not contain special characters",
+      "last_name_special": "Last name can only contain letters (no numbers or symbols)",
       "age_required": "Age required",
-      "age_min": "Age cannot be lower than 5",
-      "age_max": "Age cannot be bigger than 100",
+      "age_invalid": "Age must be a whole number",
+      "age_min": "You must be older than 16",
       "location_required": "Location required",
       "location_min": "Location must have at least 2 characters",
       "location_special": "Location must not contain special characters",
