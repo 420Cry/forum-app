@@ -37,7 +37,7 @@ onMounted(async () => {
   const userProfile = me?.profile ?? null
 
   if (isOnboardingComplete(userProfile)) {
-    await navigateTo(localePath('/home'), { replace: true })
+    await navigateTo(localePath('/social'), { replace: true })
     return
   }
 

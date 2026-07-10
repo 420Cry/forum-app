@@ -220,7 +220,7 @@ export const useOnboard = () => {
       }
       await refreshProfile(true)
       resetOnboarding()
-      await navigateTo(localePath('/home'), { replace: true })
+      await navigateTo(localePath('/social'), { replace: true })
       return true
     }
     catch (err: unknown) {

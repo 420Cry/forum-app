@@ -22,7 +22,7 @@ export function isOnboardingComplete(
 }
 
 export function postAuthPath(profile: UserProfile | null | undefined): string {
-  return isOnboardingComplete(profile) ? '/home' : '/onboard'
+  return isOnboardingComplete(profile) ? '/social' : '/onboard'
 }
 
 /** Resume step from server draft, or infer from saved profile fields. */

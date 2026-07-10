@@ -21,7 +21,7 @@ async function handleLogout() {
 <template>
   <header class="border-b border-line bg-card">
     <div
-      class="mx-auto flex h-14 w-full items-center justify-between px-6"
+      class="mx-auto grid h-14 w-full grid-cols-[1fr_auto] items-center gap-6 px-7"
       :class="constrained ? 'max-w-3xl' : 'max-w-5xl'"
     >
       <SharedAppLogo />

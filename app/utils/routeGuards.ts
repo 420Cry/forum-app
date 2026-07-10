@@ -67,7 +67,7 @@ export function onboardingRedirect(
   const barePath = stripLocalePrefix(path)
   const completed = isOnboardingComplete(profile)
 
-  if (barePath.startsWith('/home') && !completed) return '/onboard'
-  if (barePath === '/onboard' && completed) return '/home'
+  if (barePath.startsWith('/social') && !completed) return '/onboard'
+  if (barePath === '/onboard' && completed) return '/social'
   return null
 }
