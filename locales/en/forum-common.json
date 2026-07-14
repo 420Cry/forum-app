@@ -101,6 +101,12 @@
       "unexpected": "Something went wrong. Please try again."
     }
   },
+  "social": {
+    "account": {
+      "signed_in_as": "Signed in as",
+      "add_startup_page": "Add a startup page"
+    }
+  },
   "onboard": {
     "heading": {
       "choose_role": "Choose your role",

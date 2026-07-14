@@ -101,6 +101,12 @@
       "unexpected": "Đã xảy ra lỗi. Vui lòng thử lại."
     }
   },
+  "social": {
+    "account": {
+      "signed_in_as": "Đã đăng nhập với",
+      "add_startup_page": "Thêm trang startup"
+    }
+  },
   "onboard": {
     "heading": {
       "choose_role": "Chọn vai trò của bạn",

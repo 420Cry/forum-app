@@ -26,3 +26,5 @@ logs
 
 # prettier
 .prettierrc
+# Claude Code personal settings
+.claude

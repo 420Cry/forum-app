@@ -13,4 +13,9 @@ export const iconList = {
   peers: 'material-symbols:p2p-outline-sharp',
   barChart: 'material-symbols:bar-chart-4-bars-rounded',
   camera: 'material-symbols:photo-camera-outline-rounded',
+  check: 'material-symbols:fitbit-check-small-rounded',
+  home: 'material-symbols:home-outline',
+  message: 'material-symbols:chat-bubble-outline-rounded',
+  notification: 'material-symbols:notifications-outline-rounded',
+  chevron: 'material-symbols:keyboard-arrow-down-rounded',
 } as const
