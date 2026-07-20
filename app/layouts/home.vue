@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LeftRail from '~/components/home/shared/LeftRail.vue'
+import RightRail from '~/components/home/RightRail.vue'
 import AppLegalFooter from '~/components/legal/AppLegalFooter.vue'
 import MobileBottomNav from '~/components/home/MobileBottomNav.vue'
 import { stripLocalePrefix } from '~/utils/localePath'
@@ -43,7 +44,9 @@ const mainPadClass = computed(() => {
       class="mx-auto grid w-full max-w-340 items-start gap-4 p-4 sm:gap-6 sm:px-7 sm:py-6"
       :class="
         isSignedIn
-          ? 'grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)]'
+          ? isMessages
+            ? 'grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)]'
+            : 'grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)_320px]'
           : 'grid-cols-1'
       "
     >
@@ -59,6 +62,12 @@ const mainPadClass = computed(() => {
       >
         <slot />
       </main>
+      <aside
+        v-if="isSignedIn && !isMessages"
+        class="hidden lg:block sticky top-6"
+      >
+        <RightRail />
+      </aside>
     </div>
     <AppLegalFooter
       v-if="!isMessages"
