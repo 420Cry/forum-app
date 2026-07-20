@@ -182,5 +182,13 @@
       "occupation_special": "Occupation must not contain special characters",
       "role_invalid": "User role can only be Founder or Investor"
     }
+  },
+  "nav": {
+    "social": "Social",
+    "find": "Find",
+    "opportunities": "Opportunities",
+    "following": "Following",
+    "saved": "Saved",
+    "settings": "Settings"
   }
 }

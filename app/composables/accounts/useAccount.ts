@@ -4,13 +4,18 @@ const profileExample = ref(
       id: '1',
       name: 'Dao Nguyen',
       subtitle: 'Founder / Personal Account',
+      location: 'Vietnam',
       avatar: '',
+      views: '100',
     },
     {
       id: '2',
       name: 'HelloWorld',
       subtitle: 'Climate / Preseed',
+      location: 'Remote',
       avatar: '',
+      views: '1000',
+      connections: '200',
     },
   ].map(profile => ({
     ...profile,

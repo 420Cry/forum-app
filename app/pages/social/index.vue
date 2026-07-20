@@ -3,5 +3,7 @@ definePageMeta({ layout: 'home', access: 'protected' })
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-5xl px-7 py-6" />
+  <div class="flex flex-col gap-3">
+    <!-- middle column content -->
+  </div>
 </template>

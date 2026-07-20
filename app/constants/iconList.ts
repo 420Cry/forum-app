@@ -18,4 +18,9 @@ export const iconList = {
   message: 'material-symbols:chat-bubble-outline-rounded',
   notification: 'material-symbols:notifications-outline-rounded',
   chevron: 'material-symbols:keyboard-arrow-down-rounded',
+  social: 'material-symbols:group-outline-rounded',
+  opportunity: 'material-symbols:star-outline-rounded',
+  following: 'material-symbols:person-add-outline-rounded',
+  saved: 'material-symbols:bookmark-outline-rounded',
+  settings: 'material-symbols:settings-outline-rounded',
 } as const

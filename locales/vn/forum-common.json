@@ -182,5 +182,13 @@
       "occupation_special": "Nghề nghiệp không được chứa ký tự đặc biệt",
       "role_invalid": "Vai trò chỉ có thể là Founder hoặc Investor"
     }
+  },
+  "nav": {
+    "social": "Mạng xã hội",
+    "find": "Tìm kiếm",
+    "opportunities": "Cơ hội",
+    "following": "Đang theo dõi",
+    "saved": "Đã lưu",
+    "settings": "Cài đặt"
   }
 }
