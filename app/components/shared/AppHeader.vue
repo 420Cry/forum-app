@@ -85,7 +85,7 @@ watch(
       "
     >
       <SharedAppLogo />
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2.5">
         <LocaleSwitcher />
         <HeaderMessagesLink v-if="isProtectedRoute" />
         <span
