@@ -61,10 +61,10 @@ onUnmounted(() => document.removeEventListener('click', onClickSwitcher))
   <header class="border-b border-line bg-card">
     <div
       class="mx-auto grid h-14 w-full grid-cols-[1fr_auto] items-center gap-6 px-7"
-      :class="constrained ? 'max-w-3xl' : 'max-w-5xl'"
+      :class="constrained ? 'max-w-3xl' : isProtectedRoute ? 'max-w-none' : 'max-w-5xl'"
     >
       <SharedAppLogo />
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2.5">
         <LocaleSwitcher />
         <BaseButton
           v-if="showSignOut"
@@ -76,7 +76,7 @@ onUnmounted(() => document.removeEventListener('click', onClickSwitcher))
         </BaseButton>
         <div
           v-if="isProtectedRoute"
-          class="flex items-center gap-1"
+          class="flex items-center gap-2.5"
         >
           <div
             class="relative size-10 rounded-full flex items-center justify-center text-ink-3 hover:bg-surface-hover hover:text-ink cursor-pointer"
@@ -119,7 +119,7 @@ onUnmounted(() => document.removeEventListener('click', onClickSwitcher))
               type="button"
               aria-haspopup="menu"
               :aria-expanded="isShowAccountSwitcher"
-              class="flex gap-2 items-center h-10 pl-1 pr-3 rounded-full cursor-pointer transition ease-in-out hover:bg-surface-hover"
+              class="flex gap-2.5 items-center h-10 pl-1 pr-3 rounded-full cursor-pointer transition ease-in-out hover:bg-surface-hover"
               :class="{ 'bg-surface-hover-2': isShowAccountSwitcher }"
               @click="activeAccountSwitcher()"
             >
