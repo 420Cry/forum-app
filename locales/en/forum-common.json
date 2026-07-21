@@ -263,11 +263,13 @@
       "follow": "+ Follow",
       "unfollow": "Following",
       "sign_in_to_follow": "Sign in to follow",
-      "learn_more": "Learn more"
+      "learn_more": "Learn more",
+      "see_all": "See all"
     },
     "heading": {
       "become_member": "Become a member",
       "suggested_follow": "Suggested to follow",
+      "trending": "Trending Now",
       "feed": "Social"
     },
     "info": {

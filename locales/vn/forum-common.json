@@ -263,11 +263,13 @@
       "follow": "+ Theo dõi",
       "unfollow": "Đang theo dõi",
       "sign_in_to_follow": "Đăng nhập để theo dõi",
-      "learn_more": "Tìm hiểu thêm"
+      "learn_more": "Tìm hiểu thêm",
+      "see_all": "Xem tất cả"
     },
     "heading": {
       "become_member": "Trở thành thành viên",
       "suggested_follow": "Gợi ý theo dõi",
+      "trending": "Xu hướng",
       "feed": "Mạng xã hội"
     },
     "info": {
