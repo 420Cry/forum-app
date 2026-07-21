@@ -63,16 +63,16 @@ describe('onboardingRedirect', () => {
   const incomplete = { onboarded: false } as UserProfile
 
   it('sends not-onboarded users from /home to /onboard', () => {
-    expect(onboardingRedirect('/home', incomplete)).toBe('/onboard')
-    expect(onboardingRedirect('/home', null)).toBe('/onboard')
+    expect(onboardingRedirect('/social', incomplete)).toBe('/onboard')
+    expect(onboardingRedirect('/social', null)).toBe('/onboard')
   })
 
-  it('sends onboarded users from /onboard to /home', () => {
-    expect(onboardingRedirect('/onboard', complete)).toBe('/home')
+  it('sends onboarded users from /onboard to /social', () => {
+    expect(onboardingRedirect('/onboard', complete)).toBe('/social')
   })
 
   it('lets users stay when the route matches their state', () => {
-    expect(onboardingRedirect('/home', complete)).toBeNull()
+    expect(onboardingRedirect('/social', complete)).toBeNull()
     expect(onboardingRedirect('/onboard', incomplete)).toBeNull()
     expect(onboardingRedirect('/onboard', null)).toBeNull()
   })
@@ -83,8 +83,8 @@ describe('onboardingRedirect', () => {
   })
 
   it('handles locale-prefixed paths', () => {
-    expect(onboardingRedirect('/en/home', incomplete)).toBe('/onboard')
-    expect(onboardingRedirect('/vn/onboard', complete)).toBe('/home')
-    expect(onboardingRedirect('/en/home', complete)).toBeNull()
+    expect(onboardingRedirect('/en/social', incomplete)).toBe('/onboard')
+    expect(onboardingRedirect('/vn/onboard', complete)).toBe('/social')
+    expect(onboardingRedirect('/en/social', complete)).toBeNull()
   })
 })

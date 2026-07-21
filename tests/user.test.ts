@@ -48,7 +48,7 @@ describe('user profile helpers', () => {
     })
 
     it('routes onboarded users to home', () => {
-      expect(postAuthPath(completeProfile)).toBe('/home')
+      expect(postAuthPath(completeProfile)).toBe('/social')
     })
   })
 
