@@ -2,7 +2,8 @@
 import { useAccount } from '~/composables/accounts/useAccount'
 import NavigationTabs from '../shared/NavigationTabs.vue'
 
-const { activeAccount, handleAvatarError } = useAccount()
+const { t } = useI18n()
+const { activeAccount, handleAvatarError, isUserPaid } = useAccount()
 </script>
 
 <template>
@@ -10,55 +11,73 @@ const { activeAccount, handleAvatarError } = useAccount()
   <div class="flex flex-col gap-3">
     <!-- Profile detail -->
     <div
-      class="flex flex-col items-center gap-2 bg-white border border-gray-300 py-4"
+      class="flex flex-col items-center bg-card border border-line rounded-lg shadow-1 px-4 pt-5 pb-4"
     >
-      <div
-        class="flex flex-col items-center gap-2 border-b border-gray-300 pb-4 w-full"
-      >
-        <img
-          v-if="activeAccount?.avatar && !activeAccount?.avatarLoadFailed"
-          :src="activeAccount.avatar"
-          class="size-12 rounded-full object-cover shrink-0"
-          @error="handleAvatarError(activeAccount.name)"
-        />
+      <img
+        v-if="activeAccount?.avatar && !activeAccount?.avatarLoadFailed"
+        :src="activeAccount.avatar"
+        class="size-16 rounded-full object-cover shrink-0 shadow-1"
+        @error="handleAvatarError(activeAccount.name)"
+      />
 
-        <div
-          v-else
-          class="size-12 rounded-full flex justify-center items-center shrink-0"
-          :style="{ backgroundImage: activeAccount?.avatarColor }"
-        >
-          <span class="font-semibold text-md text-white">
-            {{ activeAccount?.prefix }}
-          </span>
-        </div>
-        <p class="font-bold">
-          {{ activeAccount?.name }}
-        </p>
-        <p class="text-sm">
-          {{ activeAccount?.subtitle }}
-        </p>
-        <p class="text-sm">
-          {{ activeAccount?.location }}
-        </p>
+      <div
+        v-else
+        class="size-16 rounded-full flex justify-center items-center shrink-0 shadow-1"
+        :style="{ backgroundImage: activeAccount?.avatarColor }"
+      >
+        <span class="font-semibold text-white">
+          {{ activeAccount?.prefix }}
+        </span>
       </div>
 
-      <div class="mt-2 w-full flex flex-col gap-2">
-        <div class="flex justify-around">
-          <p>Profile views</p>
-          <p>{{ activeAccount?.views }}</p>
+      <p class="mt-3 font-semibold text-ink">
+        {{ activeAccount?.name }}
+      </p>
+      <p class="mt-1 text-center text-xs text-ink-3">
+        {{
+          [activeAccount?.subtitle, activeAccount?.location]
+            .filter(Boolean)
+            .join(' · ')
+        }}
+      </p>
+
+      <div class="mt-3.5 w-full flex flex-col gap-2 pt-3 border-t border-line">
+        <div class="flex justify-between text-xs">
+          <span class="text-ink-3">Profile views</span>
+          <span class="text-brand font-semibold">{{
+            activeAccount?.views
+          }}</span>
         </div>
 
         <div
           v-if="activeAccount?.connections"
-          class="flex justify-around"
+          class="flex justify-between text-xs"
         >
-          <p>Connections</p>
-          <p>{{ activeAccount?.connections }}</p>
+          <span class="text-ink-3">Connections</span>
+          <span class="text-brand font-semibold">{{
+            activeAccount?.connections
+          }}</span>
         </div>
       </div>
     </div>
 
     <!-- navigation -->
     <NavigationTabs />
+
+    <!-- member recommendation -->
+    <div
+      v-if="!isUserPaid"
+      class="w-full bg-card py-3.5 px-4 border border-line rounded-lg shadow-1 flex flex-col gap-1"
+    >
+      <p class="font-semibold text-sm text-ink">
+        {{ t('social.heading.become_member') }}
+      </p>
+      <p class="text-xs/relaxed text-ink-3 ">
+        {{ t('social.info.become_member') }}
+      </p>
+      <p class="mt-1 text-xs text-brand font-semibold">
+        {{ t('social.action.learn_more') }} →
+      </p>
+    </div>
   </div>
 </template>

@@ -1,3 +1,4 @@
+/* Has not thought of the API response shape but should return the profile + is user paid */
 const profileExample = ref(
   [
     {
@@ -28,6 +29,8 @@ const profileExample = ref(
   })),
 )
 
+const isUserPaid = false
+
 export const useAccount = () => {
   const activeAccountId = useState(
     'active-account-id',
@@ -53,5 +56,6 @@ export const useAccount = () => {
     handleActive,
     profileExample,
     activeAccountId,
+    isUserPaid,
   }
 }

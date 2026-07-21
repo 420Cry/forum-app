@@ -105,6 +105,23 @@
     "account": {
       "signed_in_as": "Signed in as",
       "add_startup_page": "Add a startup page"
+    },
+    "heading": {
+      "become_member": "Become a member",
+      "suggested_follow": "Suggested to follow",
+      "trending": "Trending Now"
+    },
+    "info": {
+      "become_member": "Unlock testimonials, ratings, and direct intros to founders."
+    },
+    "action": {
+      "learn_more": "Learn more",
+      "see_all": "See all",
+      "follow": "Follow",
+      "following": "Following"
+    },
+    "badge": {
+      "opportunity": "Opportunity"
     }
   },
   "onboard": {

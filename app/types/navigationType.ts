@@ -5,4 +5,6 @@ export type navigationLinkType = {
   titleKey: string
   iconName: iconNameType
   link: string
+  // Prototype only: count will come from the API — hardcoded here to shape the response.
+  count?: number
 }

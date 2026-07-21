@@ -2,7 +2,7 @@ import type { navigationLinkType } from '~/types/navigationType'
 
 // Primary left-rail navigation for the protected home layout.
 // `link` values are placeholders until the matching routes exist.
-const navigationLinks: navigationLinkType[] = [
+export const navigationLinks: navigationLinkType[] = [
   {
     id: 'social',
     titleKey: 'nav.social',
@@ -20,6 +20,7 @@ const navigationLinks: navigationLinkType[] = [
     titleKey: 'nav.opportunities',
     iconName: 'opportunity',
     link: '/opportunities',
+    count: 12,
   },
   {
     id: 'following',
@@ -32,6 +33,7 @@ const navigationLinks: navigationLinkType[] = [
     titleKey: 'nav.saved',
     iconName: 'saved',
     link: '/saved',
+    count: 4,
   },
   {
     id: 'settings',
@@ -40,16 +42,3 @@ const navigationLinks: navigationLinkType[] = [
     link: '/settings',
   },
 ]
-
-// Locale-aware variant for rendering: applies `localePath` to each link so
-// navigation respects the active locale (`/en/...`, `/vn/...`).
-export const useNavigationLinks = () => {
-  const localePath = useLocalePath()
-
-  return computed<navigationLinkType[]>(() =>
-    navigationLinks.map(item => ({
-      ...item,
-      link: localePath(item.link),
-    })),
-  )
-}

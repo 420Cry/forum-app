@@ -105,6 +105,23 @@
     "account": {
       "signed_in_as": "Đã đăng nhập với",
       "add_startup_page": "Thêm trang startup"
+    },
+    "heading": {
+      "become_member": "Trở thành thành viên",
+      "suggested_follow": "Gợi ý theo dõi",
+      "trending": "Xu hướng"
+    },
+    "info": {
+      "become_member": "Mở khóa lời chứng thực, đánh giá và kết nối trực tiếp với các founder."
+    },
+    "action": {
+      "learn_more": "Tìm hiểu thêm",
+      "see_all": "Xem tất cả",
+      "follow": "Theo dõi",
+      "following": "Đang theo dõi"
+    },
+    "badge": {
+      "opportunity": "Cơ hội"
     }
   },
   "onboard": {
