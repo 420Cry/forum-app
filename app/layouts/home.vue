@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import LeftRail from '~/components/home/LeftRail.vue'
-import RightRail from '~/components/home/RightRail.vue'
+import LeftRail from '~/components/home/shared/LeftRail.vue'
+import RightRail from '~/components/home/shared/RightRail.vue'
 </script>
 
 <template>

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import BaseButton from '~/components/shared/BaseButton.vue'
+import AccountAvatar from '~/components/shared/AccountAvatar.vue'
 import LocaleSwitcher from '~/components/shared/LocaleSwitcher.vue'
 import { useUserProfile } from '#imports'
 import BaseIcon from './BaseIcon.vue'
 import { useAccount } from '~/composables/accounts/useAccount'
-import AccountSwitcher from '../home/AccountSwitcher.vue'
+import AccountSwitcher from './header/AccountSwitcher.vue'
 
 const {
   showSignOut = false,
@@ -58,10 +59,16 @@ onUnmounted(() => document.removeEventListener('click', onClickSwitcher))
 </script>
 
 <template>
-  <header class="border-b border-line bg-card">
+  <header class="relative z-40 border-b border-line bg-card">
     <div
       class="mx-auto grid h-14 w-full grid-cols-[1fr_auto] items-center gap-6 px-7"
-      :class="constrained ? 'max-w-3xl' : isProtectedRoute ? 'max-w-none' : 'max-w-5xl'"
+      :class="
+        constrained
+          ? 'max-w-3xl'
+          : isProtectedRoute
+            ? 'max-w-none'
+            : 'max-w-5xl'
+      "
     >
       <SharedAppLogo />
       <div class="flex items-center gap-2.5">
@@ -123,22 +130,13 @@ onUnmounted(() => document.removeEventListener('click', onClickSwitcher))
               :class="{ 'bg-surface-hover-2': isShowAccountSwitcher }"
               @click="activeAccountSwitcher()"
             >
-              <img
-                v-if="activeAccount?.avatar && !activeAccount?.avatarLoadFailed"
-                :src="activeAccount.avatar"
-                class="size-8 rounded-full object-cover shrink-0"
-                @error="handleAvatarError(activeAccount.name)"
+              <AccountAvatar
+                v-if="activeAccount"
+                :account="activeAccount"
+                :handle-avatar-error="handleAvatarError"
+                size="size-8"
+                text-class="text-xs"
               />
-
-              <div
-                v-else
-                class="size-8 rounded-full flex justify-center items-center shrink-0"
-                :style="{ backgroundImage: activeAccount?.avatarColor }"
-              >
-                <span class="font-semibold text-xs text-white">
-                  {{ activeAccount?.prefix }}
-                </span>
-              </div>
 
               <p class="text-[13px] font-semibold text-ink-2">
                 {{ activeAccount?.name.split(' ')[0] }}

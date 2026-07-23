@@ -1,24 +1,8 @@
-/* Has not thought of the API response shape but should return the profile + is user paid */
-const profileExample = ref(
-  [
-    {
-      id: '1',
-      name: 'Dao Nguyen',
-      subtitle: 'Founder / Personal Account',
-      location: 'Vietnam',
-      avatar: '',
-      views: '100',
-    },
-    {
-      id: '2',
-      name: 'HelloWorld',
-      subtitle: 'Climate / Preseed',
-      location: 'Remote',
-      avatar: '',
-      views: '1000',
-      connections: '200',
-    },
-  ].map(profile => ({
+import type { AccountSummaryView } from '~/types/profile'
+import { profileExample as profileExampleData } from '~/constants/profiles'
+
+const profileExample = ref<AccountSummaryView[]>(
+  profileExampleData.map(profile => ({
     ...profile,
     prefix: profile.name
       .split(' ')
@@ -29,7 +13,8 @@ const profileExample = ref(
   })),
 )
 
-const isUserPaid = false
+/* API response shape for subscription */
+const isUserPaid = true
 
 export const useAccount = () => {
   const activeAccountId = useState(
@@ -45,8 +30,8 @@ export const useAccount = () => {
     activeAccountId.value = accountId
   }
 
-  const handleAvatarError = (name: string) => {
-    const profile = profileExample.value.find(p => p.name === name)
+  const handleAvatarError = (id: string) => {
+    const profile = profileExample.value.find(p => p.id === id)
     if (profile) profile.avatarLoadFailed = true
   }
 

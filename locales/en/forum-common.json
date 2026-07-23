@@ -122,6 +122,12 @@
     },
     "badge": {
       "opportunity": "Opportunity"
+    },
+    "empty": {
+      "trending_title": "Nothing trending yet",
+      "trending_body": "Opportunities climb here as they gain traction. Check back soon.",
+      "suggested_title": "No one to suggest yet",
+      "suggested_body": "Follow founders and investors, and we'll surface more like them."
     }
   },
   "onboard": {

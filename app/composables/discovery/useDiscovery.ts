@@ -1,16 +1,5 @@
-import type { suggestionType, trendingType } from '~/types/discoveryType'
-
-/* Has not thought of the API response shape but should return the discovery
-   feed for the right rail: accounts to follow + trending items. */
-const suggestionsExample = ref(
-  (
-    [
-      { id: '1', name: 'Cardamom', tags: 'Climate · Pre-seed', avatar: '' },
-      { id: '2', name: 'Marrow', tags: 'Diagnostics · Pre-seed', avatar: '' },
-      { id: '3', name: 'North Bench Capital', tags: 'Angel syndicate', avatar: '' },
-      { id: '4', name: 'Halen Type', tags: 'Design tools · Idea', avatar: '' },
-    ] satisfies suggestionType[]
-  ).map(suggestion => ({
+/* const suggestions = ref(
+  suggestionsExample.map(suggestion => ({
     ...suggestion,
     prefix: suggestion.name
       .split(' ')
@@ -19,29 +8,11 @@ const suggestionsExample = ref(
     avatarColor: getAvatarColor(suggestion.name),
     avatarLoadFailed: false,
   })),
-)
+) */
 
-const trendingExample = ref<trendingType[]>([
-  {
-    id: '1',
-    title: 'Marrow is raising a pre-seed round',
-    subtitle: 'Diagnostics · Lisbon · open to intro',
-    badge: 'opportunity',
-  },
-  {
-    id: '2',
-    title: 'Tidewater opens sensor pilot slots',
-    subtitle: 'Climate / Marine · 3 spots remaining',
-    badge: 'opportunity',
-  },
-  {
-    id: '3',
-    title: 'North Bench Capital: climate hardware Q3',
-    subtitle: 'Investor · writing $50k–$200k',
-    badge: 'opportunity',
-  },
-])
-
+const suggestions = ref([])
+// const trending = ref<trendingType[]>(trendingExample)
+const trending = ref([])
 export const useDiscovery = () => {
   const followedIds = useState('followed-account-ids', () => new Set<string>())
 
@@ -55,14 +26,14 @@ export const useDiscovery = () => {
     followedIds.value = next
   }
 
-  const handleAvatarError = (name: string) => {
-    const suggestion = suggestionsExample.value.find(s => s.name === name)
+  const handleAvatarError = (id: string) => {
+    const suggestion = suggestions.value.find(s => s.id === id)
     if (suggestion) suggestion.avatarLoadFailed = true
   }
 
   return {
-    suggestions: suggestionsExample,
-    trending: trendingExample,
+    suggestions,
+    trending,
     isFollowed,
     handleFollow,
     handleAvatarError,

@@ -122,6 +122,12 @@
     },
     "badge": {
       "opportunity": "Cơ hội"
+    },
+    "empty": {
+      "trending_title": "Chưa có xu hướng nào",
+      "trending_body": "Các cơ hội sẽ xuất hiện ở đây khi thu hút sự chú ý. Hãy quay lại sau.",
+      "suggested_title": "Chưa có gợi ý nào",
+      "suggested_body": "Theo dõi các founder và nhà đầu tư để chúng tôi gợi ý thêm những người tương tự."
     }
   },
   "onboard": {

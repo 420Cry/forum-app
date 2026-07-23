@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { navigationLinkType } from '~/types/navigationType'
 import { useNavigationLinks } from '~/composables/useNavLink'
-import BaseIcon from './BaseIcon.vue'
+import BaseIcon from '@/components/shared/BaseIcon.vue'
 
 const navigationLinks = useNavigationLinks()
 const { t } = useI18n()

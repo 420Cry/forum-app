@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAccount } from '~/composables/accounts/useAccount'
-import BaseIcon from '../shared/BaseIcon.vue'
+import AccountAvatar from '@/components/shared/AccountAvatar.vue'
+import BaseIcon from '@/components/shared/BaseIcon.vue'
 
 const { t } = useI18n()
 
@@ -39,28 +40,17 @@ const { profileExample, handleActive, handleAvatarError, activeAccountId }
         :class="{ 'bg-brand-tint': account.id === activeAccountId }"
         @click="handleActive(account.id)"
       >
-        <img
-          v-if="account.avatar && !account.avatarLoadFailed"
-          :src="account.avatar"
-          class="size-10 rounded-full object-cover shrink-0"
-          @error="handleAvatarError(account.name)"
+        <AccountAvatar
+          :account="account"
+          :handle-avatar-error="handleAvatarError"
         />
-        <div
-          v-else
-          class="size-10 rounded-full flex justify-center items-center shrink-0"
-          :style="{ backgroundImage: account.avatarColor }"
-        >
-          <span class="font-semibold text-sm text-white">
-            {{ account.prefix }}
-          </span>
-        </div>
 
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-[13.5px] text-ink">
             {{ account.name }}
           </p>
           <p class="text-xs text-ink-3 mt-[3px] truncate whitespace-nowrap">
-            {{ account.subtitle }}
+            {{ account.headline }}
           </p>
         </div>
 

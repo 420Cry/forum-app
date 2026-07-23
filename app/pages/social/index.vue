@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import NewsFeed from '~/components/home/shared/NewsFeed.vue'
+
 definePageMeta({ layout: 'home', access: 'protected' })
 </script>
 
 <template>
   <div class="flex flex-col gap-3">
-    <!-- middle column content -->
+    <NewsFeed />
   </div>
 </template>

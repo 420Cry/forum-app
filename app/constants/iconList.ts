@@ -23,4 +23,11 @@ export const iconList = {
   following: 'material-symbols:person-add-outline-rounded',
   saved: 'material-symbols:bookmark-outline-rounded',
   settings: 'material-symbols:settings-outline-rounded',
+  visibility: 'material-symbols:visibility-outline-rounded',
+  upload: 'material-symbols:arrow-upload-progress',
+  back: 'material-symbols:kid-star',
+  watch: 'material-symbols:visibility-rounded',
+  signal: 'material-symbols:android-cell-4-bar',
+  celebrate: 'material-symbols:celebration',
+  insight: 'material-symbols:lightbulb-2-rounded',
 } as const
