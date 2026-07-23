@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AccountSwitcher from '~/components/home/AccountSwitcher.vue'
+import AccountSwitcher from '~/components/shared/header/AccountSwitcher.vue'
 import BaseIcon from '~/components/shared/BaseIcon.vue'
 import BaseSkeleton from '~/components/shared/BaseSkeleton.vue'
 import { useAccount } from '~/composables/accounts/useAccount'

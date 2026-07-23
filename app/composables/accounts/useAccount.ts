@@ -2,7 +2,8 @@ import type { AccountSummaryView } from '~/types/profile'
 import { useProfilesApi } from '~/composables/api/useProfilesApi'
 import { toAccountSummaryView } from '~/utils/accountSummary'
 
-const isUserPaid = false
+/* API response shape for subscription */
+const isUserPaid = true
 
 export const useAccount = () => {
   const accounts = useState<AccountSummaryView[]>('forum-accounts', () => [])

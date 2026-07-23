@@ -7,6 +7,13 @@ export type suggestionType = {
   avatar?: string
 }
 
+// Suggestion enriched with client-derived avatar fields (see useDiscovery).
+export type SuggestionView = suggestionType & {
+  prefix: string
+  avatarColor: string
+  avatarLoadFailed: boolean
+}
+
 // Badge is a single fixed category in this prototype.
 export type trendingBadgeType = 'opportunity'
 

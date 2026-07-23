@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LeftRail from '~/components/home/shared/LeftRail.vue'
-import RightRail from '~/components/home/RightRail.vue'
+import RightRail from '~/components/home/shared/RightRail.vue'
 import AppLegalFooter from '~/components/legal/AppLegalFooter.vue'
 import MobileBottomNav from '~/components/home/MobileBottomNav.vue'
 import { stripLocalePrefix } from '~/utils/localePath'

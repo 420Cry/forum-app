@@ -286,7 +286,9 @@
     },
     "empty": {
       "suggested_title": "Chưa có gợi ý",
-      "suggested_body": "Theo dõi founders và nhà đầu tư, chúng tôi sẽ gợi ý thêm người tương tự."
+      "suggested_body": "Theo dõi founders và nhà đầu tư, chúng tôi sẽ gợi ý thêm người tương tự.",
+      "trending_title": "Chưa có xu hướng nào",
+      "trending_body": "Các cơ hội sẽ xuất hiện ở đây khi thu hút sự chú ý. Hãy quay lại sau."
     }
   },
   "settings": {

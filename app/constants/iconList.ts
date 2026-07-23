@@ -29,4 +29,11 @@ export const iconList = {
   close: 'material-symbols:close-rounded',
   filters: 'material-symbols:instant-mix',
   sort: 'material-symbols:sort-rounded',
+  visibility: 'material-symbols:visibility-outline-rounded',
+  upload: 'material-symbols:arrow-upload-progress',
+  back: 'material-symbols:kid-star',
+  watch: 'material-symbols:visibility-rounded',
+  signal: 'material-symbols:android-cell-4-bar',
+  celebrate: 'material-symbols:celebration',
+  insight: 'material-symbols:lightbulb-2-rounded',
 } as const

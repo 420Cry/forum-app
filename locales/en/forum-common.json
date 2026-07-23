@@ -286,7 +286,9 @@
     },
     "empty": {
       "suggested_title": "No one to suggest yet",
-      "suggested_body": "Follow founders and investors, and we will surface more like them."
+      "suggested_body": "Follow founders and investors, and we will surface more like them.",
+      "trending_title": "Nothing trending yet",
+      "trending_body": "Opportunities climb here as they gain traction. Check back soon."
     }
   },
   "settings": {

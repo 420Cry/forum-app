@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useAccount } from '~/composables/accounts/useAccount'
-import BaseIcon from '../shared/BaseIcon.vue'
-import BaseSkeleton from '../shared/BaseSkeleton.vue'
+import AccountAvatar from '@/components/shared/AccountAvatar.vue'
+import BaseIcon from '@/components/shared/BaseIcon.vue'
+import BaseSkeleton from '@/components/shared/BaseSkeleton.vue'
 
 const emit = defineEmits<{
   close: []
@@ -97,21 +98,10 @@ function onSettingsClick() {
           :class="{ 'bg-brand-tint': account.id === activeAccountId }"
           @click="openProfile(account.id, account.href)"
         >
-          <img
-            v-if="account.avatar && !account.avatarLoadFailed"
-            :src="account.avatar"
-            class="size-10 shrink-0 rounded-full object-cover"
-            @error="handleAvatarError(account.id)"
+          <AccountAvatar
+            :account="account"
+            :handle-avatar-error="handleAvatarError"
           />
-          <div
-            v-else
-            class="flex size-10 shrink-0 items-center justify-center rounded-full"
-            :style="{ backgroundImage: account.avatarColor }"
-          >
-            <span class="text-sm font-semibold text-white">
-              {{ account.prefix }}
-            </span>
-          </div>
 
           <div class="min-w-0 flex-1">
             <p class="text-[13.5px] font-semibold text-ink">
