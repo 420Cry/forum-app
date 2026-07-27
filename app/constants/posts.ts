@@ -1,4 +1,17 @@
-import type { PostDto } from '~/types/post'
+import type { iconNameType } from '~/types/iconType'
+import type { PostDto, PostVisibility } from '~/types/post'
+
+// Audience options for the composer, in the order the design shows them.
+// Each maps a post visibility to its selector icon; labels/notes are i18n
+// (feed.composer.audience.<visibility>.{label,note}).
+export const POST_AUDIENCE_OPTIONS: {
+  visibility: PostVisibility
+  icon: iconNameType
+}[] = [
+  { visibility: 'public', icon: 'globe' },
+  { visibility: 'follower', icon: 'following' },
+  { visibility: 'private', icon: 'lock' },
+]
 
 /* Raw feed data as the forum-api would return it (snake_case wire shape).
    Content mirrors the design system feed (../forum-design-system TS_FEED).
@@ -11,14 +24,16 @@ export const postExample: PostDto[] = [
     image_url: null,
     created_at: '2026-07-22T06:00:00Z',
     updated_at: null,
+    visibility: 'public',
     reaction_counts: 73,
     reactions: {
-      back: 30,
-      watch: 15,
-      signal: 12,
-      celebrate: 10,
-      insight: 6,
+      back: 10,
+      watch: 6,
+      signal: 25,
+      celebrate: 14,
+      insight: 18,
     },
+    reacted_type: 'back',
     comments_count: 14,
     shares_count: 6,
     author: {
@@ -37,14 +52,16 @@ export const postExample: PostDto[] = [
     image_url: null,
     created_at: '2026-07-21T08:00:00Z',
     updated_at: null,
+    visibility: 'public',
     reaction_counts: 34,
     reactions: {
-      back: 12,
-      watch: 8,
-      signal: 6,
-      celebrate: 5,
-      insight: 3,
+      back: 4,
+      watch: 12,
+      signal: 2,
+      celebrate: 9,
+      insight: 7,
     },
+    reacted_type: null,
     comments_count: 8,
     shares_count: 3,
     author: {
@@ -63,14 +80,16 @@ export const postExample: PostDto[] = [
     image_url: null,
     created_at: '2026-07-20T08:00:00Z',
     updated_at: null,
+    visibility: 'public',
     reaction_counts: 101,
     reactions: {
-      back: 40,
-      watch: 25,
-      signal: 18,
-      celebrate: 12,
-      insight: 6,
+      back: 20,
+      watch: 12,
+      signal: 6,
+      celebrate: 35,
+      insight: 28,
     },
+    reacted_type: 'signal',
     comments_count: 22,
     shares_count: 18,
     author: {
@@ -88,14 +107,16 @@ export const postExample: PostDto[] = [
     image_url: null,
     created_at: '2026-07-19T08:00:00Z',
     updated_at: null,
+    visibility: 'public',
     reaction_counts: 53,
     reactions: {
-      back: 20,
-      watch: 12,
-      signal: 10,
+      back: 4,
+      watch: 11,
+      signal: 13,
       celebrate: 7,
-      insight: 4,
+      insight: 18,
     },
+    reacted_type: 'celebrate',
     comments_count: 11,
     shares_count: 4,
     author: {

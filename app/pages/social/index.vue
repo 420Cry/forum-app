@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import NewsFeed from '~/components/home/shared/NewsFeed.vue'
+import NewsFeed from '~/components/home/social/newsFeed/NewsFeed.vue'
 
 definePageMeta({ layout: 'home', access: 'protected' })
 </script>

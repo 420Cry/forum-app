@@ -4,7 +4,9 @@ import RightRail from '~/components/home/shared/RightRail.vue'
 import AppLegalFooter from '~/components/legal/AppLegalFooter.vue'
 import MobileBottomNav from '~/components/home/MobileBottomNav.vue'
 import { stripLocalePrefix } from '~/utils/localePath'
+import { useUpload } from '~/composables/posts/useUpload'
 
+const { isComposerOpen, closeComposer } = useUpload()
 const user = useSupabaseUser()
 const session = useSupabaseSession()
 const { unauthorized } = useUserProfile()
@@ -74,5 +76,20 @@ const mainPadClass = computed(() => {
       :padded="isSignedIn"
     />
     <MobileBottomNav v-if="isSignedIn" />
+
+    <!-- Darkening scrim behind the composer -->
+    <Transition
+      enter-active-class="transition-opacity duration-200 ease-out"
+      leave-active-class="transition-opacity duration-200 ease-out"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="isComposerOpen"
+        class="fixed inset-0 z-(--z-overlay) bg-[rgb(20_30_45/0.55)] backdrop-blur-[1px]"
+        aria-hidden="true"
+        @click="closeComposer"
+      />
+    </Transition>
   </div>
 </template>

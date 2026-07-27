@@ -73,7 +73,7 @@ watch(
 </script>
 
 <template>
-  <header class="relative z-40 border-b border-line bg-card">
+  <header class="sticky top-0 z-40 border-b border-line bg-card">
     <div
       class="mx-auto grid h-14 w-full grid-cols-[1fr_auto] items-center gap-3 px-4 sm:gap-6 sm:px-7"
       :class="

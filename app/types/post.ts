@@ -15,6 +15,12 @@ export const STARTUP_STAGES = [
 
 export type StartupStage = (typeof STARTUP_STAGES)[number]
 
+// Who can see a post. Mock data is all `public` today; the union leaves room
+// for follower-only / private updates without touching the card shape.
+export const POST_VISIBILITIES = ['public', 'private', 'follower'] as const
+
+export type PostVisibility = (typeof POST_VISIBILITIES)[number]
+
 // Display labels for funding stages — sentence case per the design system Pill
 // spec. BasePill derives its label from author.stage via this map.
 export const STARTUP_STAGE_LABELS: Record<StartupStage, string> = {
@@ -62,8 +68,10 @@ export type PostDto = {
   image_url: string | null
   created_at: string
   updated_at: string | null
+  visibility: PostVisibility
   reaction_counts: number
   reactions: PostReactionsDto
+  reacted_type: ReactionType | null
   comments_count: number
   shares_count: number
   author: PostAuthorDto
@@ -82,9 +90,11 @@ export type Post = {
   content: string
   imageUrl: string | null
   time: string // formatted from created_at, e.g. "2h"
+  visibility: PostVisibility
   reaction_counts: number
   top_reactions: ReactionType[]
   reactions: PostReactionsDto
+  reacted_type: ReactionType | null
   comments: number
   shares: number
   author: PostAuthor

@@ -1,4 +1,7 @@
-/* const suggestions = ref(
+import { suggestionsExample, trendingExample } from '~/constants/discovery'
+import type { trendingType } from '~/types/discoveryType'
+
+const suggestions = ref(
   suggestionsExample.map(suggestion => ({
     ...suggestion,
     prefix: suggestion.name
@@ -8,11 +11,10 @@
     avatarColor: getAvatarColor(suggestion.name),
     avatarLoadFailed: false,
   })),
-) */
+)
 
-const suggestions = ref([])
-// const trending = ref<trendingType[]>(trendingExample)
-const trending = ref([])
+const trending = ref<trendingType[]>(trendingExample)
+
 export const useDiscovery = () => {
   const followedIds = useState('followed-account-ids', () => new Set<string>())
 

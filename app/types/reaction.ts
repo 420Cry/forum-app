@@ -11,4 +11,5 @@ export type Reaction = {
   key: ReactionType
   name: string
   activeName: string
+  activeColor: string
 }
