@@ -130,6 +130,66 @@
       "suggested_body": "Theo dõi các founder và nhà đầu tư để chúng tôi gợi ý thêm những người tương tự."
     }
   },
+  "feed": {
+    "heading": {
+      "reader_mode": "Bạn đang ở chế độ người đọc",
+      "pro_plan": "Đăng ký gói Pro của chúng tôi",
+      "empty": "Bảng tin của bạn đang trống"
+    },
+    "info": {
+      "reader_mode": "Theo dõi và bày tỏ cảm xúc với các cập nhật từ nhà sáng lập và nhà đầu tư. Bạn có thể đăng bài sau khi thêm trang startup hoặc nhà đầu tư.",
+      "pro_plan": "Khi đăng ký gói Pro, bạn có thể đăng bài, trao đổi với các startup và nhà đầu tư khác, cùng nhiều lợi ích khác đang chờ bạn!",
+      "empty": "Theo dõi các nhà sáng lập và nhà đầu tư để xem cập nhật của họ tại đây, rồi ủng hộ những người bạn tin tưởng. Chúng tôi đã chọn sẵn vài gợi ý để bạn bắt đầu.",
+      "image_unavailable": "Không có hình ảnh"
+    },
+    "action": {
+      "all_updates": "Tất cả cập nhật",
+      "following": "Đang theo dõi",
+      "browse_suggestions": "Xem gợi ý",
+      "sort_latest": "Sắp xếp: Mới nhất",
+      "comment": "Bình luận",
+      "share": "Chia sẻ"
+    },
+    "visibility": {
+      "public": "Công khai",
+      "private": "Riêng tư",
+      "follower": "Người theo dõi"
+    },
+    "label": {
+      "soon": "Sắp có"
+    },
+    "stats": {
+      "reactions": "{count} lượt cảm xúc",
+      "comments": "{count} bình luận",
+      "shares": "{count} lượt chia sẻ"
+    },
+    "composer": {
+      "placeholder": "Chia sẻ cập nhật từ {name}…",
+      "photo": "Ảnh",
+      "milestone": "Cột mốc",
+      "opportunity": "Cơ hội",
+      "post": "Đăng",
+      "title": "Cập nhật mới",
+      "close": "Đóng",
+      "audience_label": "Ai có thể xem",
+      "add_to_post": "Thêm vào bài đăng",
+      "add_photo": "Thêm ảnh",
+      "audience": {
+        "public": {
+          "label": "Mọi người",
+          "note": "Trên Fundedr và trang của bạn"
+        },
+        "follower": {
+          "label": "Người theo dõi",
+          "note": "Những người theo dõi {name}"
+        },
+        "private": {
+          "label": "Chỉ mình bạn",
+          "note": "Chỉ quản trị viên trang xem được"
+        }
+      }
+    }
+  },
   "onboard": {
     "heading": {
       "choose_role": "Chọn vai trò của bạn",

@@ -30,4 +30,10 @@ export const iconList = {
   signal: 'material-symbols:android-cell-4-bar',
   celebrate: 'material-symbols:celebration',
   insight: 'material-symbols:lightbulb-2-rounded',
+  kebab: 'material-symbols:more-horiz',
+  share: 'material-symbols:share-outline',
+  milestone: 'material-symbols:rocket-launch-outline-rounded',
+  globe: 'material-symbols:public',
+  lock: 'material-symbols:lock-outline',
+  close: 'material-symbols:close-rounded',
 } as const

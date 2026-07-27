@@ -130,6 +130,66 @@
       "suggested_body": "Follow founders and investors, and we'll surface more like them."
     }
   },
+  "feed": {
+    "heading": {
+      "reader_mode": "You're browsing in reader mode",
+      "pro_plan": "Subscribe to our Pro plan",
+      "empty": "Your feed is empty"
+    },
+    "info": {
+      "reader_mode": "Watch and react to updates from founders and investors. Posting is available once you add a startup or investor page.",
+      "pro_plan": "By subscribing to our Pro plan, you can upload your posts, communicate with different startups or investors, and more benefits coming your way!",
+      "empty": "Follow founders and investors to see their updates here, then back the ones you believe in. We've picked a few to get you started.",
+      "image_unavailable": "Image unavailable"
+    },
+    "action": {
+      "all_updates": "All updates",
+      "following": "Following",
+      "browse_suggestions": "Browse suggestions",
+      "sort_latest": "Sort: Latest",
+      "comment": "Comment",
+      "share": "Share"
+    },
+    "visibility": {
+      "public": "Public",
+      "private": "Private",
+      "follower": "Followers"
+    },
+    "label": {
+      "soon": "Soon"
+    },
+    "stats": {
+      "reactions": "{count} reactions",
+      "comments": "{count} comments",
+      "shares": "{count} shares"
+    },
+    "composer": {
+      "placeholder": "Share an update from {name}…",
+      "photo": "Photo",
+      "milestone": "Milestone",
+      "opportunity": "Opportunity",
+      "post": "Post",
+      "title": "New update",
+      "close": "Close",
+      "audience_label": "Who can see this",
+      "add_to_post": "Add to your post",
+      "add_photo": "Add photo",
+      "audience": {
+        "public": {
+          "label": "Anyone",
+          "note": "On Fundedr and your page"
+        },
+        "follower": {
+          "label": "Followers",
+          "note": "People who follow {name}"
+        },
+        "private": {
+          "label": "Only you",
+          "note": "Only visible to page admins"
+        }
+      }
+    }
+  },
   "onboard": {
     "heading": {
       "choose_role": "Choose your role",

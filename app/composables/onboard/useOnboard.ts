@@ -7,7 +7,7 @@ import { buildOnboardDraftPayload } from '~/utils/onboardDraft'
 import { useZodValidation } from '../validate/useZodValidation'
 import { createOnboardInfoSchema } from '~/types/onboard/schema/onboardInfoSchema'
 import { useOnboardApi } from '../api/onboard/useOnboardApi'
-import type { ApiErrResponse } from '~/types/api'
+import { useApiError } from '../api/useApiError'
 import type { UserProfile } from '~/types/user'
 import { inferOnboardingStep, isOnboardingComplete } from '~/types/user'
 import { isFetchUnauthorized } from '~/utils/authSession'
@@ -132,6 +132,7 @@ export const useOnboard = () => {
   }
 
   const toast = useToast()
+  const { showApiError } = useApiError()
   const { refreshProfile } = useUserProfile()
 
   const resetOnboarding = () => {
@@ -174,17 +175,6 @@ export const useOnboard = () => {
     if (isOnboardingComplete(profile)) return false
     updateOnboardPage()
     return true
-  }
-
-  const showApiError = (err: unknown) => {
-    const error = (err as { data?: ApiErrResponse })?.data
-    if (!error) return toast.showError(t('common.error.try_again'), 2000)
-    if (typeof error.message === 'string') {
-      return toast.showError(error.message, 2000)
-    }
-    if (Array.isArray(error.message)) {
-      error.message.forEach(msg => toast.showError(msg, 1500))
-    }
   }
 
   async function submitOnboarding() {

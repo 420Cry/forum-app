@@ -59,7 +59,7 @@ onUnmounted(() => document.removeEventListener('click', onClickSwitcher))
 </script>
 
 <template>
-  <header class="relative z-40 border-b border-line bg-card">
+  <header class="sticky top-0 z-40 border-b border-line bg-card">
     <div
       class="mx-auto grid h-14 w-full grid-cols-[1fr_auto] items-center gap-6 px-7"
       :class="
@@ -145,8 +145,7 @@ onUnmounted(() => document.removeEventListener('click', onClickSwitcher))
               <BaseIcon
                 name="chevron"
                 size="1.5em"
-                class="text-ink-4 transition-transform"
-                :class="{ 'rotate-180': isShowAccountSwitcher }"
+                :class="`text-ink-4 transition-transform ${isShowAccountSwitcher ? 'rotate-180' : ''}`"
               />
             </button>
 
