@@ -14,7 +14,7 @@ const profileExample = ref<AccountSummaryView[]>(
 )
 
 /* API response shape for subscription */
-const isUserPaid = true
+// const isUserPaid = false
 
 export const useAccount = () => {
   const activeAccountId = useState(
@@ -41,6 +41,5 @@ export const useAccount = () => {
     handleActive,
     profileExample,
     activeAccountId,
-    isUserPaid,
   }
 }

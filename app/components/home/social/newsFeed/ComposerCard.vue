@@ -5,7 +5,6 @@ import BaseIcon from '~/components/shared/BaseIcon.vue'
 
 const props = defineProps<{
   account?: AccountSummaryView
-  isUserPaid: boolean
 }>()
 
 const emit = defineEmits<{
@@ -19,29 +18,7 @@ const { t } = useI18n()
 <template>
   <!-- Startup / investor pages: upsell when unpaid, composer once subscribed -->
   <div
-    v-if="!props.isUserPaid"
-    class="flex items-start gap-3 rounded-md border border-line bg-card px-4 py-3.5 shadow-1"
-  >
-    <span
-      class="flex size-[34px] shrink-0 items-center justify-center rounded-full bg-brand-tint text-brand"
-    >
-      <BaseIcon
-        name="upload"
-        size="18px"
-      />
-    </span>
-    <div>
-      <p class="text-[13.5px] font-semibold text-ink">
-        {{ t('feed.heading.pro_plan') }}
-      </p>
-      <p class="mt-0.5 text-[12.5px] leading-normal text-ink-3">
-        {{ t('feed.info.pro_plan') }}
-      </p>
-    </div>
-  </div>
-
-  <div
-    v-else-if="props.account"
+    v-if="props.account"
     class="rounded-md border border-line bg-card px-4 pb-2.5 pt-3.5 shadow-1"
   >
     <div class="flex items-center gap-3">
