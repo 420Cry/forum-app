@@ -13,7 +13,6 @@ import PostCard from './PostCard.vue'
 const { t } = useI18n()
 const {
   activeAccount,
-  isUserPaid,
   handleAvatarError: handleAccountAvatarError,
 } = useAccount()
 
@@ -61,7 +60,6 @@ const onSubmitPost = (_payload: PostUploadPayload) => {
   <ComposerCard
     v-else
     :account="activeAccount"
-    :is-user-paid="isUserPaid"
     @open-composer="openComposer"
     @avatar-error="handleAccountAvatarError"
   />
