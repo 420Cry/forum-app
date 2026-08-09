@@ -20,34 +20,27 @@ const links = [
     titleKey: 'profiles.heading.investor_edit',
     descKey: 'profiles.info.investor_edit',
   },
-  {
-    to: '/find',
-    titleKey: 'find.heading.title',
-    descKey: 'find.info.subtitle',
-  },
-  {
-    to: '/following',
-    titleKey: 'following.heading.title',
-    descKey: 'following.info.subtitle',
-  },
 ] as const
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-5xl px-7 py-6">
-    <h1 class="text-xl font-semibold text-ink mb-1">
-      {{ t('settings.heading.settings') }}
-    </h1>
-    <p class="text-sm text-ink-3 mb-6">
-      {{ t('settings.info.subtitle') }}
-    </p>
+  <div class="flex flex-col gap-3">
+    <div class="bg-card border border-line rounded-md shadow-1 px-5 py-4">
+      <h1 class="text-[15px] font-semibold text-ink">
+        {{ t('settings.heading.settings') }}
+      </h1>
+      <p class="text-[12.5px] text-ink-4 mt-0.5">
+        {{ t('settings.info.subtitle') }}
+      </p>
+    </div>
 
-    <div class="flex flex-col gap-2">
+    <div class="bg-card border border-line rounded-md shadow-1 overflow-hidden">
       <NuxtLink
-        v-for="link in links"
+        v-for="(link, index) in links"
         :key="link.to"
         :to="localePath(link.to)"
-        class="block bg-card border border-line rounded-md px-5 py-4 hover:bg-surface-hover no-underline"
+        class="block px-5 py-4 hover:bg-surface-hover no-underline"
+        :class="{ 'border-t border-line': index > 0 }"
       >
         <p class="font-semibold text-[14px] text-ink">
           {{ t(link.titleKey) }}

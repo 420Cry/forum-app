@@ -108,7 +108,24 @@
     },
     "action": {
       "follow": "Follow",
-      "unfollow": "Following"
+      "unfollow": "Following",
+      "learn_more": "Learn more"
+    },
+    "heading": {
+      "become_member": "Become a member",
+      "suggested_follow": "Suggested to follow",
+      "feed": "Social"
+    },
+    "info": {
+      "become_member": "Unlock testimonials, ratings, and direct intros to founders.",
+      "feed_soon": "Your feed will live here. For now, use Find and Following to discover people."
+    },
+    "badge": {
+      "opportunity": "Opportunity"
+    },
+    "empty": {
+      "suggested_title": "No one to suggest yet",
+      "suggested_body": "Follow founders and investors, and we will surface more like them."
     }
   },
   "settings": {
@@ -136,11 +153,14 @@
   },
   "find": {
     "heading": {
-      "title": "Find people & companies"
+      "title": "Find people & companies",
+      "directory": "Directory"
     },
     "info": {
       "subtitle": "Search founders, startups, and investors on Fundedr.",
-      "results": "{count} results"
+      "results": "{count} results",
+      "matching": "founders and investors matching your filters",
+      "empty": "No matches yet. Try a different search."
     },
     "label": {
       "query": "Search",
@@ -155,7 +175,10 @@
     },
     "action": {
       "search": "Search",
-      "searching": "Searching..."
+      "searching": "Searching...",
+      "view_profile": "View profile",
+      "clear_all": "Clear all",
+      "see_more": "See more in Find"
     }
   },
   "following": {
@@ -172,7 +195,8 @@
       "startup_edit": "Startup page",
       "startup_create": "Create a startup page",
       "investor_edit": "Investor page",
-      "investor_create": "Create an investor page"
+      "investor_create": "Create an investor page",
+      "about": "About"
     },
     "info": {
       "startup_edit": "Share your company with founders and investors.",
@@ -180,7 +204,8 @@
       "startup_saved": "Startup page saved.",
       "investor_saved": "Investor page saved.",
       "unnamed": "Unnamed",
-      "stats": "{views} views · {connections} connections"
+      "stats": "{views} views · {connections} connections",
+      "no_about": "No about section yet."
     },
     "label": {
       "company_name": "Company name",
@@ -210,6 +235,32 @@
     },
     "error": {
       "not_found": "This profile could not be found."
+    },
+    "action": {
+      "back_to_find": "Back to Find",
+      "add_industry": "Add",
+      "remove_industry": "Remove industry"
+    },
+    "section": {
+      "identity": "Identity",
+      "identity_help": "Name and stage. Both can change later.",
+      "pitch": "Pitch",
+      "pitch_help": "Two or three sentences. The version you would give over coffee.",
+      "firm": "Company or fund",
+      "firm_help": "As it should appear on your profile.",
+      "thesis": "Industries and thesis",
+      "thesis_help": "Sectors you back and a short note founders will read first."
+    },
+    "fact": {
+      "role": "Role",
+      "occupation": "Occupation",
+      "location": "Location",
+      "goals": "Goals",
+      "stage": "Stage",
+      "industry": "Industry",
+      "founded": "Founded",
+      "website": "Website",
+      "check_size": "Check size"
     }
   },
   "onboard": {
@@ -286,6 +337,16 @@
       "occupation_min": "Occupation must have at least 2 characters",
       "occupation_special": "Occupation must not contain special characters",
       "role_invalid": "User role can only be Founder or Investor"
+    }
+  },
+  "nav": {
+    "social": "Social",
+    "find": "Find",
+    "following": "Following",
+    "settings": "Settings",
+    "stat": {
+      "profile_views": "Profile views",
+      "connections": "Connections"
     }
   }
 }

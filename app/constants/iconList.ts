@@ -20,4 +20,7 @@ export const iconList = {
   chevron: 'material-symbols:keyboard-arrow-down-rounded',
   settings: 'material-symbols:settings-outline-rounded',
   person: 'material-symbols:person-outline-rounded',
+  social: 'material-symbols:group-outline-rounded',
+  following: 'material-symbols:person-add-outline-rounded',
+  close: 'material-symbols:close-rounded',
 } as const

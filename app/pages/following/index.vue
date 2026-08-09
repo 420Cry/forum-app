@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import ResultCard from '~/components/directory/ResultCard.vue'
 import { useFollowsApi } from '~/composables/api/useFollowsApi'
 import type { AccountSummary } from '~/types/profile'
 import { toAccountSummaryView } from '~/utils/accountSummary'
+import { stageToPillVariant } from '~/utils/stagePill'
 
 definePageMeta({ layout: 'home', access: 'protected' })
 
 const { t } = useI18n()
-const localePath = useLocalePath()
 const { listFollowing } = useFollowsApi()
 
 const loading = ref(true)
@@ -16,6 +17,21 @@ function hrefFor(account: AccountSummary) {
   if (account.accountType === 'startup') return `/startup/${account.id}`
   if (account.accountType === 'investor') return `/investor/${account.id}`
   return `/u/${account.id}`
+}
+
+function pillFor(account: AccountSummary) {
+  if (account.accountType === 'investor') {
+    return { variant: 'investor' as const, label: t('find.type.investor') }
+  }
+  if (account.accountType === 'startup') {
+    const stageGuess = account.headline?.split(/[·/]/).pop()?.trim()
+    const variant = stageToPillVariant(stageGuess)
+    return {
+      variant,
+      label: variant ? t(`profiles.stage.${variant}`) : undefined,
+    }
+  }
+  return { variant: undefined, label: undefined }
 }
 
 onMounted(async () => {
@@ -33,60 +49,40 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-5xl px-7 py-6">
-    <h1 class="text-xl font-semibold text-ink mb-1">
-      {{ t('following.heading.title') }}
-    </h1>
-    <p class="text-sm text-ink-3 mb-6">
-      {{ t('following.info.subtitle') }}
-    </p>
+  <div class="flex flex-col gap-3">
+    <div class="bg-card border border-line rounded-md shadow-1 px-5 py-4">
+      <h1 class="text-[15px] font-semibold text-ink">
+        {{ t('following.heading.title') }}
+      </h1>
+      <p class="text-[12.5px] text-ink-4 mt-0.5">
+        {{ t('following.info.subtitle') }}
+      </p>
+    </div>
 
     <p
       v-if="loading"
-      class="text-sm text-ink-3"
+      class="text-sm text-ink-3 px-1"
     >
       {{ t('common.info.loading') }}
     </p>
-    <p
+    <div
       v-else-if="items.length === 0"
-      class="text-sm text-ink-3"
+      class="bg-card border border-line rounded-md shadow-1 px-5 py-8 text-center text-sm text-ink-3"
     >
       {{ t('following.info.empty') }}
-    </p>
-    <div
-      v-else
-      class="flex flex-col gap-2"
-    >
-      <NuxtLink
-        v-for="item in items"
-        :key="`${item.accountType}-${item.id}`"
-        :to="localePath(hrefFor(item))"
-        class="flex items-center gap-3 bg-card border border-line rounded-md px-4 py-3 hover:bg-surface-hover no-underline"
-      >
-        <img
-          v-if="item.avatar && !item.avatarLoadFailed"
-          :src="item.avatar"
-          class="size-10 rounded-full object-cover shrink-0"
-          @error="item.avatarLoadFailed = true"
-        />
-        <div
-          v-else
-          class="size-10 rounded-full flex justify-center items-center shrink-0"
-          :style="{ backgroundImage: item.avatarColor }"
-        >
-          <span class="font-semibold text-sm text-white">
-            {{ item.prefix }}
-          </span>
-        </div>
-        <div class="min-w-0">
-          <p class="font-semibold text-[14px] text-ink truncate">
-            {{ item.name }}
-          </p>
-          <p class="text-sm text-ink-3 truncate">
-            {{ item.subtitle || t(`find.type.${item.accountType}`) }}
-          </p>
-        </div>
-      </NuxtLink>
     </div>
+    <ResultCard
+      v-for="item in items"
+      :key="`${item.accountType}-${item.id}`"
+      :name="item.name"
+      :href="hrefFor(item)"
+      :target-type="item.accountType"
+      :target-id="item.id"
+      :industry="item.subtitle || t(`find.type.${item.accountType}`)"
+      :meta="[item.location].filter(Boolean) as string[]"
+      :pill-variant="pillFor(item).variant"
+      :pill-label="pillFor(item).label"
+      :avatar-url="item.avatar || null"
+    />
   </div>
 </template>

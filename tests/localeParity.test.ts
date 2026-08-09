@@ -47,7 +47,7 @@ function collectSourceFiles(dir: string): string[] {
 
 function collectTranslationKeysFromCode(): string[] {
   const keys = new Set<string>()
-  const keyRe = /\bt\(\s*['"]((?:auth|common|onboard|settings|find|following|profiles|social)\.[a-z0-9_.]+)['"]/g
+  const keyRe = /\bt\(\s*['"]((?:auth|common|onboard|settings|find|following|profiles|social|nav)\.[a-z0-9_.]+)['"]/g
 
   for (const file of collectSourceFiles(join(ROOT, 'app'))) {
     const source = readFileSync(file, 'utf8')

@@ -108,7 +108,24 @@
     },
     "action": {
       "follow": "Theo dõi",
-      "unfollow": "Đang theo dõi"
+      "unfollow": "Đang theo dõi",
+      "learn_more": "Tìm hiểu thêm"
+    },
+    "heading": {
+      "become_member": "Trở thành thành viên",
+      "suggested_follow": "Gợi ý theo dõi",
+      "feed": "Mạng xã hội"
+    },
+    "info": {
+      "become_member": "Mở khóa đánh giá, xếp hạng và lời giới thiệu trực tiếp tới founders.",
+      "feed_soon": "Bảng tin sẽ xuất hiện tại đây. Hiện bạn có thể dùng Tìm kiếm và Đang theo dõi để khám phá."
+    },
+    "badge": {
+      "opportunity": "Cơ hội"
+    },
+    "empty": {
+      "suggested_title": "Chưa có gợi ý",
+      "suggested_body": "Theo dõi founders và nhà đầu tư, chúng tôi sẽ gợi ý thêm người tương tự."
     }
   },
   "settings": {
@@ -136,11 +153,14 @@
   },
   "find": {
     "heading": {
-      "title": "Tìm người & công ty"
+      "title": "Tìm người & công ty",
+      "directory": "Danh bạ"
     },
     "info": {
       "subtitle": "Tìm founder, startup và nhà đầu tư trên Fundedr.",
-      "results": "{count} kết quả"
+      "results": "{count} kết quả",
+      "matching": "founders và nhà đầu tư khớp bộ lọc của bạn",
+      "empty": "Chưa có kết quả. Thử tìm kiếm khác."
     },
     "label": {
       "query": "Tìm kiếm",
@@ -155,7 +175,10 @@
     },
     "action": {
       "search": "Tìm kiếm",
-      "searching": "Đang tìm..."
+      "searching": "Đang tìm...",
+      "view_profile": "Xem hồ sơ",
+      "clear_all": "Xóa tất cả",
+      "see_more": "Xem thêm trong Tìm kiếm"
     }
   },
   "following": {
@@ -172,7 +195,8 @@
       "startup_edit": "Trang startup",
       "startup_create": "Tạo trang startup",
       "investor_edit": "Trang nhà đầu tư",
-      "investor_create": "Tạo trang nhà đầu tư"
+      "investor_create": "Tạo trang nhà đầu tư",
+      "about": "Giới thiệu"
     },
     "info": {
       "startup_edit": "Chia sẻ công ty với founder và nhà đầu tư.",
@@ -180,7 +204,8 @@
       "startup_saved": "Đã lưu trang startup.",
       "investor_saved": "Đã lưu trang nhà đầu tư.",
       "unnamed": "Chưa có tên",
-      "stats": "{views} lượt xem · {connections} kết nối"
+      "stats": "{views} lượt xem · {connections} kết nối",
+      "no_about": "Chưa có phần giới thiệu."
     },
     "label": {
       "company_name": "Tên công ty",
@@ -210,6 +235,32 @@
     },
     "error": {
       "not_found": "Không tìm thấy hồ sơ này."
+    },
+    "action": {
+      "back_to_find": "Quay lại Tìm kiếm",
+      "add_industry": "Thêm",
+      "remove_industry": "Xóa ngành"
+    },
+    "section": {
+      "identity": "Danh tính",
+      "identity_help": "Tên và giai đoạn. Có thể chỉnh sau.",
+      "pitch": "Pitch",
+      "pitch_help": "Hai hoặc ba câu. Phiên bản bạn sẽ nói khi gặp mặt.",
+      "firm": "Công ty hoặc quỹ",
+      "firm_help": "Như sẽ hiện trên hồ sơ của bạn.",
+      "thesis": "Ngành và luận điểm",
+      "thesis_help": "Các lĩnh vực bạn đầu tư và ghi chú ngắn founders đọc trước."
+    },
+    "fact": {
+      "role": "Vai trò",
+      "occupation": "Nghề nghiệp",
+      "location": "Địa điểm",
+      "goals": "Mục tiêu",
+      "stage": "Giai đoạn",
+      "industry": "Ngành",
+      "founded": "Thành lập",
+      "website": "Website",
+      "check_size": "Quy mô đầu tư"
     }
   },
   "onboard": {
@@ -286,6 +337,16 @@
       "occupation_min": "Nghề nghiệp phải có ít nhất 2 ký tự",
       "occupation_special": "Nghề nghiệp không được chứa ký tự đặc biệt",
       "role_invalid": "Vai trò chỉ có thể là Founder hoặc Investor"
+    }
+  },
+  "nav": {
+    "social": "Mạng xã hội",
+    "find": "Tìm kiếm",
+    "following": "Đang theo dõi",
+    "settings": "Cài đặt",
+    "stat": {
+      "profile_views": "Lượt xem hồ sơ",
+      "connections": "Kết nối"
     }
   }
 }

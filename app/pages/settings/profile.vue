@@ -143,16 +143,18 @@ async function onSave() {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-5xl px-7 py-6">
-    <h1 class="text-xl font-semibold text-ink mb-1">
-      {{ t('settings.heading.edit_profile') }}
-    </h1>
-    <p class="text-sm text-ink-3 mb-6">
-      {{ t('settings.info.edit_profile') }}
-    </p>
+  <div class="max-w-[760px] mx-auto flex flex-col gap-4">
+    <div>
+      <h1 class="text-[22px] font-bold text-ink tracking-[-0.02em]">
+        {{ t('settings.heading.edit_profile') }}
+      </h1>
+      <p class="text-[14px] text-ink-3 mt-1.5 max-w-[52ch]">
+        {{ t('settings.info.edit_profile') }}
+      </p>
+    </div>
 
     <div
-      class="mx-auto w-full max-w-[760px] bg-card border border-line rounded-md shadow-1 px-8 py-7"
+      class="bg-card border border-line rounded-md shadow-1 px-7 py-6"
     >
       <div class="flex items-center gap-[22px] mb-[26px]">
         <img
@@ -174,7 +176,7 @@ async function onSave() {
           <p class="text-[12.5px] font-semibold text-ink-2 mb-1">
             {{ t('onboard.heading.profile_photo') }}
           </p>
-          <p class="text-[13.5px] text-ink-3 leading-relaxed">
+          <p class="text-[13.5px]/relaxed text-ink-3">
             {{ t('onboard.info.profile_photo_help') }}
           </p>
           <input

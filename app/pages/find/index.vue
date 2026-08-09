@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
+import ResultCard from '~/components/directory/ResultCard.vue'
 import { useProfilesApi } from '~/composables/api/useProfilesApi'
 import type { FindResults } from '~/types/profile'
+import { stageToPillVariant } from '~/utils/stagePill'
 
 definePageMeta({ layout: 'home', access: 'protected' })
 
 const { t } = useI18n()
-const localePath = useLocalePath()
 const { find } = useProfilesApi()
 
+type FindType = 'all' | 'user' | 'startup' | 'investor'
+
 const q = ref('')
-const type = ref<'all' | 'user' | 'startup' | 'investor'>('all')
+const type = ref<FindType>('all')
 const industry = ref('')
 const location = ref('')
 const loading = ref(false)
@@ -21,6 +24,13 @@ const results = ref<FindResults>({
   startups: [],
   investors: [],
 })
+
+const typeFilters: { value: FindType, labelKey: string }[] = [
+  { value: 'all', labelKey: 'find.type.all' },
+  { value: 'user', labelKey: 'find.type.user' },
+  { value: 'startup', labelKey: 'find.type.startup' },
+  { value: 'investor', labelKey: 'find.type.investor' },
+]
 
 async function onSearch() {
   loading.value = true
@@ -42,166 +52,216 @@ async function onSearch() {
   }
 }
 
+function selectType(next: FindType) {
+  type.value = next
+  if (searched.value) void onSearch()
+}
+
+function clearFilters() {
+  q.value = ''
+  type.value = 'all'
+  industry.value = ''
+  location.value = ''
+  results.value = { users: [], startups: [], investors: [] }
+  searched.value = false
+}
+
 const totalCount = computed(
   () =>
     results.value.users.length
     + results.value.startups.length
     + results.value.investors.length,
 )
+
+const flatResults = computed(() => {
+  const rows: {
+    key: string
+    name: string
+    href: string
+    targetType: 'user' | 'startup' | 'investor'
+    targetId: string
+    industry: string | null
+    description: string | null
+    meta: string[]
+    pillVariant: ReturnType<typeof stageToPillVariant>
+    pillLabel?: string
+    avatarUrl: string | null
+  }[] = []
+
+  for (const user of results.value.users) {
+    rows.push({
+      key: `user-${user.id}`,
+      name: user.name || t('profiles.info.unnamed'),
+      href: `/u/${user.id}`,
+      targetType: 'user',
+      targetId: user.id,
+      industry: user.occupation,
+      description: null,
+      meta: [user.role, user.location].filter(Boolean) as string[],
+      pillVariant: user.role === 'Investor' ? 'investor' : undefined,
+      pillLabel: user.role ?? undefined,
+      avatarUrl: user.avatarUrl,
+    })
+  }
+
+  for (const startup of results.value.startups) {
+    rows.push({
+      key: `startup-${startup.id}`,
+      name: startup.companyName,
+      href: `/startup/${startup.id}`,
+      targetType: 'startup',
+      targetId: startup.id,
+      industry: startup.industry,
+      description: startup.description,
+      meta: [
+        t('profiles.info.stats', {
+          views: startup.views,
+          connections: startup.connections,
+        }),
+      ],
+      pillVariant: stageToPillVariant(startup.stage),
+      pillLabel: t(`profiles.stage.${startup.stage}`),
+      avatarUrl: startup.avatarUrl || startup.logoUrl,
+    })
+  }
+
+  for (const investor of results.value.investors) {
+    rows.push({
+      key: `investor-${investor.id}`,
+      name: investor.firmName,
+      href: `/investor/${investor.id}`,
+      targetType: 'investor',
+      targetId: investor.id,
+      industry: investor.industry,
+      description: investor.description,
+      meta: [
+        t('profiles.info.stats', {
+          views: investor.views,
+          connections: investor.connections,
+        }),
+      ],
+      pillVariant: 'investor',
+      pillLabel: t('find.type.investor'),
+      avatarUrl: investor.avatarUrl || investor.logoUrl,
+    })
+  }
+
+  return rows
+})
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-5xl px-7 py-6">
-    <h1 class="text-xl font-semibold text-ink mb-1">
-      {{ t('find.heading.title') }}
-    </h1>
-    <p class="text-sm text-ink-3 mb-6">
-      {{ t('find.info.subtitle') }}
-    </p>
-
-    <div
-      class="bg-card border border-line rounded-md shadow-1 px-6 py-5 flex flex-col gap-4 mb-6"
-    >
-      <BaseInput
-        id="find-q"
-        v-model="q"
-        :label="t('find.label.query')"
-        :placeholder="t('find.label.query_placeholder')"
-      />
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <div class="flex flex-col gap-3">
+    <div class="bg-card border border-line rounded-md shadow-1 overflow-hidden">
+      <div
+        class="px-5 pt-4 pb-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+      >
         <div>
-          <label
-            class="block text-sm font-semibold text-ink-2 mb-1"
-            for="find-type"
-          >{{ t('find.label.type') }}</label>
-          <select
-            id="find-type"
-            v-model="type"
-            class="bg-card border border-line rounded-md py-2.5 px-3 text-ink text-sm w-full outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
-          >
-            <option value="all">
-              {{ t('find.type.all') }}
-            </option>
-            <option value="user">
-              {{ t('find.type.user') }}
-            </option>
-            <option value="startup">
-              {{ t('find.type.startup') }}
-            </option>
-            <option value="investor">
-              {{ t('find.type.investor') }}
-            </option>
-          </select>
+          <h1 class="text-[15px] font-semibold text-ink">
+            {{ t('find.heading.directory') }}
+          </h1>
+          <p class="text-[12.5px] text-ink-4 mt-0.5">
+            <template v-if="searched">
+              <b class="text-ink font-semibold">{{
+                t('find.info.results', { count: totalCount })
+              }}</b>
+              — {{ t('find.info.matching') }}
+            </template>
+            <template v-else>
+              {{ t('find.info.subtitle') }}
+            </template>
+          </p>
         </div>
-        <BaseInput
-          id="find-industry"
-          v-model="industry"
-          :label="t('profiles.label.industry')"
-          :placeholder="t('profiles.label.industry_placeholder')"
-        />
-        <BaseInput
-          id="find-location"
-          v-model="location"
-          :label="t('onboard.label.location')"
-          :placeholder="t('onboard.label.location_placeholder')"
-        />
       </div>
-      <div class="flex justify-end">
-        <BaseButton
-          intent="primary"
-          :disabled="loading"
-          @click="onSearch"
-        >
-          {{
-            loading
-              ? t('find.action.searching')
-              : t('find.action.search')
-          }}
-        </BaseButton>
-      </div>
-    </div>
-
-    <p
-      v-if="searched"
-      class="text-sm text-ink-3 mb-4"
-    >
-      {{ t('find.info.results', { count: totalCount }) }}
-    </p>
-
-    <div
-      v-if="results.users.length"
-      class="mb-6"
-    >
-      <h2 class="text-sm font-semibold text-ink-2 mb-2">
-        {{ t('find.type.user') }}
-      </h2>
-      <div class="flex flex-col gap-2">
-        <NuxtLink
-          v-for="user in results.users"
-          :key="user.id"
-          :to="localePath(`/u/${user.id}`)"
-          class="block bg-card border border-line rounded-md px-4 py-3 hover:bg-surface-hover no-underline"
-        >
-          <p class="font-semibold text-[14px] text-ink">
-            {{ user.name || t('profiles.info.unnamed') }}
-          </p>
-          <p class="text-sm text-ink-3 mt-0.5">
+      <hr class="border-0 h-px bg-line">
+      <div class="px-5 py-3.5 flex flex-col gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="w-full sm:w-[220px]">
+            <BaseInput
+              id="find-q"
+              v-model="q"
+              :placeholder="t('find.label.query_placeholder')"
+              @keyup.enter="onSearch"
+            />
+          </div>
+          <span
+            class="hidden sm:block w-px h-6 bg-line mx-1"
+            aria-hidden="true"
+          />
+          <button
+            v-for="filter in typeFilters"
+            :key="filter.value"
+            type="button"
+            class="inline-flex items-center gap-1.5 border-[1.4px] rounded-pill px-3.5 py-[7px] text-[12.5px] font-semibold whitespace-nowrap cursor-pointer transition-colors"
+            :class="
+              type === filter.value
+                ? 'bg-brand-tint border-brand text-brand'
+                : 'bg-card border-line text-ink-2 hover:border-line-2 hover:bg-surface-hover'
+            "
+            @click="selectType(filter.value)"
+          >
+            {{ t(filter.labelKey) }}
+          </button>
+          <button
+            v-if="searched || q || industry || location || type !== 'all'"
+            type="button"
+            class="ml-auto text-[12.5px] font-semibold text-brand cursor-pointer bg-transparent border-0"
+            @click="clearFilters"
+          >
+            {{ t('find.action.clear_all') }}
+          </button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <BaseInput
+            id="find-industry"
+            v-model="industry"
+            :placeholder="t('profiles.label.industry_placeholder')"
+            @keyup.enter="onSearch"
+          />
+          <BaseInput
+            id="find-location"
+            v-model="location"
+            :placeholder="t('onboard.label.location_placeholder')"
+            @keyup.enter="onSearch"
+          />
+        </div>
+        <div class="flex justify-end">
+          <BaseButton
+            intent="primary"
+            size="sm"
+            :disabled="loading"
+            @click="onSearch"
+          >
             {{
-              [user.role, user.occupation, user.location]
-                .filter(Boolean)
-                .join(' · ')
+              loading
+                ? t('find.action.searching')
+                : t('find.action.search')
             }}
-          </p>
-        </NuxtLink>
+          </BaseButton>
+        </div>
       </div>
     </div>
 
     <div
-      v-if="results.startups.length"
-      class="mb-6"
+      v-if="searched && flatResults.length === 0"
+      class="bg-card border border-line rounded-md shadow-1 px-5 py-8 text-center text-sm text-ink-3"
     >
-      <h2 class="text-sm font-semibold text-ink-2 mb-2">
-        {{ t('find.type.startup') }}
-      </h2>
-      <div class="flex flex-col gap-2">
-        <NuxtLink
-          v-for="startup in results.startups"
-          :key="startup.id"
-          :to="localePath(`/startup/${startup.id}`)"
-          class="block bg-card border border-line rounded-md px-4 py-3 hover:bg-surface-hover no-underline"
-        >
-          <p class="font-semibold text-[14px] text-ink">
-            {{ startup.companyName }}
-          </p>
-          <p class="text-sm text-ink-3 mt-0.5">
-            {{ startup.industry }} · {{ t(`profiles.stage.${startup.stage}`) }}
-          </p>
-        </NuxtLink>
-      </div>
+      {{ t('find.info.empty') }}
     </div>
 
-    <div
-      v-if="results.investors.length"
-      class="mb-6"
-    >
-      <h2 class="text-sm font-semibold text-ink-2 mb-2">
-        {{ t('find.type.investor') }}
-      </h2>
-      <div class="flex flex-col gap-2">
-        <NuxtLink
-          v-for="investor in results.investors"
-          :key="investor.id"
-          :to="localePath(`/investor/${investor.id}`)"
-          class="block bg-card border border-line rounded-md px-4 py-3 hover:bg-surface-hover no-underline"
-        >
-          <p class="font-semibold text-[14px] text-ink">
-            {{ investor.firmName }}
-          </p>
-          <p class="text-sm text-ink-3 mt-0.5">
-            {{ investor.industry }}
-          </p>
-        </NuxtLink>
-      </div>
-    </div>
+    <ResultCard
+      v-for="row in flatResults"
+      :key="row.key"
+      :name="row.name"
+      :href="row.href"
+      :target-type="row.targetType"
+      :target-id="row.targetId"
+      :industry="row.industry"
+      :description="row.description"
+      :meta="row.meta"
+      :pill-variant="row.pillVariant"
+      :pill-label="row.pillLabel"
+      :avatar-url="row.avatarUrl"
+    />
   </div>
 </template>
