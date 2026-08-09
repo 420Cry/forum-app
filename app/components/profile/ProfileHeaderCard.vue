@@ -39,18 +39,18 @@ const metaParts = computed(() =>
 <template>
   <div class="bg-card border border-line rounded-md shadow-1 overflow-hidden">
     <div
-      class="h-[160px] sm:h-[200px] relative bg-[linear-gradient(120deg,#075056_0%,#0C6E6B_30%,#2C9A8E_65%,#BFE0DA_100%)]"
+      class="relative h-40 bg-[linear-gradient(120deg,#075056_0%,#0C6E6B_30%,#2C9A8E_65%,#BFE0DA_100%)] sm:h-50"
     />
     <div class="relative px-6 sm:px-8 pb-6">
       <img
         v-if="avatarUrl && !avatarFailed"
         :src="avatarUrl"
-        class="-mt-14 size-[112px] sm:size-[132px] rounded-full object-cover border-4 border-card shadow-2 shrink-0"
+        class="-mt-14 size-28 sm:size-33 rounded-full object-cover border-4 border-card shadow-2 shrink-0"
         @error="avatarFailed = true"
       />
       <div
         v-else
-        class="-mt-14 size-[112px] sm:size-[132px] rounded-full border-4 border-card shadow-2 flex items-center justify-center shrink-0"
+        class="-mt-14 size-28 sm:size-33 rounded-full border-4 border-card shadow-2 flex items-center justify-center shrink-0"
         :style="{ backgroundImage: avatarColor }"
       >
         <span class="font-semibold text-[40px] sm:text-[44px] text-white">
@@ -59,7 +59,7 @@ const metaParts = computed(() =>
       </div>
 
       <div
-        class="mt-[18px] grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 lg:gap-7 items-end"
+        class="mt-4.5 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 lg:gap-7 items-end"
       >
         <div class="min-w-0">
           <div class="flex items-center gap-3 flex-wrap">
@@ -91,7 +91,7 @@ const metaParts = computed(() =>
             >
               <span
                 v-if="index > 0"
-                class="size-[3px] rounded-full bg-ink-5 shrink-0"
+                class="size-0.75 rounded-full bg-ink-5 shrink-0"
                 aria-hidden="true"
               />
               <span>{{ part }}</span>

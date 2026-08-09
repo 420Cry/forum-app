@@ -5,12 +5,15 @@ const button = cva(
   [
     'inline-flex',
     'items-center',
+    'justify-center',
     'gap-1.5',
     'font-semibold',
     'rounded-pill',
     'transition-colors',
     'cursor-pointer',
     'select-none',
+    'whitespace-nowrap',
+    'text-center',
   ],
   {
     variants: {
@@ -25,7 +28,7 @@ const button = cva(
           'border-brand',
           'text-brand',
           'bg-transparent',
-          'hover:bg-surface-hover',
+          'hover:bg-brand-tint',
         ],
         'secondary': [
           'border',
@@ -42,9 +45,13 @@ const button = cva(
         ],
       },
       size: {
-        sm: ['px-3', 'py-1.5', 'text-xs'],
+        sm: ['px-3', 'py-1.5', 'text-[12.5px]', 'leading-none', 'min-h-8'],
         md: ['px-4', 'py-2', 'text-sm'],
         lg: ['px-5', 'py-2.5', 'text-sm'],
+      },
+      block: {
+        true: 'w-full',
+        false: '',
       },
       disabled: {
         true: 'opacity-50 cursor-not-allowed pointer-events-none',
@@ -54,6 +61,7 @@ const button = cva(
     defaultVariants: {
       intent: 'primary',
       size: 'md',
+      block: false,
       disabled: false,
     },
   },
@@ -65,10 +73,12 @@ withDefaults(
   defineProps<{
     intent?: ButtonProps['intent']
     size?: ButtonProps['size']
+    block?: boolean
   }>(),
   {
     intent: 'primary',
     size: 'md',
+    block: false,
     disabled: false,
   },
 )
@@ -80,6 +90,7 @@ withDefaults(
       button({
         intent,
         size,
+        block,
         disabled: !!$attrs['disabled'],
       })
     "

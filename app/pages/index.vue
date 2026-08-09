@@ -5,7 +5,11 @@ const localePath = useLocalePath()
 const supabase = useSupabaseClient()
 const nuxtSession = useSupabaseSession()
 const { data: sessionData } = await supabase.auth.getSession()
-const session = sessionData.session ?? nuxtSession.value
+// Client: trust getSession() only. Coalescing to useSupabaseSession() after
+// signOut can revive a stale token and bounce logout back to /social.
+const session = import.meta.server
+  ? (sessionData.session ?? nuxtSession.value)
+  : sessionData.session
 
 const hasSession = !!session?.access_token
 

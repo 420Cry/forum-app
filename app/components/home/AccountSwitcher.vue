@@ -7,8 +7,13 @@ const localePath = useLocalePath()
 const { logout } = useSupabaseAuth()
 
 const handleLogout = async () => {
-  await logout()
-  await navigateTo(localePath('/'), { replace: true })
+  try {
+    await logout()
+  }
+  catch {
+    // Still leave the app shell even if signOut fails locally.
+  }
+  await navigateTo(localePath('/auth/login'), { replace: true })
 }
 
 const {
@@ -19,6 +24,21 @@ const {
   refreshAccounts,
 } = useAccount()
 
+/** Personal account only — org pages are paused for now. */
+const personalAccounts = computed(() =>
+  profileExample.value.filter(a => a.accountType === 'user'),
+)
+
+watch(
+  personalAccounts,
+  (list) => {
+    if (!list.some(a => a.id === activeAccountId.value)) {
+      activeAccountId.value = list[0]?.id ?? null
+    }
+  },
+  { immediate: true },
+)
+
 onMounted(() => {
   void refreshAccounts()
 })
@@ -27,7 +47,7 @@ onMounted(() => {
 <template>
   <div
     role="menu"
-    class="w-[300px] bg-card border border-line shadow-pop rounded-md p-1.5"
+    class="w-75 rounded-md border border-line bg-card p-1.5 shadow-pop"
   >
     <p
       class="text-[11px] font-semibold tracking-[0.04em] uppercase text-ink-4 px-2.5 pt-2 pb-1.5"
@@ -37,35 +57,35 @@ onMounted(() => {
 
     <div class="flex flex-col gap-1">
       <button
-        v-for="account in profileExample"
+        v-for="account in personalAccounts"
         :key="account.id"
         type="button"
         role="menuitem"
-        class="flex items-center gap-3 px-2.5 py-[11px] rounded-sm cursor-pointer text-left w-full hover:bg-surface-hover"
+        class="flex w-full cursor-pointer items-center gap-3 rounded-sm px-2.5 py-2.75 text-left hover:bg-surface-hover"
         :class="{ 'bg-brand-tint': account.id === activeAccountId }"
         @click="handleActive(account.id)"
       >
         <img
           v-if="account.avatar && !account.avatarLoadFailed"
           :src="account.avatar"
-          class="size-10 rounded-full object-cover shrink-0"
+          class="size-10 shrink-0 rounded-full object-cover"
           @error="handleAvatarError(account.id)"
         />
         <div
           v-else
-          class="size-10 rounded-full flex justify-center items-center shrink-0"
+          class="flex size-10 shrink-0 items-center justify-center rounded-full"
           :style="{ backgroundImage: account.avatarColor }"
         >
-          <span class="font-semibold text-sm text-white">
+          <span class="text-sm font-semibold text-white">
             {{ account.prefix }}
           </span>
         </div>
 
-        <div class="flex-1 min-w-0">
-          <p class="font-semibold text-[13.5px] text-ink">
+        <div class="min-w-0 flex-1">
+          <p class="text-[13.5px] font-semibold text-ink">
             {{ account.name }}
           </p>
-          <p class="text-xs text-ink-3 mt-[3px] truncate whitespace-nowrap">
+          <p class="mt-0.75 truncate whitespace-nowrap text-xs text-ink-3">
             {{ account.subtitle }}
           </p>
         </div>
@@ -74,39 +94,20 @@ onMounted(() => {
           v-if="account.id === activeAccountId"
           name="check"
           size="1.5em"
-          class="text-brand shrink-0"
+          class="shrink-0 text-brand"
         />
       </button>
     </div>
 
-    <hr class="border-line my-1.5 mx-1" />
-
-    <NuxtLink
-      :to="localePath('/profiles/startup/edit')"
-      role="menuitem"
-      class="flex items-center gap-2.5 w-full px-2.5 py-[9px] rounded-sm hover:bg-brand-tint cursor-pointer no-underline"
-    >
-      <div
-        class="size-8 rounded-full bg-brand-tint flex justify-center items-center shrink-0"
-      >
-        <BaseIcon
-          name="home"
-          class="text-brand"
-          size="18"
-        />
-      </div>
-      <span class="text-brand font-semibold text-[13.5px]">
-        {{ t('social.account.add_startup_page') }}
-      </span>
-    </NuxtLink>
+    <hr class="mx-1 my-1.5 border-line">
 
     <NuxtLink
       :to="localePath('/settings')"
       role="menuitem"
-      class="flex items-center gap-2.5 w-full px-2.5 py-[9px] rounded-sm hover:bg-surface-hover cursor-pointer no-underline"
+      class="flex w-full cursor-pointer items-center gap-2.5 rounded-sm px-2.5 py-2.25 no-underline hover:bg-surface-hover"
     >
       <div
-        class="size-8 rounded-full bg-surface-hover flex justify-center items-center shrink-0"
+        class="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-hover"
       >
         <BaseIcon
           name="settings"
@@ -114,16 +115,16 @@ onMounted(() => {
           size="18"
         />
       </div>
-      <span class="text-ink-2 font-semibold text-[13.5px]">
+      <span class="text-[13.5px] font-semibold text-ink-2">
         {{ t('settings.heading.settings') }}
       </span>
     </NuxtLink>
 
-    <hr class="border-line my-1.5 mx-1" />
+    <hr class="mx-1 my-1.5 border-line">
 
     <div class="px-3 pt-1.5 pb-2">
       <span
-        class="text-xs font-medium text-ink-3 hover:text-ink cursor-pointer transition-colors"
+        class="cursor-pointer text-xs font-medium text-ink-3 transition-colors hover:text-ink"
         @click="handleLogout"
       >
         {{ t('common.action.sign_out') }}

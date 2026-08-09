@@ -22,6 +22,7 @@ describe('toAccountSummaryView', () => {
       headline: 'Climate / pre_seed',
       location: null,
       avatarUrl: 'https://cdn.example.com/a.png',
+      href: '/startup/acc-1',
       accountType: 'startup',
     }
 

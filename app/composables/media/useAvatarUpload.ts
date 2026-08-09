@@ -19,7 +19,13 @@ export function useAvatarUpload() {
       })
     }
 
-    const userId = user.value?.id
+    const { data: sessionData } = await client.auth.getSession()
+    const sessionUserId = sessionData.session?.user?.id ?? null
+    const composableUserId = user.value?.id ?? null
+
+    // useSupabaseUser() can lag behind a freshly established session (e.g. after
+    // email confirm). Prefer composable id, fall back to getSession().
+    const userId = composableUserId ?? sessionUserId
     if (!userId) {
       throw createError({
         statusCode: 401,
@@ -33,9 +39,12 @@ export function useAvatarUpload() {
       .upload(path, file, { upsert: true, contentType: file.type })
 
     if (error) {
+      const bucketMissing = /bucket not found/i.test(error.message)
       throw createError({
         statusCode: 400,
-        statusMessage: error.message || t('settings.error.avatar_upload'),
+        statusMessage: bucketMissing
+          ? t('settings.error.avatar_bucket')
+          : (error.message || t('settings.error.avatar_upload')),
       })
     }
 

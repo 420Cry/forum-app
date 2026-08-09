@@ -34,7 +34,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const supabase = useSupabaseClient()
   const nuxtSession = useSupabaseSession()
   const { data: sessionData } = await supabase.auth.getSession()
-  const session = sessionData.session ?? nuxtSession.value
+  // Prefer getSession(); only use Nuxt session cookie state on SSR.
+  const session = import.meta.server
+    ? (sessionData.session ?? nuxtSession.value)
+    : sessionData.session
 
   const auth = await resolveVerifiedUser(
     supabase,

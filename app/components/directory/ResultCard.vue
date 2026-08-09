@@ -45,16 +45,20 @@ const avatarColor = computed(() => getAvatarColor(props.targetId || props.name))
 const metaParts = computed(() =>
   props.meta.filter((part): part is string => Boolean(part && part.trim())),
 )
+
+/** Match BaseButton sm + secondary so Follow / View profile share one footprint. */
+const viewProfileClass
+  = 'inline-flex items-center justify-center gap-1.5 font-semibold rounded-pill transition-colors cursor-pointer select-none whitespace-nowrap text-center border border-line text-ink-2 bg-card hover:bg-surface-hover hover:border-line-2 px-3 py-1.5 text-[12.5px] leading-none min-h-8 w-full no-underline'
 </script>
 
 <template>
   <article
-    class="relative grid grid-cols-1 sm:grid-cols-[64px_1fr] lg:grid-cols-[64px_1fr_auto] gap-4 sm:gap-[18px] items-center bg-card border border-line rounded-md shadow-1 px-5 py-[18px] transition-shadow hover:shadow-2 hover:border-line-2"
+    class="relative grid grid-cols-[56px_minmax(0,1fr)] lg:grid-cols-[56px_minmax(0,1fr)_132px] items-start gap-x-4 gap-y-3.5 bg-card px-5 py-4.5 shadow-1 transition-shadow sm:gap-x-4.5 lg:items-center border border-line rounded-md hover:border-line-2 hover:shadow-2"
     :class="{ 'border-l-[3px] border-l-accent': opportunity }"
   >
     <span
       v-if="opportunity"
-      class="absolute top-3.5 right-[18px] text-[9.5px] font-bold uppercase tracking-[0.08em] px-2 py-1 rounded-sm bg-accent-soft text-accent-text"
+      class="absolute top-3.5 right-4.5 text-[9.5px] font-bold uppercase tracking-[0.08em] px-2 py-1 rounded-sm bg-accent-soft text-accent-text"
     >
       {{ t('social.badge.opportunity') }}
     </span>
@@ -75,7 +79,7 @@ const metaParts = computed(() =>
       </span>
     </div>
 
-    <div class="min-w-0 sm:pr-[18px]">
+    <div class="min-w-0 lg:pr-2">
       <div class="flex items-center gap-2.5 flex-wrap">
         <span class="text-[17px] font-bold text-ink tracking-[-0.012em]">
           {{ name }}
@@ -89,7 +93,7 @@ const metaParts = computed(() =>
       </div>
       <p
         v-if="industry"
-        class="text-[13px] text-ink-3 mt-[3px]"
+        class="text-[13px] text-ink-3 mt-0.75"
       >
         {{ industry }}
       </p>
@@ -109,14 +113,14 @@ const metaParts = computed(() =>
         >
           <span
             v-if="index > 0"
-            class="size-[3px] rounded-full bg-ink-5 shrink-0"
+            class="size-0.75 rounded-full bg-ink-5 shrink-0"
             aria-hidden="true"
           />
           <span>{{ part }}</span>
         </template>
         <template v-if="opportunity && opportunityDetail">
           <span
-            class="size-[3px] rounded-full bg-ink-5 shrink-0"
+            class="size-0.75 rounded-full bg-ink-5 shrink-0"
             aria-hidden="true"
           />
           <span class="text-accent-text font-semibold">{{
@@ -127,16 +131,20 @@ const metaParts = computed(() =>
     </div>
 
     <div
-      class="flex flex-row sm:flex-col gap-2 items-stretch min-w-0 sm:min-w-[124px]"
+      class="col-span-2 lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-2 w-full min-w-0 lg:min-w-33"
     >
       <FollowButton
         v-if="showFollow"
+        block
         :target-type="targetType"
         :target-id="targetId"
       />
       <NuxtLink
         :to="localePath(href)"
-        class="inline-flex items-center justify-center gap-1.5 font-semibold rounded-pill transition-colors cursor-pointer select-none border border-line text-ink-2 bg-card hover:bg-surface-hover hover:border-line-2 px-3 py-1.5 text-xs no-underline w-full"
+        :class="[
+          viewProfileClass,
+          !showFollow ? 'col-span-2 lg:col-span-1' : '',
+        ]"
       >
         {{ t('find.action.view_profile') }}
       </NuxtLink>

@@ -3,10 +3,15 @@ import BaseButton from '~/components/shared/BaseButton.vue'
 import type { AccountType } from '~/types/profile'
 import { useFollowTarget } from '~/composables/social/useFollowTarget'
 
-const props = defineProps<{
-  targetType: AccountType
-  targetId: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    targetType: AccountType
+    targetId: string
+    /** Stretch to parent width (directory result actions). */
+    block?: boolean
+  }>(),
+  { block: false },
+)
 
 const { t } = useI18n()
 const user = useSupabaseUser()
@@ -30,8 +35,9 @@ watch(
 <template>
   <BaseButton
     v-if="user"
-    :intent="following ? 'secondary' : 'primary'"
+    :intent="following ? 'secondary' : 'primary-outline'"
     size="sm"
+    :block="block"
     :disabled="busy || !ready"
     @click="toggleFollow"
   >

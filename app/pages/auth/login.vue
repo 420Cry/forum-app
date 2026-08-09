@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSupabaseAuth, useToast, useUserProfile } from '~/composables'
+import { useOnboard, useSupabaseAuth, useToast, useUserProfile } from '~/composables'
 import { postAuthPath } from '~/types/user'
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
@@ -10,6 +10,7 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 const { login, loading, error, clearError } = useSupabaseAuth()
 const { refreshProfile, clearProfile } = useUserProfile()
+const { resetOnboarding } = useOnboard()
 const toast = useToast()
 const email = ref('')
 const password = ref('')
@@ -19,6 +20,7 @@ async function submit() {
   await login(email.value, password.value)
   if (!error.value) {
     toast.showSuccess(t('auth.info.signed_in_toast'), 1500)
+    resetOnboarding()
     clearProfile()
     const me = await refreshProfile(false)
     const target = postAuthPath(me?.profile ?? null)

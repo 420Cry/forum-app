@@ -1,4 +1,4 @@
-import { shallowRef, ref, computed, reactive, readonly, watch, onUnmounted } from 'vue'
+import { shallowRef, ref, computed, reactive, readonly, watch } from 'vue'
 import BasicInfo from '@/components/onboard/BasicInfo.vue'
 import GoalSelection from '@/components/onboard/GoalSelection.vue'
 import RoleSelection from '@/components/onboard/RoleSelection.vue'
@@ -53,13 +53,17 @@ const isLoading = ref(false)
 const draftSyncEnabled = ref(false)
 let draftTimer: ReturnType<typeof setTimeout> | undefined
 let sessionActive = false
+/** Supabase user id that owns the in-memory wizard draft (if any). */
+let sessionOwnerId: string | null = null
+/** Skip the deep watch while we navigate steps (avoids double PATCH). */
+let suppressDraftWatch = false
 
 async function persistDraft() {
   if (!draftSyncEnabled.value || isLoading.value) return
 
   try {
     const { saveOnboardingDraft } = useOnboardApi()
-    await saveOnboardingDraft(buildOnboardDraftPayload({
+    const payload = buildOnboardDraftPayload({
       step: currentStep.value,
       role: onboardInfo.role,
       goals: onboardInfo.goals,
@@ -68,7 +72,9 @@ async function persistDraft() {
       age: onboardInfo.age,
       location: onboardInfo.location,
       occupation: onboardInfo.occupation,
-    }))
+      avatarUrl: onboardInfo.avatarUrl,
+    })
+    await saveOnboardingDraft(payload)
   }
   catch {
     // Background save — final submit still validates and surfaces errors.
@@ -90,12 +96,39 @@ function enableDraftSync() {
 function disableDraftSync() {
   draftSyncEnabled.value = false
   clearTimeout(draftTimer)
+  draftTimer = undefined
+}
+
+/**
+ * Clear module-level wizard state without Nuxt inject context.
+ * Safe to call from logout / auth handlers outside component setup.
+ */
+export function clearOnboardSession() {
+  disableDraftSync()
+  sessionActive = false
+  sessionOwnerId = null
+  Object.assign(onboardInfo, emptyOnboardInfo())
+  infoErrors.value = null
+  goalsRole.value = ''
+  currentStep.value = 1
+}
+
+/** Flush any pending debounced draft, then optionally keep sync enabled. */
+async function flushDraft() {
+  if (!import.meta.client || isLoading.value) return
+  clearTimeout(draftTimer)
+  draftTimer = undefined
+  if (!draftSyncEnabled.value) return
+  await persistDraft()
 }
 
 if (import.meta.client) {
   watch(
     [onboardInfo, currentStep],
-    () => scheduleDraftSave(),
+    () => {
+      if (suppressDraftWatch) return
+      scheduleDraftSave()
+    },
     { deep: true },
   )
 }
@@ -137,17 +170,15 @@ export const useOnboard = () => {
   const { refreshProfile } = useUserProfile()
 
   const resetOnboarding = () => {
-    disableDraftSync()
-    sessionActive = false
-    Object.assign(onboardInfo, emptyOnboardInfo())
-    infoErrors.value = null
-    goalsRole.value = ''
-    currentStep.value = 1
+    clearOnboardSession()
     updateOnboardPage()
   }
 
   // Prefill from an existing profile (edit flow / already-collected data).
-  const hydrateFromProfile = (profile: UserProfile | null) => {
+  const hydrateFromProfile = (
+    profile: UserProfile | null,
+    ownerId: string | null = null,
+  ) => {
     if (!profile) return
 
     if (profile.role) onboardInfo.role = profile.role
@@ -167,12 +198,24 @@ export const useOnboard = () => {
 
     currentStep.value = inferOnboardingStep(profile)
     sessionActive = true
+    sessionOwnerId = ownerId
   }
 
   /** Keep wizard progress when the page remounts (e.g. locale switch). */
   const restoreOnboardSession = (
     profile: UserProfile | null,
+    ownerId: string | null = null,
   ): boolean => {
+    if (
+      sessionActive
+      && ownerId
+      && sessionOwnerId
+      && ownerId !== sessionOwnerId
+    ) {
+      clearOnboardSession()
+      return false
+    }
+
     if (!sessionActive) return false
     if (isOnboardingComplete(profile)) return false
     updateOnboardPage()
@@ -268,8 +311,13 @@ export const useOnboard = () => {
       return
     }
 
+    // Advance UI immediately; one non-blocking flush with the new step.
+    // (Awaiting flush here made Next feel slow and doubled with the watch.)
+    suppressDraftWatch = true
     currentStep.value++
     updateOnboardPage()
+    suppressDraftWatch = false
+    void flushDraft()
   }
 
   const clearInfoError = (field: string) => {
@@ -280,13 +328,16 @@ export const useOnboard = () => {
 
   const backStep = () => {
     if (currentStep.value === 1) return
+    suppressDraftWatch = true
     currentStep.value--
     updateOnboardPage()
+    suppressDraftWatch = false
+    void flushDraft()
   }
 
-  onUnmounted(() => {
-    disableDraftSync()
-  })
+  // Do NOT register onUnmounted here — RoleSelection / GoalSelection / BasicInfo
+  // also call useOnboard(), and their unmount on step change was disabling draft
+  // sync and cancelling pending saves. Page owns lifecycle cleanup.
 
   return {
     currentPage,
@@ -302,6 +353,7 @@ export const useOnboard = () => {
     resetOnboarding,
     enableDraftSync,
     disableDraftSync,
+    flushDraft,
     onboardInfo,
     goalsRole,
     isLoading,

@@ -61,8 +61,8 @@ export function useProfilesApi() {
     return $fetch<InvestorProfile>(`${baseUrl}/profiles/investor/${id}`)
   }
 
-  async function getPublicUser(id: string) {
-    return $fetch<PublicUserProfile>(`${baseUrl}/profiles/user/${id}`)
+  async function getPublicUser(urlKeyOrId: string) {
+    return $fetch<PublicUserProfile>(`${baseUrl}/profiles/user/${urlKeyOrId}`)
   }
 
   async function find(params: Record<string, string | undefined>) {

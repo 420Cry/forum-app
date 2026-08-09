@@ -8,16 +8,21 @@ definePageMeta({ layout: 'home', access: 'public' })
 
 const { t } = useI18n()
 const route = useRoute()
+const localePath = useLocalePath()
 const { getPublicUser } = useProfilesApi()
 
-const id = computed(() => String(route.params.id ?? ''))
+const routeKey = computed(() => String(route.params.id ?? ''))
 const profile = ref<PublicUserProfile | null>(null)
 const error = ref(false)
 const loading = ref(true)
 
 onMounted(async () => {
   try {
-    profile.value = await getPublicUser(id.value)
+    const next = await getPublicUser(routeKey.value)
+    profile.value = next
+    if (next.urlKey !== routeKey.value) {
+      await navigateTo(localePath(next.profilePath), { replace: true })
+    }
   }
   catch {
     error.value = true
@@ -30,7 +35,7 @@ onMounted(async () => {
 const facts = computed(() => {
   const p = profile.value
   if (!p) return []
-  const rows: { key: string, value: string }[] = []
+  const rows: { key: string, value: string, chips?: string[] }[] = []
   if (p.role) rows.push({ key: t('profiles.fact.role'), value: p.role })
   if (p.occupation) {
     rows.push({ key: t('profiles.fact.occupation'), value: p.occupation })
@@ -42,6 +47,7 @@ const facts = computed(() => {
     rows.push({
       key: t('profiles.fact.goals'),
       value: p.goals.join(', '),
+      chips: p.goals,
     })
   }
   return rows

@@ -17,8 +17,10 @@ export interface OnboardPayload {
 
 export type ProfileUpdatePayload = Partial<OnboardPayload> & {
   avatarUrl?: string | null
+  urlKey?: string
 }
 
 export type OnboardDraftPayload = Partial<OnboardPayload> & {
   step?: number
+  avatarUrl?: string | null
 }

@@ -60,4 +60,26 @@ describe('buildOnboardDraftPayload', () => {
       }),
     ).toEqual({ step: 1 })
   })
+
+  it('skips ages below the draft minimum', () => {
+    expect(
+      buildOnboardDraftPayload({
+        ...emptySource,
+        age: '1',
+      }),
+    ).toEqual({ step: 1 })
+  })
+
+  it('includes avatarUrl when present', () => {
+    expect(
+      buildOnboardDraftPayload({
+        ...emptySource,
+        step: 3,
+        avatarUrl: 'https://cdn.example.com/a.webp',
+      }),
+    ).toEqual({
+      step: 3,
+      avatarUrl: 'https://cdn.example.com/a.webp',
+    })
+  })
 })

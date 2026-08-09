@@ -7,6 +7,8 @@ export type UserProfile = {
   age: number | null
   location: string | null
   avatarUrl: string | null
+  urlKey: string | null
+  profilePath: string | null
   goals: string[]
 }
 

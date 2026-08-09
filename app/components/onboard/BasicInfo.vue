@@ -8,7 +8,7 @@ import { useAvatarUpload } from '~/composables/media/useAvatarUpload'
 
 const { t } = useI18n()
 const toast = useToast()
-const { onboardInfo, infoErrors, clearInfoError } = useOnboard()
+const { onboardInfo, infoErrors, clearInfoError, flushDraft } = useOnboard()
 const { uploadAvatar } = useAvatarUpload()
 
 const avatarFailed = ref(false)
@@ -50,6 +50,8 @@ async function onPickAvatar(event: Event) {
     const url = await uploadAvatar(file)
     onboardInfo.avatarUrl = url
     avatarFailed.value = false
+    // Persist immediately so a reload right after upload keeps the photo.
+    void flushDraft()
   }
   catch (err: unknown) {
     const msg
@@ -75,18 +77,18 @@ async function onPickAvatar(event: Event) {
   </TitleSection>
 
   <div
-    class="mx-auto w-full max-w-[760px] bg-card border border-line rounded-md shadow-1 px-8 py-7"
+    class="mx-auto w-full max-w-190 rounded-md border border-line bg-card px-8 py-7 shadow-1"
   >
-    <div class="flex items-center gap-[22px] mb-[26px]">
+    <div class="mb-6.5 flex items-center gap-5.5">
       <img
         v-if="onboardInfo.avatarUrl && !avatarFailed"
         :src="onboardInfo.avatarUrl"
-        class="size-24 rounded-full object-cover border border-line flex-none"
+        class="size-24 flex-none rounded-full border border-line object-cover"
         @error="avatarFailed = true"
-      />
+      >
       <div
         v-else
-        class="size-24 rounded-full border-2 border-dashed border-line-2 bg-surface-hover flex items-center justify-center text-ink-4 flex-none"
+        class="flex size-24 flex-none items-center justify-center rounded-full border-2 border-dashed border-line-2 bg-surface-hover text-ink-4"
       >
         <BaseIcon
           name="camera"
@@ -94,10 +96,10 @@ async function onPickAvatar(event: Event) {
         />
       </div>
       <div>
-        <p class="text-[12.5px] font-semibold text-ink-2 mb-1">
+        <p class="mb-1 text-[12.5px] font-semibold text-ink-2">
           {{ t('onboard.heading.profile_photo') }}
         </p>
-        <p class="text-[13.5px] text-ink-3 leading-relaxed">
+        <p class="text-[13.5px] leading-relaxed text-ink-3">
           {{ t('onboard.info.profile_photo_help') }}
         </p>
         <input
@@ -106,7 +108,7 @@ async function onPickAvatar(event: Event) {
           accept="image/jpeg,image/png,image/webp"
           class="hidden"
           @change="onPickAvatar"
-        />
+        >
         <BaseButton
           intent="secondary"
           size="sm"
@@ -124,7 +126,7 @@ async function onPickAvatar(event: Event) {
     </div>
 
     <div class="flex flex-col gap-5">
-      <div class="grid grid-cols-2 gap-[18px]">
+      <div class="grid grid-cols-2 gap-4.5">
         <div class="flex flex-col gap-1">
           <BaseInput
             id="firstName"
@@ -151,7 +153,7 @@ async function onPickAvatar(event: Event) {
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-[18px]">
+      <div class="grid grid-cols-2 gap-4.5">
         <div class="flex flex-col gap-1">
           <BaseInput
             id="age"
@@ -188,7 +190,7 @@ async function onPickAvatar(event: Event) {
           :error-msg="infoErrors?.occupation"
           @input="clearInfoError('occupation')"
         />
-        <p class="text-xs text-ink-4 mt-1">
+        <p class="mt-1 text-xs text-ink-4">
           {{ t('onboard.info.occupation_help') }}
         </p>
       </div>

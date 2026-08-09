@@ -15,6 +15,8 @@ const incompleteProfile: UserProfile = {
   age: null,
   location: null,
   avatarUrl: null,
+  urlKey: null,
+  profilePath: null,
   goals: [],
 }
 
@@ -27,6 +29,8 @@ const completeProfile: UserProfile = {
   age: 30,
   location: 'Austin',
   avatarUrl: null,
+  urlKey: 'alex-morgan',
+  profilePath: '/u/alex-morgan',
   goals: ['discover_startups'],
 }
 

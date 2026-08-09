@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import ResultCard from '~/components/directory/ResultCard.vue'
 import { useFollowsApi } from '~/composables/api/useFollowsApi'
-import type { AccountSummary } from '~/types/profile'
 import { toAccountSummaryView } from '~/utils/accountSummary'
 import { stageToPillVariant } from '~/utils/stagePill'
 
@@ -13,13 +12,7 @@ const { listFollowing } = useFollowsApi()
 const loading = ref(true)
 const items = ref<ReturnType<typeof toAccountSummaryView>[]>([])
 
-function hrefFor(account: AccountSummary) {
-  if (account.accountType === 'startup') return `/startup/${account.id}`
-  if (account.accountType === 'investor') return `/investor/${account.id}`
-  return `/u/${account.id}`
-}
-
-function pillFor(account: AccountSummary) {
+function pillFor(account: (typeof items.value)[number]) {
   if (account.accountType === 'investor') {
     return { variant: 'investor' as const, label: t('find.type.investor') }
   }
@@ -75,7 +68,7 @@ onMounted(async () => {
       v-for="item in items"
       :key="`${item.accountType}-${item.id}`"
       :name="item.name"
-      :href="hrefFor(item)"
+      :href="item.href"
       :target-type="item.accountType"
       :target-id="item.id"
       :industry="item.subtitle || t(`find.type.${item.accountType}`)"

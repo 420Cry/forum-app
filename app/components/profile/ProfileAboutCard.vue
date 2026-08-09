@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineProps<{
   about?: string | null
-  facts: { key: string, value: string }[]
+  facts: { key: string, value: string, chips?: string[] }[]
 }>()
 
 const { t } = useI18n()
@@ -27,18 +27,34 @@ const { t } = useI18n()
       </p>
       <div
         v-if="facts.length"
-        class="mt-[18px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3.5"
+        class="mt-4.5 grid grid-cols-1 gap-x-6 gap-y-3.5 sm:grid-cols-2 lg:grid-cols-3"
       >
         <div
           v-for="fact in facts"
           :key="fact.key"
+          :class="{ 'sm:col-span-2 lg:col-span-3': fact.chips?.length }"
         >
           <div
             class="text-[11.5px] font-semibold text-ink-4 uppercase tracking-wider"
           >
             {{ fact.key }}
           </div>
-          <div class="text-[14.5px] text-ink mt-1 font-medium wrap-break-word">
+          <div
+            v-if="fact.chips?.length"
+            class="mt-1.5 flex flex-wrap gap-1.5"
+          >
+            <span
+              v-for="chip in fact.chips"
+              :key="chip"
+              class="inline-flex items-center rounded-pill border border-line bg-surface-hover px-2.5 py-1 text-[12.5px] font-semibold text-ink-2"
+            >
+              {{ chip }}
+            </span>
+          </div>
+          <div
+            v-else
+            class="text-[14.5px] text-ink mt-1 font-medium wrap-break-word"
+          >
             {{ fact.value }}
           </div>
         </div>

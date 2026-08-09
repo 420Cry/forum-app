@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BaseButton from '~/components/shared/BaseButton.vue'
+import BaseIcon from '~/components/shared/BaseIcon.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
 import ResultCard from '~/components/directory/ResultCard.vue'
 import { useProfilesApi } from '~/composables/api/useProfilesApi'
@@ -12,13 +13,14 @@ const { t } = useI18n()
 const { find } = useProfilesApi()
 
 type FindType = 'all' | 'user' | 'startup' | 'investor'
+type FindMode = 'suggestions' | 'results'
 
 const q = ref('')
 const type = ref<FindType>('all')
 const industry = ref('')
 const location = ref('')
 const loading = ref(false)
-const searched = ref(false)
+const mode = ref<FindMode>('suggestions')
 const results = ref<FindResults>({
   users: [],
   startups: [],
@@ -32,39 +34,64 @@ const typeFilters: { value: FindType, labelKey: string }[] = [
   { value: 'investor', labelKey: 'find.type.investor' },
 ]
 
-async function onSearch() {
+const hasActiveFilters = computed(
+  () =>
+    !!q.value.trim()
+    || !!industry.value.trim()
+    || !!location.value.trim()
+    || type.value !== 'all',
+)
+
+async function loadDirectory(nextMode: FindMode) {
   loading.value = true
   try {
+    const isSuggestions = nextMode === 'suggestions'
     results.value = await find({
-      q: q.value.trim() || undefined,
+      q: isSuggestions ? undefined : (q.value.trim() || undefined),
       type: type.value === 'all' ? undefined : type.value,
-      industry: industry.value.trim() || undefined,
-      location: location.value.trim() || undefined,
+      industry: isSuggestions
+        ? undefined
+        : (industry.value.trim() || undefined),
+      location: isSuggestions
+        ? undefined
+        : (location.value.trim() || undefined),
+      limit: isSuggestions ? '12' : undefined,
     })
-    searched.value = true
+    mode.value = nextMode
   }
   catch {
     results.value = { users: [], startups: [], investors: [] }
-    searched.value = true
+    mode.value = nextMode
   }
   finally {
     loading.value = false
   }
 }
 
-function selectType(next: FindType) {
-  type.value = next
-  if (searched.value) void onSearch()
+async function onSearch() {
+  if (!hasActiveFilters.value) {
+    await loadDirectory('suggestions')
+    return
+  }
+  await loadDirectory('results')
 }
 
-function clearFilters() {
+function selectType(next: FindType) {
+  type.value = next
+  void onSearch()
+}
+
+async function clearFilters() {
   q.value = ''
   type.value = 'all'
   industry.value = ''
   location.value = ''
-  results.value = { users: [], startups: [], investors: [] }
-  searched.value = false
+  await loadDirectory('suggestions')
 }
+
+onMounted(() => {
+  void loadDirectory('suggestions')
+})
 
 const totalCount = computed(
   () =>
@@ -92,7 +119,7 @@ const flatResults = computed(() => {
     rows.push({
       key: `user-${user.id}`,
       name: user.name || t('profiles.info.unnamed'),
-      href: `/u/${user.id}`,
+      href: user.profilePath,
       targetType: 'user',
       targetId: user.id,
       industry: user.occupation,
@@ -108,7 +135,7 @@ const flatResults = computed(() => {
     rows.push({
       key: `startup-${startup.id}`,
       name: startup.companyName,
-      href: `/startup/${startup.id}`,
+      href: startup.href,
       targetType: 'startup',
       targetId: startup.id,
       industry: startup.industry,
@@ -129,7 +156,7 @@ const flatResults = computed(() => {
     rows.push({
       key: `investor-${investor.id}`,
       name: investor.firmName,
-      href: `/investor/${investor.id}`,
+      href: investor.href,
       targetType: 'investor',
       targetId: investor.id,
       industry: investor.industry,
@@ -151,48 +178,55 @@ const flatResults = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
-    <div class="bg-card border border-line rounded-md shadow-1 overflow-hidden">
-      <div
-        class="px-5 pt-4 pb-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-      >
-        <div>
-          <h1 class="text-[15px] font-semibold text-ink">
-            {{ t('find.heading.directory') }}
-          </h1>
-          <p class="text-[12.5px] text-ink-4 mt-0.5">
-            <template v-if="searched">
-              <b class="text-ink font-semibold">{{
-                t('find.info.results', { count: totalCount })
-              }}</b>
-              — {{ t('find.info.matching') }}
-            </template>
-            <template v-else>
-              {{ t('find.info.subtitle') }}
-            </template>
-          </p>
-        </div>
+  <div class="flex flex-col gap-3 min-w-0">
+    <section class="bg-card border border-line rounded-md shadow-1 overflow-hidden">
+      <div class="px-5 pt-4 pb-2.5">
+        <h1 class="text-[15px] font-semibold text-ink">
+          {{ t('find.heading.directory') }}
+        </h1>
+        <p class="text-[12.5px] text-ink-4 mt-0.5">
+          <template v-if="mode === 'results'">
+            <b class="text-ink font-semibold">{{
+              t('find.info.results', { count: totalCount })
+            }}</b>
+            — {{ t('find.info.matching') }}
+          </template>
+          <template v-else>
+            {{ t('find.info.suggestions') }}
+          </template>
+        </p>
       </div>
+
       <hr class="border-0 h-px bg-line">
+
       <div class="px-5 py-3.5 flex flex-col gap-3">
         <div class="flex flex-wrap items-center gap-2">
-          <div class="w-full sm:w-[220px]">
+          <div class="relative w-full sm:w-60">
+            <BaseIcon
+              name="search"
+              size="1.1em"
+              class="pointer-events-none absolute top-1/2 left-3 z-1 -translate-y-1/2 text-ink-4"
+            />
             <BaseInput
               id="find-q"
               v-model="q"
+              class="pl-9"
               :placeholder="t('find.label.query_placeholder')"
+              :reserve-error="false"
               @keyup.enter="onSearch"
             />
           </div>
+
           <span
             class="hidden sm:block w-px h-6 bg-line mx-1"
             aria-hidden="true"
           />
+
           <button
             v-for="filter in typeFilters"
             :key="filter.value"
             type="button"
-            class="inline-flex items-center gap-1.5 border-[1.4px] rounded-pill px-3.5 py-[7px] text-[12.5px] font-semibold whitespace-nowrap cursor-pointer transition-colors"
+            class="inline-flex items-center gap-1.5 border-[1.4px] rounded-pill px-3.5 py-1.75 text-[12.5px] font-semibold whitespace-nowrap cursor-pointer transition-colors"
             :class="
               type === filter.value
                 ? 'bg-brand-tint border-brand text-brand'
@@ -202,33 +236,38 @@ const flatResults = computed(() => {
           >
             {{ t(filter.labelKey) }}
           </button>
+
           <button
-            v-if="searched || q || industry || location || type !== 'all'"
+            v-if="hasActiveFilters || mode === 'results'"
             type="button"
-            class="ml-auto text-[12.5px] font-semibold text-brand cursor-pointer bg-transparent border-0"
+            class="sm:ml-auto text-[12.5px] font-semibold text-brand cursor-pointer bg-transparent border-0"
             @click="clearFilters"
           >
             {{ t('find.action.clear_all') }}
           </button>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <BaseInput
-            id="find-industry"
-            v-model="industry"
-            :placeholder="t('profiles.label.industry_placeholder')"
-            @keyup.enter="onSearch"
-          />
-          <BaseInput
-            id="find-location"
-            v-model="location"
-            :placeholder="t('onboard.label.location_placeholder')"
-            @keyup.enter="onSearch"
-          />
-        </div>
-        <div class="flex justify-end">
+
+        <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1 min-w-0">
+            <BaseInput
+              id="find-industry"
+              v-model="industry"
+              :placeholder="t('profiles.label.industry_placeholder')"
+              :reserve-error="false"
+              @keyup.enter="onSearch"
+            />
+            <BaseInput
+              id="find-location"
+              v-model="location"
+              :placeholder="t('onboard.label.location_placeholder')"
+              :reserve-error="false"
+              @keyup.enter="onSearch"
+            />
+          </div>
           <BaseButton
             intent="primary"
             size="sm"
+            class="sm:flex-none"
             :disabled="loading"
             @click="onSearch"
           >
@@ -240,13 +279,24 @@ const flatResults = computed(() => {
           </BaseButton>
         </div>
       </div>
+    </section>
+
+    <div
+      v-if="loading && flatResults.length === 0"
+      class="bg-card border border-line rounded-md shadow-1 px-5 py-10 text-center text-sm text-ink-3"
+    >
+      {{ t('common.info.loading') }}
     </div>
 
     <div
-      v-if="searched && flatResults.length === 0"
-      class="bg-card border border-line rounded-md shadow-1 px-5 py-8 text-center text-sm text-ink-3"
+      v-else-if="!loading && flatResults.length === 0"
+      class="bg-card border border-line rounded-md shadow-1 px-5 py-10 text-center text-sm text-ink-3"
     >
-      {{ t('find.info.empty') }}
+      {{
+        mode === 'suggestions'
+          ? t('find.info.suggestions_empty')
+          : t('find.info.empty')
+      }}
     </div>
 
     <ResultCard

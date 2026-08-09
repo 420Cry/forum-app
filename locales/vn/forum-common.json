@@ -12,6 +12,10 @@
     "heading": {
       "forum": "Diễn đàn"
     },
+    "role": {
+      "founder": "Founder",
+      "investor": "Nhà đầu tư"
+    },
     "info": {
       "selected_count": "Đã chọn {count}",
       "update_anytime": "Bạn có thể cập nhật bất cứ lúc nào trong hồ sơ",
@@ -104,10 +108,11 @@
   "social": {
     "account": {
       "signed_in_as": "Đã đăng nhập với",
-      "add_startup_page": "Thêm trang startup"
+      "add_startup_page": "Thêm trang startup",
+      "add_investor_page": "Thêm trang nhà đầu tư"
     },
     "action": {
-      "follow": "Theo dõi",
+      "follow": "+ Theo dõi",
       "unfollow": "Đang theo dõi",
       "learn_more": "Tìm hiểu thêm"
     },
@@ -131,24 +136,55 @@
   "settings": {
     "heading": {
       "settings": "Cài đặt",
-      "edit_profile": "Chỉnh sửa hồ sơ"
+      "edit_profile": "Hồ sơ cá nhân",
+      "you": "Bạn",
+      "organization": "Tổ chức",
+      "security": "Bảo mật",
+      "photo": "Ảnh",
+      "about_you": "Về bạn",
+      "profile_url": "URL hồ sơ",
+      "password": "Mật khẩu",
+      "reset_email": "Đặt lại qua email"
     },
     "info": {
-      "subtitle": "Quản lý tài khoản, hồ sơ và khám phá.",
-      "edit_profile": "Cập nhật thông tin cá nhân và ảnh đại diện.",
+      "subtitle": "Hồ sơ cá nhân và mật khẩu.",
+      "edit_profile": "Xem tên, ảnh và cách bạn hiện diện với người khác.",
+      "edit_profile_cta": "Xem và chỉnh sửa hồ sơ cá nhân",
+      "about_help": "Thông tin này hiển thị trên hồ sơ công khai của bạn.",
+      "profile_url_help": "Đây là liên kết công khai tới hồ sơ của bạn. Dùng chữ thường, số và dấu gạch ngang.",
       "profile_saved": "Đã lưu hồ sơ.",
-      "avatar_saved": "Đã cập nhật ảnh."
+      "avatar_saved": "Đã cập nhật ảnh.",
+      "you_section": "Cách bạn hiện diện với tư cách cá nhân trên Fundedr.",
+      "security_section": "Đặt lại mật khẩu bằng link gửi tới email của bạn.",
+      "organization_section": "Trang công ty hoặc quỹ công khai theo vai trò của bạn.",
+      "startup_edit": "Trang công ty mà nhà đầu tư và founder thấy.",
+      "investor_edit": "Trang quỹ / nhà đầu tư mà founder thấy.",
+      "password": "Vì lý do bảo mật, đổi mật khẩu chỉ thực hiện qua email.",
+      "password_cta": "Gửi email link để đặt mật khẩu mới.",
+      "reset_email": "Chúng tôi sẽ gửi link đặt lại tới email của tài khoản. Mở link để chọn mật khẩu mới.",
+      "unnamed": "Hồ sơ của bạn",
+      "no_role": "Chưa chọn vai trò"
     },
     "action": {
       "save": "Lưu thay đổi",
       "saving": "Đang lưu...",
-      "uploading": "Đang tải lên..."
+      "uploading": "Đang tải lên...",
+      "edit": "Sửa",
+      "cancel": "Hủy",
+      "sending": "Đang gửi...",
+      "send_reset_email": "Gửi email đặt lại",
+      "resend_reset_email": "Gửi lại"
     },
     "error": {
       "avatar_type": "Dùng ảnh JPG, PNG hoặc WebP.",
       "avatar_size": "Ảnh phải từ 5 MB trở xuống.",
       "avatar_auth": "Đăng nhập để tải ảnh lên.",
-      "avatar_upload": "Không thể tải ảnh lên. Thử lại."
+      "avatar_upload": "Không thể tải ảnh lên. Thử lại.",
+      "avatar_bucket": "Kho ảnh chưa sẵn sàng.",
+      "password_email_missing": "Tài khoản này không có email.",
+      "slug_required": "URL hồ sơ là bắt buộc.",
+      "slug_format": "Chỉ dùng chữ thường, số và dấu gạch ngang.",
+      "slug_taken": "URL hồ sơ này đã được dùng."
     }
   },
   "find": {
@@ -158,6 +194,8 @@
     },
     "info": {
       "subtitle": "Tìm founder, startup và nhà đầu tư trên Fundedr.",
+      "suggestions": "Gợi ý để khám phá — tìm kiếm khi bạn muốn cụ thể hơn.",
+      "suggestions_empty": "Chưa có ai khác để gợi ý. Quay lại khi có thêm người tham gia.",
       "results": "{count} kết quả",
       "matching": "founders và nhà đầu tư khớp bộ lọc của bạn",
       "empty": "Chưa có kết quả. Thử tìm kiếm khác."
@@ -223,7 +261,9 @@
       "contact_email_placeholder": "hello{'@'}example.com",
       "founded_at": "Ngày thành lập",
       "min_investment": "Đầu tư tối thiểu (USD)",
-      "max_investment": "Đầu tư tối đa (USD)"
+      "max_investment": "Đầu tư tối đa (USD)",
+      "profile_url": "URL hồ sơ",
+      "profile_url_placeholder": "vd. dao-nguyen"
     },
     "stage": {
       "pre_seed": "Pre-seed",

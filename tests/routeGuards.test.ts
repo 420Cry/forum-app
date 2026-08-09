@@ -63,9 +63,11 @@ describe('onboardingRedirect', () => {
   const complete = { onboarded: true } as UserProfile
   const incomplete = { onboarded: false } as UserProfile
 
-  it('sends not-onboarded users from /social to /onboard', () => {
+  it('sends not-onboarded users from /social and /find to /onboard', () => {
     expect(onboardingRedirect('/social', incomplete)).toBe('/onboard')
     expect(onboardingRedirect('/social', null)).toBe('/onboard')
+    expect(onboardingRedirect('/find', incomplete)).toBe('/onboard')
+    expect(onboardingRedirect('/find', null)).toBe('/onboard')
   })
 
   it('sends onboarded users from /onboard to /social', () => {

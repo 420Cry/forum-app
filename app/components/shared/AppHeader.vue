@@ -17,11 +17,6 @@ const {
   isProtectedRoute?: boolean
 }>()
 
-const mockUserNotiMsg = ref({
-  messages: 7,
-  notifications: 3,
-})
-
 const { t } = useI18n()
 const { logout } = useSupabaseAuth()
 const localePath = useLocalePath()
@@ -35,8 +30,13 @@ const activeAccountSwitcher = () => {
 }
 
 async function handleLogout() {
-  await logout()
-  await navigateTo(localePath('/'), { replace: true })
+  try {
+    await logout()
+  }
+  catch {
+    // Still leave the app shell even if signOut fails locally.
+  }
+  await navigateTo(localePath('/auth/login'), { replace: true })
 }
 
 if (isProtectedRoute) {
@@ -68,7 +68,7 @@ onUnmounted(() => document.removeEventListener('click', onClickSwitcher))
         constrained
           ? 'max-w-3xl'
           : isProtectedRoute
-            ? 'max-w-[1360px]'
+            ? 'max-w-340'
             : 'max-w-5xl'
       "
     >
@@ -87,39 +87,6 @@ onUnmounted(() => document.removeEventListener('click', onClickSwitcher))
           v-if="isProtectedRoute"
           class="flex items-center gap-1"
         >
-          <div
-            class="relative size-10 rounded-full flex items-center justify-center text-ink-3 hover:bg-surface-hover hover:text-ink cursor-pointer"
-          >
-            <BaseIcon
-              name="message"
-              size="1.25em"
-            />
-            <div
-              class="min-w-4 h-4 px-1 absolute top-1 right-1 rounded-full bg-accent border-2 border-card flex items-center justify-center"
-            >
-              <p class="text-[10px] font-semibold text-white leading-none">
-                {{ mockUserNotiMsg.messages }}
-              </p>
-            </div>
-          </div>
-          <div
-            class="relative size-10 rounded-full flex items-center justify-center text-ink-3 hover:bg-surface-hover hover:text-ink cursor-pointer"
-          >
-            <BaseIcon
-              name="notification"
-              size="1.25em"
-            />
-            <div
-              class="min-w-4 h-4 px-1 absolute top-1 right-1 rounded-full bg-accent border-2 border-card flex items-center justify-center"
-            >
-              <p class="text-[10px] font-semibold text-white leading-none">
-                {{ mockUserNotiMsg.notifications }}
-              </p>
-            </div>
-          </div>
-
-          <div class="w-px h-6 bg-line mx-1" />
-
           <div
             ref="switcherRef"
             class="relative"
@@ -156,8 +123,11 @@ onUnmounted(() => document.removeEventListener('click', onClickSwitcher))
               <BaseIcon
                 name="chevron"
                 size="1.5em"
-                class="text-ink-4 transition-transform"
-                :class="{ 'rotate-180': isShowAccountSwitcher }"
+                :class="
+                  isShowAccountSwitcher
+                    ? 'text-ink-4 transition-transform rotate-180'
+                    : 'text-ink-4 transition-transform'
+                "
               />
             </button>
 

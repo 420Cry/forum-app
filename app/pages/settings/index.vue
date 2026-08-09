@@ -1,54 +1,131 @@
 <script setup lang="ts">
+import BaseIcon from '~/components/shared/BaseIcon.vue'
+import BasePill from '~/components/shared/BasePill.vue'
+import { useUserProfile } from '~/composables/user/useUserProfile'
+
 definePageMeta({ layout: 'home', access: 'protected' })
 
 const { t } = useI18n()
 const localePath = useLocalePath()
+const { profile, refreshProfile } = useUserProfile()
 
-const links = [
-  {
-    to: '/settings/profile',
-    titleKey: 'settings.heading.edit_profile',
-    descKey: 'settings.info.edit_profile',
-  },
-  {
-    to: '/profiles/startup/edit',
-    titleKey: 'profiles.heading.startup_edit',
-    descKey: 'profiles.info.startup_edit',
-  },
-  {
-    to: '/profiles/investor/edit',
-    titleKey: 'profiles.heading.investor_edit',
-    descKey: 'profiles.info.investor_edit',
-  },
-] as const
+const avatarFailed = ref(false)
+
+onMounted(async () => {
+  await refreshProfile()
+  avatarFailed.value = false
+})
+
+const userProfile = computed(() => profile.value?.profile ?? null)
+const displayName = computed(
+  () => userProfile.value?.name?.trim() || t('settings.info.unnamed'),
+)
+const role = computed(() => userProfile.value?.role ?? null)
+const roleLabel = computed(() => {
+  if (role.value === 'Investor') return t('common.role.investor')
+  if (role.value === 'Founder') return t('common.role.founder')
+  return null
+})
+const rolePillVariant = computed(() =>
+  role.value === 'Investor' ? 'investor' : undefined,
+)
+const avatarUrl = computed(() => userProfile.value?.avatarUrl ?? null)
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
-    <div class="bg-card border border-line rounded-md shadow-1 px-5 py-4">
-      <h1 class="text-[15px] font-semibold text-ink">
+  <div class="mx-auto flex max-w-190 flex-col gap-4">
+    <div>
+      <h1 class="text-[22px] font-bold tracking-[-0.02em] text-ink">
         {{ t('settings.heading.settings') }}
       </h1>
-      <p class="text-[12.5px] text-ink-4 mt-0.5">
+      <p class="mt-1.5 max-w-[52ch] text-[14px] text-ink-3">
         {{ t('settings.info.subtitle') }}
       </p>
     </div>
 
-    <div class="bg-card border border-line rounded-md shadow-1 overflow-hidden">
+    <section class="overflow-hidden rounded-md border border-line bg-card shadow-1">
+      <div class="border-b border-line px-5 pt-4 pb-3">
+        <h2 class="text-[14px] font-semibold text-ink">
+          {{ t('settings.heading.you') }}
+        </h2>
+        <p class="mt-0.5 text-[12.5px] text-ink-4">
+          {{ t('settings.info.you_section') }}
+        </p>
+      </div>
+
       <NuxtLink
-        v-for="(link, index) in links"
-        :key="link.to"
-        :to="localePath(link.to)"
-        class="block px-5 py-4 hover:bg-surface-hover no-underline"
-        :class="{ 'border-t border-line': index > 0 }"
+        :to="localePath('/settings/profile')"
+        class="flex items-center gap-3.5 px-5 py-4 no-underline transition-colors hover:bg-surface-hover"
       >
-        <p class="font-semibold text-[14px] text-ink">
-          {{ t(link.titleKey) }}
-        </p>
-        <p class="text-sm text-ink-3 mt-1">
-          {{ t(link.descKey) }}
-        </p>
+        <img
+          v-if="avatarUrl && !avatarFailed"
+          :src="avatarUrl"
+          class="size-12 flex-none rounded-full border border-line object-cover"
+          @error="avatarFailed = true"
+        >
+        <div
+          v-else
+          class="flex size-12 flex-none items-center justify-center rounded-full border border-line bg-surface-hover text-ink-4"
+        >
+          <BaseIcon
+            name="person"
+            size="1.4em"
+          />
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <p class="truncate text-[14.5px] font-semibold text-ink">
+              {{ displayName }}
+            </p>
+            <BasePill
+              v-if="roleLabel"
+              :variant="rolePillVariant"
+            >
+              {{ roleLabel }}
+            </BasePill>
+            <span
+              v-else
+              class="text-[12px] text-ink-4"
+            >{{ t('settings.info.no_role') }}</span>
+          </div>
+          <p class="mt-1 text-[13px] text-ink-3">
+            {{ t('settings.info.edit_profile_cta') }}
+          </p>
+        </div>
+
+        <span class="flex-none text-[13px] font-semibold text-brand">
+          {{ t('settings.action.edit') }} →
+        </span>
       </NuxtLink>
-    </div>
+    </section>
+
+    <section class="overflow-hidden rounded-md border border-line bg-card shadow-1">
+      <div class="border-b border-line px-5 pt-4 pb-3">
+        <h2 class="text-[14px] font-semibold text-ink">
+          {{ t('settings.heading.security') }}
+        </h2>
+        <p class="mt-0.5 text-[12.5px] text-ink-4">
+          {{ t('settings.info.security_section') }}
+        </p>
+      </div>
+
+      <NuxtLink
+        :to="localePath('/settings/password')"
+        class="flex items-start justify-between gap-4 px-5 py-4 no-underline transition-colors hover:bg-surface-hover"
+      >
+        <div class="min-w-0">
+          <p class="text-[14px] font-semibold text-ink">
+            {{ t('settings.heading.password') }}
+          </p>
+          <p class="mt-1 text-[13px] text-ink-3">
+            {{ t('settings.info.password_cta') }}
+          </p>
+        </div>
+        <span class="mt-0.5 flex-none text-[13px] font-semibold text-brand">
+          {{ t('settings.action.edit') }} →
+        </span>
+      </NuxtLink>
+    </section>
   </div>
 </template>

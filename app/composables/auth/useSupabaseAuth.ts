@@ -1,6 +1,7 @@
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { useSupabaseToken } from './useSupabaseToken'
 import { useUserProfile } from '../user/useUserProfile'
+import { clearOnboardSession } from '../onboard/useOnboard'
 import {
   isDuplicateSignupUser,
   isEmailVerified,
@@ -170,10 +171,11 @@ export function useSupabaseAuth() {
   }
 
   async function logout() {
+    clearOnboardSession()
     useUserProfile().clearProfile()
     error.value = null
     refreshedUser.value = null
-    await supabase.auth.signOut()
+    await supabase.auth.signOut({ scope: 'local' })
   }
 
   async function resetPassword(email: string) {

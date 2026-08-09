@@ -5,7 +5,7 @@ export const navigationLinks: navigationLinkType[] = [
   {
     id: 'social',
     titleKey: 'nav.social',
-    iconName: 'social',
+    iconName: 'home',
     link: '/social',
   },
   {

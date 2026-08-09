@@ -6,6 +6,9 @@ export type AccountSummary = {
   headline: string | null
   location: string | null
   avatarUrl: string | null
+  /** Ready-to-use app path from API (e.g. `/u/dao-nguyen`). */
+  href: string
+  urlKey?: string
   views?: number
   connections?: number
   accountType: AccountType
@@ -33,6 +36,7 @@ export type StartupProfile = {
   foundedAt: string
   views: number
   connections: number
+  href: string
 }
 
 export type InvestorProfile = {
@@ -49,15 +53,19 @@ export type InvestorProfile = {
   maxInvestmentUsd: number | null
   views: number
   connections: number
+  href: string
 }
 
 export type PublicUserProfile = {
   id: string
+  urlKey: string
+  profilePath: string
   name: string | null
   role: 'Founder' | 'Investor' | null
   occupation: string | null
   location: string | null
   avatarUrl: string | null
+  /** Display labels from API — render as-is. */
   goals: string[]
 }
 

@@ -12,6 +12,10 @@
     "heading": {
       "forum": "Forum"
     },
+    "role": {
+      "founder": "Founder",
+      "investor": "Investor"
+    },
     "info": {
       "selected_count": "{count} selected",
       "update_anytime": "You can update these any time from your profile",
@@ -104,10 +108,11 @@
   "social": {
     "account": {
       "signed_in_as": "Signed in as",
-      "add_startup_page": "Add a startup page"
+      "add_startup_page": "Add a startup page",
+      "add_investor_page": "Add an investor page"
     },
     "action": {
-      "follow": "Follow",
+      "follow": "+ Follow",
       "unfollow": "Following",
       "learn_more": "Learn more"
     },
@@ -131,24 +136,55 @@
   "settings": {
     "heading": {
       "settings": "Settings",
-      "edit_profile": "Edit profile"
+      "edit_profile": "Personal profile",
+      "you": "You",
+      "organization": "Organization",
+      "security": "Security",
+      "photo": "Photo",
+      "about_you": "About you",
+      "profile_url": "Profile URL",
+      "password": "Password",
+      "reset_email": "Reset via email"
     },
     "info": {
-      "subtitle": "Manage your account, profiles, and discovery.",
-      "edit_profile": "Update your personal details and photo.",
+      "subtitle": "Your personal profile and password.",
+      "edit_profile": "Review your name, photo, and how you appear to others.",
+      "edit_profile_cta": "View and edit personal profile",
+      "about_help": "These details show on your public profile.",
+      "profile_url_help": "This is the public link to your profile. Use lowercase letters, numbers, and hyphens.",
       "profile_saved": "Profile saved.",
-      "avatar_saved": "Photo updated."
+      "avatar_saved": "Photo updated.",
+      "you_section": "How you appear as a person on Fundedr.",
+      "security_section": "Reset your password with a link sent to your email.",
+      "organization_section": "Your public company or fund page for your role.",
+      "startup_edit": "The company page investors and founders see.",
+      "investor_edit": "The fund or investor page founders see.",
+      "password": "For security, password changes go through your email.",
+      "password_cta": "Email a link to set a new password.",
+      "reset_email": "We'll send a reset link to the email on this account. Open it to choose a new password.",
+      "unnamed": "Your profile",
+      "no_role": "No role set"
     },
     "action": {
       "save": "Save changes",
       "saving": "Saving...",
-      "uploading": "Uploading..."
+      "uploading": "Uploading...",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "sending": "Sending...",
+      "send_reset_email": "Send reset email",
+      "resend_reset_email": "Send again"
     },
     "error": {
       "avatar_type": "Use a JPG, PNG, or WebP image.",
       "avatar_size": "Image must be 5 MB or smaller.",
       "avatar_auth": "Sign in to upload a photo.",
-      "avatar_upload": "Could not upload photo. Try again."
+      "avatar_upload": "Could not upload photo. Try again.",
+      "avatar_bucket": "Photo storage is not ready yet.",
+      "password_email_missing": "No email on this account.",
+      "slug_required": "Profile URL is required.",
+      "slug_format": "Use lowercase letters, numbers, and hyphens only.",
+      "slug_taken": "That profile URL is already taken."
     }
   },
   "find": {
@@ -158,6 +194,8 @@
     },
     "info": {
       "subtitle": "Search founders, startups, and investors on Fundedr.",
+      "suggestions": "People to discover — search when you want something specific.",
+      "suggestions_empty": "No one else to suggest yet. Check back as more people join.",
       "results": "{count} results",
       "matching": "founders and investors matching your filters",
       "empty": "No matches yet. Try a different search."
@@ -223,7 +261,9 @@
       "contact_email_placeholder": "hello{'@'}example.com",
       "founded_at": "Founded on",
       "min_investment": "Min investment (USD)",
-      "max_investment": "Max investment (USD)"
+      "max_investment": "Max investment (USD)",
+      "profile_url": "Profile URL",
+      "profile_url_placeholder": "e.g. dao-nguyen"
     },
     "stage": {
       "pre_seed": "Pre-seed",
