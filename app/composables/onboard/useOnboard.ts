@@ -21,6 +21,7 @@ type onboardInfoType = {
   age: string
   location: string
   occupation: string
+  avatarUrl: string | null
 }
 
 function emptyOnboardInfo(): onboardInfoType {
@@ -32,6 +33,7 @@ function emptyOnboardInfo(): onboardInfoType {
     age: '',
     location: '',
     occupation: '',
+    avatarUrl: null,
   }
 }
 
@@ -161,6 +163,7 @@ export const useOnboard = () => {
     if (profile.age != null) onboardInfo.age = String(profile.age)
     if (profile.location) onboardInfo.location = profile.location
     if (profile.occupation) onboardInfo.occupation = profile.occupation
+    if (profile.avatarUrl) onboardInfo.avatarUrl = profile.avatarUrl
 
     currentStep.value = inferOnboardingStep(profile)
     sessionActive = true
@@ -204,7 +207,7 @@ export const useOnboard = () => {
     isLoading.value = true
     disableDraftSync()
     try {
-      const { saveOnboarding } = useOnboardApi()
+      const { saveOnboarding, updateProfile } = useOnboardApi()
       const res = await saveOnboarding({
         role: role as roleTitlesType,
         goals,
@@ -217,6 +220,14 @@ export const useOnboard = () => {
       if (!res.success) {
         toast.showError(t('common.error.try_again_later'), 1500)
         return false
+      }
+      if (onboardInfo.avatarUrl) {
+        try {
+          await updateProfile({ avatarUrl: onboardInfo.avatarUrl })
+        }
+        catch {
+          // Profile was created; avatar can be set later from settings.
+        }
       }
       await refreshProfile(true)
       resetOnboarding()

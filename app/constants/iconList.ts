@@ -18,4 +18,6 @@ export const iconList = {
   message: 'material-symbols:chat-bubble-outline-rounded',
   notification: 'material-symbols:notifications-outline-rounded',
   chevron: 'material-symbols:keyboard-arrow-down-rounded',
+  settings: 'material-symbols:settings-outline-rounded',
+  person: 'material-symbols:person-outline-rounded',
 } as const

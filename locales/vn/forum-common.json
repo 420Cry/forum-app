@@ -105,6 +105,111 @@
     "account": {
       "signed_in_as": "Đã đăng nhập với",
       "add_startup_page": "Thêm trang startup"
+    },
+    "action": {
+      "follow": "Theo dõi",
+      "unfollow": "Đang theo dõi"
+    }
+  },
+  "settings": {
+    "heading": {
+      "settings": "Cài đặt",
+      "edit_profile": "Chỉnh sửa hồ sơ"
+    },
+    "info": {
+      "subtitle": "Quản lý tài khoản, hồ sơ và khám phá.",
+      "edit_profile": "Cập nhật thông tin cá nhân và ảnh đại diện.",
+      "profile_saved": "Đã lưu hồ sơ.",
+      "avatar_saved": "Đã cập nhật ảnh."
+    },
+    "action": {
+      "save": "Lưu thay đổi",
+      "saving": "Đang lưu...",
+      "uploading": "Đang tải lên..."
+    },
+    "error": {
+      "avatar_type": "Dùng ảnh JPG, PNG hoặc WebP.",
+      "avatar_size": "Ảnh phải từ 5 MB trở xuống.",
+      "avatar_auth": "Đăng nhập để tải ảnh lên.",
+      "avatar_upload": "Không thể tải ảnh lên. Thử lại."
+    }
+  },
+  "find": {
+    "heading": {
+      "title": "Tìm người & công ty"
+    },
+    "info": {
+      "subtitle": "Tìm founder, startup và nhà đầu tư trên Fundedr.",
+      "results": "{count} kết quả"
+    },
+    "label": {
+      "query": "Tìm kiếm",
+      "query_placeholder": "Tên, công ty hoặc từ khóa",
+      "type": "Loại"
+    },
+    "type": {
+      "all": "Tất cả",
+      "user": "Người",
+      "startup": "Startup",
+      "investor": "Nhà đầu tư"
+    },
+    "action": {
+      "search": "Tìm kiếm",
+      "searching": "Đang tìm..."
+    }
+  },
+  "following": {
+    "heading": {
+      "title": "Đang theo dõi"
+    },
+    "info": {
+      "subtitle": "Các tài khoản bạn đang theo dõi.",
+      "empty": "Bạn chưa theo dõi ai."
+    }
+  },
+  "profiles": {
+    "heading": {
+      "startup_edit": "Trang startup",
+      "startup_create": "Tạo trang startup",
+      "investor_edit": "Trang nhà đầu tư",
+      "investor_create": "Tạo trang nhà đầu tư"
+    },
+    "info": {
+      "startup_edit": "Chia sẻ công ty với founder và nhà đầu tư.",
+      "investor_edit": "Chia sẻ quỹ và lĩnh vực đầu tư.",
+      "startup_saved": "Đã lưu trang startup.",
+      "investor_saved": "Đã lưu trang nhà đầu tư.",
+      "unnamed": "Chưa có tên",
+      "stats": "{views} lượt xem · {connections} kết nối"
+    },
+    "label": {
+      "company_name": "Tên công ty",
+      "company_name_placeholder": "vd. HelloWorld",
+      "firm_name": "Tên quỹ",
+      "firm_name_placeholder": "vd. North Peak Capital",
+      "description": "Mô tả",
+      "description_placeholder": "Mô tả ngắn",
+      "stage": "Giai đoạn",
+      "industry": "Ngành",
+      "industry_placeholder": "vd. Climate",
+      "website": "Website",
+      "website_placeholder": "https://example.com",
+      "contact_email": "Email liên hệ",
+      "contact_email_placeholder": "hello{'@'}example.com",
+      "founded_at": "Ngày thành lập",
+      "min_investment": "Đầu tư tối thiểu (USD)",
+      "max_investment": "Đầu tư tối đa (USD)"
+    },
+    "stage": {
+      "pre_seed": "Pre-seed",
+      "seed": "Seed",
+      "series_a": "Series A",
+      "growth": "Growth",
+      "scale": "Scale",
+      "exit": "Exit"
+    },
+    "error": {
+      "not_found": "Không tìm thấy hồ sơ này."
     }
   },
   "onboard": {

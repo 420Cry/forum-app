@@ -58,7 +58,7 @@ From the monorepo dev-server: `forum lint:fix` runs eslint --fix in both forum-a
 Every page must declare how middleware treats it:
 
 ```ts
-definePageMeta({ access: 'guest' })      // auth forms — redirects verified users to /home
+definePageMeta({ access: 'guest' })      // auth forms — redirects verified users to /social
 definePageMeta({ access: 'callback' })   // email-link landing pages — never redirected
 definePageMeta({ access: 'protected' })  // requires verified session
 // omit access for public pages (default)

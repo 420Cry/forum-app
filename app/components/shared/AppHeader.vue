@@ -26,7 +26,7 @@ const { t } = useI18n()
 const { logout } = useSupabaseAuth()
 const localePath = useLocalePath()
 const { refreshProfile } = useUserProfile()
-const { activeAccount, handleAvatarError } = useAccount()
+const { activeAccount, handleAvatarError, refreshAccounts } = useAccount()
 const isShowAccountSwitcher = ref(false)
 const switcherRef = ref<HTMLElement | null>(null)
 
@@ -41,6 +41,9 @@ async function handleLogout() {
 
 if (isProtectedRoute) {
   await refreshProfile()
+  if (import.meta.client) {
+    void refreshAccounts()
+  }
 }
 
 const onClickSwitcher = (e: MouseEvent) => {
@@ -127,7 +130,7 @@ onUnmounted(() => document.removeEventListener('click', onClickSwitcher))
                 v-if="activeAccount?.avatar && !activeAccount?.avatarLoadFailed"
                 :src="activeAccount.avatar"
                 class="size-8 rounded-full object-cover shrink-0"
-                @error="handleAvatarError(activeAccount.name)"
+                @error="handleAvatarError(activeAccount.id)"
               />
 
               <div
@@ -141,7 +144,7 @@ onUnmounted(() => document.removeEventListener('click', onClickSwitcher))
               </div>
 
               <p class="text-[13px] font-semibold text-ink-2">
-                {{ activeAccount?.name.split(' ')[0] }}
+                {{ activeAccount?.name?.split(' ')[0] }}
               </p>
 
               <BaseIcon

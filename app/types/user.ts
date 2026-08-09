@@ -6,6 +6,7 @@ export type UserProfile = {
   occupation: string | null
   age: number | null
   location: string | null
+  avatarUrl: string | null
   goals: string[]
 }
 

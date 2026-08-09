@@ -4,9 +4,16 @@ import BaseButton from '../shared/BaseButton.vue'
 import BaseIcon from '../shared/BaseIcon.vue'
 import TitleSection from './shared/TitleSection.vue'
 import { sanitizeAgeInput, sanitizePersonName } from '~/utils/onboardInput'
+import { useAvatarUpload } from '~/composables/media/useAvatarUpload'
 
 const { t } = useI18n()
+const toast = useToast()
 const { onboardInfo, infoErrors, clearInfoError } = useOnboard()
+const { uploadAvatar } = useAvatarUpload()
+
+const avatarFailed = ref(false)
+const uploading = ref(false)
+const fileInput = ref<HTMLInputElement | null>(null)
 
 function onFirstNameInput(event: Event) {
   const el = event.target as HTMLInputElement
@@ -31,6 +38,30 @@ function onAgeInput(event: Event) {
   onboardInfo.age = next
   clearInfoError('age')
 }
+
+async function onPickAvatar(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+
+  uploading.value = true
+  try {
+    const url = await uploadAvatar(file)
+    onboardInfo.avatarUrl = url
+    avatarFailed.value = false
+  }
+  catch (err: unknown) {
+    const msg
+      = err && typeof err === 'object' && 'statusMessage' in err
+        ? String((err as { statusMessage?: string }).statusMessage)
+        : t('settings.error.avatar_upload')
+    toast.showError(msg, 3000)
+  }
+  finally {
+    uploading.value = false
+  }
+}
 </script>
 
 <template>
@@ -47,8 +78,15 @@ function onAgeInput(event: Event) {
     class="mx-auto w-full max-w-[760px] bg-card border border-line rounded-md shadow-1 px-8 py-7"
   >
     <div class="flex items-center gap-[22px] mb-[26px]">
+      <img
+        v-if="onboardInfo.avatarUrl && !avatarFailed"
+        :src="onboardInfo.avatarUrl"
+        class="size-24 rounded-full object-cover border border-line flex-none"
+        @error="avatarFailed = true"
+      />
       <div
-        class="size-24  rounded-full border-2 border-dashed border-line-2 bg-surface-hover flex items-center justify-center text-ink-4 flex-none"
+        v-else
+        class="size-24 rounded-full border-2 border-dashed border-line-2 bg-surface-hover flex items-center justify-center text-ink-4 flex-none"
       >
         <BaseIcon
           name="camera"
@@ -62,12 +100,25 @@ function onAgeInput(event: Event) {
         <p class="text-[13.5px] text-ink-3 leading-relaxed">
           {{ t('onboard.info.profile_photo_help') }}
         </p>
+        <input
+          ref="fileInput"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          class="hidden"
+          @change="onPickAvatar"
+        />
         <BaseButton
           intent="secondary"
           size="sm"
           class="mt-2"
+          :disabled="uploading"
+          @click="fileInput?.click()"
         >
-          {{ t('onboard.action.upload_photo') }}
+          {{
+            uploading
+              ? t('settings.action.uploading')
+              : t('onboard.action.upload_photo')
+          }}
         </BaseButton>
       </div>
     </div>

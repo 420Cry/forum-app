@@ -3,9 +3,6 @@ import { useAccount } from '~/composables/accounts/useAccount'
 import BaseIcon from '../shared/BaseIcon.vue'
 
 const { t } = useI18n()
-
-// Example implementation for account switcher. In reality, it should fetch from /auth/me and extract the profile
-
 const localePath = useLocalePath()
 const { logout } = useSupabaseAuth()
 
@@ -14,8 +11,17 @@ const handleLogout = async () => {
   await navigateTo(localePath('/'), { replace: true })
 }
 
-const { profileExample, handleActive, handleAvatarError, activeAccountId }
-  = useAccount()
+const {
+  profileExample,
+  handleActive,
+  handleAvatarError,
+  activeAccountId,
+  refreshAccounts,
+} = useAccount()
+
+onMounted(() => {
+  void refreshAccounts()
+})
 </script>
 
 <template>
@@ -32,7 +38,7 @@ const { profileExample, handleActive, handleAvatarError, activeAccountId }
     <div class="flex flex-col gap-1">
       <button
         v-for="account in profileExample"
-        :key="account.name"
+        :key="account.id"
         type="button"
         role="menuitem"
         class="flex items-center gap-3 px-2.5 py-[11px] rounded-sm cursor-pointer text-left w-full hover:bg-surface-hover"
@@ -43,7 +49,7 @@ const { profileExample, handleActive, handleAvatarError, activeAccountId }
           v-if="account.avatar && !account.avatarLoadFailed"
           :src="account.avatar"
           class="size-10 rounded-full object-cover shrink-0"
-          @error="handleAvatarError(account.name)"
+          @error="handleAvatarError(account.id)"
         />
         <div
           v-else
@@ -75,8 +81,10 @@ const { profileExample, handleActive, handleAvatarError, activeAccountId }
 
     <hr class="border-line my-1.5 mx-1" />
 
-    <button
-      class="flex items-center gap-2.5 w-full px-2.5 py-[9px] rounded-sm hover:bg-brand-tint cursor-pointer"
+    <NuxtLink
+      :to="localePath('/profiles/startup/edit')"
+      role="menuitem"
+      class="flex items-center gap-2.5 w-full px-2.5 py-[9px] rounded-sm hover:bg-brand-tint cursor-pointer no-underline"
     >
       <div
         class="size-8 rounded-full bg-brand-tint flex justify-center items-center shrink-0"
@@ -90,7 +98,26 @@ const { profileExample, handleActive, handleAvatarError, activeAccountId }
       <span class="text-brand font-semibold text-[13.5px]">
         {{ t('social.account.add_startup_page') }}
       </span>
-    </button>
+    </NuxtLink>
+
+    <NuxtLink
+      :to="localePath('/settings')"
+      role="menuitem"
+      class="flex items-center gap-2.5 w-full px-2.5 py-[9px] rounded-sm hover:bg-surface-hover cursor-pointer no-underline"
+    >
+      <div
+        class="size-8 rounded-full bg-surface-hover flex justify-center items-center shrink-0"
+      >
+        <BaseIcon
+          name="settings"
+          class="text-ink-3"
+          size="18"
+        />
+      </div>
+      <span class="text-ink-2 font-semibold text-[13.5px]">
+        {{ t('settings.heading.settings') }}
+      </span>
+    </NuxtLink>
 
     <hr class="border-line my-1.5 mx-1" />
 

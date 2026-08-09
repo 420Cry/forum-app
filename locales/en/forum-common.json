@@ -105,6 +105,111 @@
     "account": {
       "signed_in_as": "Signed in as",
       "add_startup_page": "Add a startup page"
+    },
+    "action": {
+      "follow": "Follow",
+      "unfollow": "Following"
+    }
+  },
+  "settings": {
+    "heading": {
+      "settings": "Settings",
+      "edit_profile": "Edit profile"
+    },
+    "info": {
+      "subtitle": "Manage your account, profiles, and discovery.",
+      "edit_profile": "Update your personal details and photo.",
+      "profile_saved": "Profile saved.",
+      "avatar_saved": "Photo updated."
+    },
+    "action": {
+      "save": "Save changes",
+      "saving": "Saving...",
+      "uploading": "Uploading..."
+    },
+    "error": {
+      "avatar_type": "Use a JPG, PNG, or WebP image.",
+      "avatar_size": "Image must be 5 MB or smaller.",
+      "avatar_auth": "Sign in to upload a photo.",
+      "avatar_upload": "Could not upload photo. Try again."
+    }
+  },
+  "find": {
+    "heading": {
+      "title": "Find people & companies"
+    },
+    "info": {
+      "subtitle": "Search founders, startups, and investors on Fundedr.",
+      "results": "{count} results"
+    },
+    "label": {
+      "query": "Search",
+      "query_placeholder": "Name, company, or keyword",
+      "type": "Type"
+    },
+    "type": {
+      "all": "All",
+      "user": "People",
+      "startup": "Startups",
+      "investor": "Investors"
+    },
+    "action": {
+      "search": "Search",
+      "searching": "Searching..."
+    }
+  },
+  "following": {
+    "heading": {
+      "title": "Following"
+    },
+    "info": {
+      "subtitle": "Accounts you follow.",
+      "empty": "You are not following anyone yet."
+    }
+  },
+  "profiles": {
+    "heading": {
+      "startup_edit": "Startup page",
+      "startup_create": "Create a startup page",
+      "investor_edit": "Investor page",
+      "investor_create": "Create an investor page"
+    },
+    "info": {
+      "startup_edit": "Share your company with founders and investors.",
+      "investor_edit": "Share your firm and investment focus.",
+      "startup_saved": "Startup page saved.",
+      "investor_saved": "Investor page saved.",
+      "unnamed": "Unnamed",
+      "stats": "{views} views · {connections} connections"
+    },
+    "label": {
+      "company_name": "Company name",
+      "company_name_placeholder": "e.g. HelloWorld",
+      "firm_name": "Firm name",
+      "firm_name_placeholder": "e.g. North Peak Capital",
+      "description": "Description",
+      "description_placeholder": "A short overview",
+      "stage": "Stage",
+      "industry": "Industry",
+      "industry_placeholder": "e.g. Climate",
+      "website": "Website",
+      "website_placeholder": "https://example.com",
+      "contact_email": "Contact email",
+      "contact_email_placeholder": "hello{'@'}example.com",
+      "founded_at": "Founded on",
+      "min_investment": "Min investment (USD)",
+      "max_investment": "Max investment (USD)"
+    },
+    "stage": {
+      "pre_seed": "Pre-seed",
+      "seed": "Seed",
+      "series_a": "Series A",
+      "growth": "Growth",
+      "scale": "Scale",
+      "exit": "Exit"
+    },
+    "error": {
+      "not_found": "This profile could not be found."
     }
   },
   "onboard": {
