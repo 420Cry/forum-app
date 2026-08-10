@@ -59,6 +59,45 @@ echo "Supabase host API ready (HTTP ${code})"
 
 FORUM_PROJECTS_ROOT="$ROOT" bash "${SCRIPT_DIR}/ci-env-sync.sh"
 
+# Linux CI: Supabase publishes Kong on 127.0.0.1:54321 only. nginx/forum-api cannot
+# reach that via host.docker.internal (Docker Desktop Mac can; GHA Linux cannot).
+# Attach Kong to the shared network and talk to it by container name instead.
+KONG_CONTAINER="${SUPABASE_KONG_CONTAINER:-supabase_kong_forum-api}"
+if ! docker inspect "$KONG_CONTAINER" >/dev/null 2>&1; then
+  echo "Error: expected Kong container '${KONG_CONTAINER}' after supabase start"
+  docker ps -a --format '{{.Names}}' | grep -Ei 'supabase|kong' || true
+  exit 1
+fi
+docker network connect forum.test "$KONG_CONTAINER" 2>/dev/null || true
+
+PROXY_TEMPLATE="${SERVER_DIR}/docker/proxy/nginx-templates/proxy.conf.template"
+if [[ -f "$PROXY_TEMPLATE" ]]; then
+  sed -i 's/host\.docker\.internal:54321/supabase_kong_forum-api:8000/' "$PROXY_TEMPLATE"
+fi
+
+# forum-api verifyToken() calls GoTrue; use the same in-network Kong URL.
+python3 - "${ROOT}/forum-api/.env.local" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+lines = path.read_text(encoding="utf-8").splitlines(keepends=True) if path.exists() else []
+key, value = "SUPABASE_URL", "http://supabase_kong_forum-api:8000"
+pattern = re.compile(rf"^{re.escape(key)}=")
+out, updated = [], False
+for line in lines:
+    if pattern.match(line):
+        out.append(f"{key}={value}\n")
+        updated = True
+    else:
+        out.append(line if line.endswith("\n") else f"{line}\n")
+if not updated:
+    out.append(f"{key}={value}\n")
+path.write_text("".join(out), encoding="utf-8")
+print(f"Set {key}={value} in {path}")
+PY
+
 echo "Running migrations and seed..."
 (
   cd "${ROOT}/forum-api"
@@ -99,8 +138,7 @@ curl -sf http://app.forum.test/en/auth/login >/dev/null || {
   exit 1
 }
 
-# Browser + Playwright helpers use http://supabase.forum.test via the nginx proxy.
-# Without this wait, auth.setup hits nginx 502 and login shows "Something went wrong".
+# Browser + Playwright helpers use http://supabase.forum.test via the nginx → Kong path.
 echo "Waiting for Supabase via proxy (supabase.forum.test)..."
 ANON_KEY="$(
   cd "${ROOT}/forum-api"
@@ -124,6 +162,8 @@ if [[ "$code" != "200" ]]; then
   echo "--- proxy logs ---"
   docker logs forum-server-proxy-1 --tail 40 2>/dev/null \
     || docker logs "$(docker ps -qf name=proxy | head -1)" --tail 40 || true
+  echo "--- kong on forum.test ---"
+  docker inspect "$KONG_CONTAINER" --format '{{json .NetworkSettings.Networks}}' || true
   echo "--- host supabase ---"
   curl -sv --max-time 3 http://127.0.0.1:54321/auth/v1/health \
     -H "apikey: ${ANON_KEY}" || true
