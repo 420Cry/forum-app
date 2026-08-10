@@ -38,6 +38,25 @@ done
 echo "Starting Supabase..."
 (cd "${ROOT}/forum-api" && supabase start --ignore-health-check)
 
+echo "Waiting for Supabase API on host :54321..."
+for _ in $(seq 1 60); do
+  # Kong root may 404; any HTTP response means the gateway is up (000 = connection failed).
+  code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 2 --max-time 3 \
+    http://127.0.0.1:54321/ 2>/dev/null || echo "000")
+  if [[ "$code" != "000" ]]; then
+    break
+  fi
+  sleep 3
+done
+code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 2 --max-time 3 \
+  http://127.0.0.1:54321/ 2>/dev/null || echo "000")
+if [[ "$code" == "000" ]]; then
+  echo "Error: Supabase API never became reachable on 127.0.0.1:54321"
+  (cd "${ROOT}/forum-api" && supabase status) || true
+  exit 1
+fi
+echo "Supabase host API ready (HTTP ${code})"
+
 FORUM_PROJECTS_ROOT="$ROOT" bash "${SCRIPT_DIR}/ci-env-sync.sh"
 
 echo "Running migrations and seed..."
@@ -80,9 +99,44 @@ curl -sf http://app.forum.test/en/auth/login >/dev/null || {
   exit 1
 }
 
+# Browser + Playwright helpers use http://supabase.forum.test via the nginx proxy.
+# Without this wait, auth.setup hits nginx 502 and login shows "Something went wrong".
+echo "Waiting for Supabase via proxy (supabase.forum.test)..."
+ANON_KEY="$(
+  cd "${ROOT}/forum-api"
+  supabase status --output json \
+    | python3 -c 'import json,sys; print(json.load(sys.stdin)["ANON_KEY"])'
+)"
+for _ in $(seq 1 60); do
+  code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 2 --max-time 5 \
+    -H "apikey: ${ANON_KEY}" \
+    http://supabase.forum.test/auth/v1/health 2>/dev/null || echo "000")
+  if [[ "$code" == "200" ]]; then
+    break
+  fi
+  sleep 3
+done
+code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 2 --max-time 5 \
+  -H "apikey: ${ANON_KEY}" \
+  http://supabase.forum.test/auth/v1/health 2>/dev/null || echo "000")
+if [[ "$code" != "200" ]]; then
+  echo "Error: supabase.forum.test/auth/v1/health never returned 200 (got ${code})"
+  echo "--- proxy logs ---"
+  docker logs forum-server-proxy-1 --tail 40 2>/dev/null \
+    || docker logs "$(docker ps -qf name=proxy | head -1)" --tail 40 || true
+  echo "--- host supabase ---"
+  curl -sv --max-time 3 http://127.0.0.1:54321/auth/v1/health \
+    -H "apikey: ${ANON_KEY}" || true
+  exit 1
+fi
+echo "Supabase proxy auth ready (HTTP ${code})"
+
 E2E_DIR="${ROOT}/forum-test-automation"
 if [[ ! -f "${E2E_DIR}/.env" ]]; then
   cp "${E2E_DIR}/.env.example" "${E2E_DIR}/.env"
+fi
+if [[ -f "${E2E_DIR}/.env.local.example" && ! -f "${E2E_DIR}/.env.local" ]]; then
+  cp "${E2E_DIR}/.env.local.example" "${E2E_DIR}/.env.local"
 fi
 
 mkdir -p "${E2E_DIR}/playwright/.auth"
