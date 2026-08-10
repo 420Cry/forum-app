@@ -48,16 +48,17 @@ jobs:
             node .github/scripts/unit-coverage-summary.mjs >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Comment coverage on PR
+      - name: Comment CI report on PR
         if: always() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           UNIT_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          # Early coverage-only comment; the e2e job replaces this with the full report.
           node .github/scripts/unit-coverage-summary.mjs \
-            coverage/coverage-summary.json --collapse > coverage-comment.md
+            coverage/coverage-summary.json --collapse > ci-comment.md
           bash .github/scripts/pr-sticky-comment.sh \
-            '<!-- unit-coverage -->' coverage-comment.md '${{ github.event.pull_request.number }}'
+            '<!-- ci-report -->' ci-comment.md '${{ github.event.pull_request.number }}'
 
       - name: Build
         run: bun run build
@@ -157,16 +158,34 @@ jobs:
           RESULTS="forum-test-automation/playwright-report/results.json"
           node forum-app/.github/scripts/report-e2e-summary.mjs "$RESULTS" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Comment E2E report on PR
+      - name: Download unit coverage
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-coverage
+          path: unit-coverage
+        continue-on-error: true
+
+      - name: Comment CI report on PR
         if: always() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          E2E_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           RESULTS="forum-test-automation/playwright-report/results.json"
-          node forum-app/.github/scripts/report-e2e-summary.mjs "$RESULTS" --collapse > e2e-comment.md
+          {
+            if [[ -f unit-coverage/coverage-summary.json ]]; then
+              node forum-app/.github/scripts/unit-coverage-summary.mjs \
+                unit-coverage/coverage-summary.json --collapse
+              echo
+              echo "---"
+              echo
+            fi
+            E2E_RUN_URL="$RUN_URL" node forum-app/.github/scripts/report-e2e-summary.mjs \
+              "$RESULTS" --collapse
+          } > ci-comment.md
           bash forum-app/.github/scripts/pr-sticky-comment.sh \
-            '<!-- e2e-report -->' e2e-comment.md '${{ github.event.pull_request.number }}'
+            '<!-- ci-report -->' ci-comment.md '${{ github.event.pull_request.number }}'
 
       - name: Upload Playwright report
         if: always()
