@@ -17,12 +17,16 @@ For the full local stack, use [forum-server](../forum-server) instead of running
 | ---- | ------- |
 | `.env` | Base config (staging, host-native, etc.) |
 | `.env.local` | Local overrides for `forum dev` (gitignored) |
+| `.env.debug` | Local FE → staging/prod API via `bun run dev:debug` (gitignored) |
 
 Copy templates:
 
 ```bash
 cp .env.example .env
 cp .env.local.example .env.local
+# optional — debug against hosted API (skips .env.local overrides)
+cp .env.debug.example .env.debug
+bun run dev:debug
 ```
 
 Set in `.env` / `.env.local`:

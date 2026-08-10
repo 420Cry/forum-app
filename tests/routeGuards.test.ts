@@ -63,30 +63,33 @@ describe('onboardingRedirect', () => {
   const complete = { onboarded: true } as UserProfile
   const incomplete = { onboarded: false } as UserProfile
 
-  it('sends not-onboarded users from /social and /find to /onboard', () => {
+  it('sends not-onboarded users from any non-onboard route to /onboard', () => {
     expect(onboardingRedirect('/social', incomplete)).toBe('/onboard')
     expect(onboardingRedirect('/social', null)).toBe('/onboard')
     expect(onboardingRedirect('/find', incomplete)).toBe('/onboard')
-    expect(onboardingRedirect('/find', null)).toBe('/onboard')
+    expect(onboardingRedirect('/settings', incomplete)).toBe('/onboard')
+    expect(onboardingRedirect('/settings/profile', null)).toBe('/onboard')
+    expect(onboardingRedirect('/following', incomplete)).toBe('/onboard')
+    expect(onboardingRedirect('/profiles/startup/edit', incomplete)).toBe(
+      '/onboard',
+    )
   })
 
   it('sends onboarded users from /onboard to /social', () => {
     expect(onboardingRedirect('/onboard', complete)).toBe('/social')
+    expect(onboardingRedirect('/onboard/extra', complete)).toBe('/social')
   })
 
   it('lets users stay when the route matches their state', () => {
     expect(onboardingRedirect('/social', complete)).toBeNull()
+    expect(onboardingRedirect('/settings', complete)).toBeNull()
     expect(onboardingRedirect('/onboard', incomplete)).toBeNull()
     expect(onboardingRedirect('/onboard', null)).toBeNull()
   })
 
-  it('never redirects other paths', () => {
-    expect(onboardingRedirect('/somewhere', complete)).toBeNull()
-    expect(onboardingRedirect('/somewhere', null)).toBeNull()
-  })
-
   it('handles locale-prefixed paths', () => {
     expect(onboardingRedirect('/en/social', incomplete)).toBe('/onboard')
+    expect(onboardingRedirect('/en/settings', incomplete)).toBe('/onboard')
     expect(onboardingRedirect('/vn/onboard', complete)).toBe('/social')
     expect(onboardingRedirect('/en/social', complete)).toBeNull()
   })

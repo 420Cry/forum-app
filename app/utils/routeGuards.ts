@@ -59,6 +59,9 @@ export async function resolveVerifiedUser(
 /**
  * Where a verified user on a protected route should be redirected based on
  * onboarding state, or null to stay.
+ *
+ * Incomplete users may only stay on `/onboard`. Completed users are bounced
+ * off `/onboard` to `/social`.
  */
 export function onboardingRedirect(
   path: string,
@@ -66,9 +69,13 @@ export function onboardingRedirect(
 ): string | null {
   const barePath = stripLocalePrefix(path)
   const completed = isOnboardingComplete(profile)
+  const onOnboard
+    = barePath === '/onboard' || barePath.startsWith('/onboard/')
 
-  if (barePath.startsWith('/social') && !completed) return '/onboard'
-  if (barePath.startsWith('/find') && !completed) return '/onboard'
-  if (barePath === '/onboard' && completed) return '/social'
+  if (!completed) {
+    return onOnboard ? null : '/onboard'
+  }
+
+  if (onOnboard) return '/social'
   return null
 }

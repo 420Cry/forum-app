@@ -20,3 +20,11 @@ export function buildAvatarObjectPath(userId: string, file: File): string {
         : 'jpg'
   return `${userId}/${Date.now()}.${ext}`
 }
+
+/** Reads the first file from a file input change, then clears the input. */
+export function takePickedFile(event: Event): File | null {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0] ?? null
+  input.value = ''
+  return file
+}

@@ -1,10 +1,10 @@
 import type { AuthMeResponse } from '~/types/user'
 import type { RouteAccess } from '~/types/routes'
 import { isProfileCacheStale } from '~/utils/profileCache'
-import { stripLocalePrefix } from '~/utils/localePath'
 import { onboardingRedirect, resolveVerifiedUser } from '~/utils/routeGuards'
 import {
   AUTH_REDIRECT_QUERY,
+  resolvePostAuthPath,
   sanitizeAuthRedirect,
 } from '~/utils/authRedirect'
 
@@ -22,7 +22,6 @@ async function syncProfile(
   const stale = isProfileCacheStale(cachedId, authUserId)
   const task = stale || missing ? refreshProfile(true) : refreshProfile(false)
 
-  // Always wait when cache is empty/stale, or on routes that gate on onboarded.
   if (options.alwaysAwait || stale || missing) await task
   else void task
 }
@@ -32,7 +31,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!path) return
 
   const localePath = useLocalePath()
-  const barePath = stripLocalePrefix(path)
 
   const access: RouteAccess = to.meta.access ?? 'public'
   if (access === 'public' || access === 'callback') return
@@ -40,7 +38,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const supabase = useSupabaseClient()
   const nuxtSession = useSupabaseSession()
   const { data: sessionData } = await supabase.auth.getSession()
-  // Prefer getSession(); only use Nuxt session cookie state on SSR.
   const session = import.meta.server
     ? (sessionData.session ?? nuxtSession.value)
     : sessionData.session
@@ -52,9 +49,27 @@ export default defineNuxtRouteMiddleware(async (to) => {
   )
 
   if (access === 'guest') {
-    if (auth.status === 'verified') {
+    if (auth.status === 'verified' && auth.user) {
       const safe = sanitizeAuthRedirect(to.query[AUTH_REDIRECT_QUERY])
-      return navigateTo(localePath(safe ?? '/social'), REDIRECT_REPLACE)
+      const { profile, refreshProfile, unauthorized } = useUserProfile()
+
+      // Prefer cached profile so we don't bounce incomplete users via /social.
+      if (profile.value != null) {
+        const target = resolvePostAuthPath(profile.value.profile, safe)
+        return navigateTo(localePath(target), REDIRECT_REPLACE)
+      }
+
+      await syncProfile(refreshProfile, profile.value?.id, auth.user.id, {
+        alwaysAwait: true,
+      })
+      if (unauthorized.value) {
+        return navigateTo(localePath('/auth/login'), REDIRECT_REPLACE)
+      }
+      const target = resolvePostAuthPath(
+        profile.value?.profile ?? null,
+        safe,
+      )
+      return navigateTo(localePath(target), REDIRECT_REPLACE)
     }
     return
   }
@@ -64,22 +79,22 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo(localePath('/auth/login'))
   }
 
-  if (!import.meta.client) return
-
   const { profile, refreshProfile, unauthorized } = useUserProfile()
   if (unauthorized.value) {
     return navigateTo(localePath('/auth/login'))
   }
 
-  const needsOnboardingGate
-    = barePath.startsWith('/social')
-      || barePath.startsWith('/onboard')
-      || barePath.startsWith('/find')
-      || barePath.startsWith('/following')
-      || barePath.startsWith('/settings')
+  // Fast path: known incomplete profile → redirect before any /auth/me wait (no flash).
+  if (profile.value != null) {
+    const early = onboardingRedirect(path, profile.value.profile)
+    if (early) {
+      return navigateTo(localePath(early), REDIRECT_REPLACE)
+    }
+  }
 
+  // SSR + client: resolve profile before allowing protected pages.
   await syncProfile(refreshProfile, profile.value?.id, auth.user.id, {
-    alwaysAwait: needsOnboardingGate,
+    alwaysAwait: true,
   })
 
   if (unauthorized.value) {
