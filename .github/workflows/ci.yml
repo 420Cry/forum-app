@@ -13,6 +13,9 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -44,6 +47,17 @@ jobs:
           if [[ -f coverage/coverage-summary.json ]]; then
             node .github/scripts/unit-coverage-summary.mjs >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      - name: Comment coverage on PR
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UNIT_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          node .github/scripts/unit-coverage-summary.mjs \
+            coverage/coverage-summary.json --collapse > coverage-comment.md
+          bash .github/scripts/pr-sticky-comment.sh \
+            '<!-- unit-coverage -->' coverage-comment.md '${{ github.event.pull_request.number }}'
 
       - name: Build
         run: bun run build
