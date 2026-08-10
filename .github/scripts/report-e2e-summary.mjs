@@ -29,7 +29,7 @@ function walkSuite(suite, prefix = '') {
   for (const spec of suite.specs ?? []) {
     const id = spec.title.match(/^[A-Z]+\d+/)?.[0] ?? spec.title
     const ok = (spec.tests ?? []).every(
-      (t) => (t.results ?? []).every((r) => r.status === 'passed' || r.status === 'skipped'),
+      t => (t.results ?? []).every(r => r.status === 'passed' || r.status === 'skipped'),
     )
     cases.push({ id, title: `${title} › ${spec.title}`, ok })
   }
@@ -40,7 +40,7 @@ function walkSuite(suite, prefix = '') {
 
 for (const suite of suites) walkSuite(suite)
 
-const passed = cases.filter((c) => c.ok).length
+const passed = cases.filter(c => c.ok).length
 const total = cases.length
 const pct = total ? Math.round((passed / total) * 100) : 0
 
