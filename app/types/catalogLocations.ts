@@ -6,4 +6,6 @@ export type CatalogLocation = {
 
 export type CatalogLocationsResponse = {
   locations: CatalogLocation[]
+  total: number
+  hasMore: boolean
 }

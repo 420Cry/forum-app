@@ -6,16 +6,15 @@ on:
   pull_request:
     branches: [main, master]
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  ci:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -28,12 +27,30 @@ jobs:
       - name: Lint
         run: bun run lint
 
+      - name: Unit tests with coverage
+        run: bun run test:coverage
+
+      - name: Upload unit coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-coverage
+          path: coverage/
+          retention-days: 14
+
+      - name: Unit coverage summary
+        if: always()
+        run: |
+          if [[ -f coverage/coverage-summary.json ]]; then
+            node .github/scripts/unit-coverage-summary.mjs >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Build
         run: bun run build
 
   docker:
     runs-on: ubuntu-latest
-    needs: ci
+    needs: verify
     steps:
       - uses: actions/checkout@v4
 
@@ -49,3 +66,88 @@ jobs:
           tags: forum-app:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: verify
+    timeout-minutes: 45
+    steps:
+      - name: Checkout forum-app (PR branch)
+        uses: actions/checkout@v4
+        with:
+          path: forum-app
+
+      - name: Checkout forum-api
+        uses: actions/checkout@v4
+        with:
+          repository: 420Cry/forum-api
+          ref: main
+          path: forum-api
+
+      - name: Checkout forum-test-automation
+        uses: actions/checkout@v4
+        with:
+          repository: 420Cry/forum-test-automation
+          ref: main
+          path: forum-test-automation
+
+      - name: Checkout forum-server
+        uses: actions/checkout@v4
+        with:
+          repository: 420Cry/forum-server
+          ref: main
+          path: forum-server
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.22
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: |
+          bun install --frozen-lockfile
+        working-directory: forum-api
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        working-directory: forum-app
+
+      - name: Install e2e dependencies
+        run: bun install --frozen-lockfile
+        working-directory: forum-test-automation
+
+      - name: Install Playwright Chromium
+        run: bunx playwright install chromium --with-deps
+        working-directory: forum-test-automation
+
+      - name: Run e2e stack and tests
+        env:
+          FORUM_PROJECTS_ROOT: ${{ github.workspace }}
+          CI: "true"
+        run: bash forum-app/.github/scripts/ci-e2e.sh
+
+      - name: E2E summary
+        if: always()
+        run: node scripts/report-e2e-summary.mjs >> "$GITHUB_STEP_SUMMARY"
+        working-directory: forum-test-automation
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: forum-test-automation/playwright-report/
+          retention-days: 14
+
+      - name: Upload Playwright test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: forum-test-automation/test-results/
+          retention-days: 7

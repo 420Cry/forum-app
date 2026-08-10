@@ -378,7 +378,10 @@
       "goal_network_peers": "Read alongside other angels, scouts, and VC partners at the same edge.",
       "goal_market_insights": "Stay close to trends and ecosystem shifts that change which bets make sense.",
       "profile_photo_help": "A clear headshot helps people recognise you. JPG or PNG, up to 5 MB.",
-      "occupation_help": "This appears under your name on your profile and posts."
+      "occupation_help": "This appears under your name on your profile and posts.",
+      "time_remaining_step_1": "~2 min total",
+      "time_remaining_step_2": "~1 min left",
+      "time_remaining_step_3": "~30 sec left"
     },
     "action": {
       "finish": "Finish & enter Fundedr",
@@ -397,6 +400,7 @@
       "last_name_special": "Last name can only contain letters (no numbers or symbols)",
       "dob_required": "Date of birth required",
       "dob_invalid": "Enter a valid date of birth",
+      "dob_future": "Date of birth cannot be in the future",
       "dob_too_young": "You must be older than 16",
       "dob_too_old": "Date of birth is out of range",
       "location_required": "Location required",

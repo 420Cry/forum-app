@@ -46,12 +46,14 @@ const {
   query,
   open,
   loading,
+  loadingMore,
   listRows,
   activeIndex,
   onInput,
   onFocus,
   onBlur,
   onKeydown,
+  onListboxScroll,
   selectSuggestion,
 } = useCatalogCombobox<CatalogLocation>({
   id: props.id,
@@ -114,6 +116,7 @@ const showErrorSlot = computed(() => {
         ref="listboxEl"
         role="listbox"
         class="absolute z-20 inset-x-0  top-full mt-1 max-h-56 overflow-auto rounded-md border border-line bg-card py-1 shadow-1"
+        @scroll="onListboxScroll"
       >
         <li
           v-if="loading && listRows.length === 0"
@@ -132,6 +135,12 @@ const showErrorSlot = computed(() => {
           @mousedown.prevent="selectSuggestion(row)"
         >
           {{ row.name }}
+        </li>
+        <li
+          v-if="loadingMore"
+          class="px-3 py-2 text-sm text-ink-3"
+        >
+          {{ t('common.info.loading') }}
         </li>
       </ul>
     </div>

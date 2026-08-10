@@ -337,6 +337,13 @@ export const useOnboard = () => {
     infoErrors.value = Object.keys(rest).length > 0 ? rest : null
   }
 
+  const setInfoError = (field: string, message: string) => {
+    infoErrors.value = {
+      ...(infoErrors.value ?? {}),
+      [field]: message,
+    }
+  }
+
   const backStep = () => {
     if (currentStep.value === 1) return
     suppressDraftWatch = true
@@ -370,5 +377,6 @@ export const useOnboard = () => {
     isLoading,
     infoErrors: readonly(infoErrors),
     clearInfoError,
+    setInfoError,
   }
 }

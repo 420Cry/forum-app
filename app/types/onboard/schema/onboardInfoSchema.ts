@@ -1,12 +1,6 @@
 import * as z from 'zod'
 import { PERSON_NAME_RE, TAG_KEY_RE } from '~/utils/onboardInput'
-import {
-  DATE_OF_BIRTH_RE,
-  MAX_AGE,
-  MIN_AGE,
-  ageFromDateOfBirth,
-  isValidAdultDateOfBirth,
-} from '~/utils/dateOfBirth'
+import { dateOfBirthFieldError } from '~/utils/dateOfBirth'
 
 export function createOnboardInfoSchema(t: (key: string) => string) {
   return z.object({
@@ -21,18 +15,11 @@ export function createOnboardInfoSchema(t: (key: string) => string) {
     dateOfBirth: z
       .string(t('onboard.error.dob_required'))
       .min(1, t('onboard.error.dob_required'))
-      .regex(DATE_OF_BIRTH_RE, t('onboard.error.dob_invalid'))
-      .refine(val => isValidAdultDateOfBirth(val), {
-        message: t('onboard.error.dob_invalid'),
-      })
-      .refine((val) => {
-        const age = ageFromDateOfBirth(val)
-        return age != null && age >= MIN_AGE
-      }, { message: t('onboard.error.dob_too_young') })
-      .refine((val) => {
-        const age = ageFromDateOfBirth(val)
-        return age != null && age <= MAX_AGE
-      }, { message: t('onboard.error.dob_too_old') }),
+      .superRefine((val, ctx) => {
+        const message = dateOfBirthFieldError(val, t)
+        if (!message) return
+        ctx.addIssue({ code: 'custom', message })
+      }),
     location: z
       .string(t('onboard.error.location_required'))
       .min(1, t('onboard.error.location_required'))

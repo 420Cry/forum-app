@@ -6,11 +6,8 @@ import {
   catalogAutocompleteInput,
   type CatalogAutocompleteInputIntent,
 } from '~/utils/catalogAutocompleteInput'
-import { textToTagKey } from '~/utils/tagKey'
 
 defineOptions({ inheritAttrs: false })
-
-type ListRow = CatalogOccupation & { freeText?: boolean }
 
 const model = defineModel<string>({ required: true })
 const displayName = defineModel<string>('displayName', { default: '' })
@@ -43,88 +40,31 @@ const { t } = useI18n()
 const { searchOccupations } = useOccupationsApi()
 const disabledRef = computed(() => props.disabled)
 
-function buildListRows({
-  suggestions,
-  query,
-}: {
-  suggestions: Ref<CatalogOccupation[]>
-  query: Ref<string>
-}) {
-  return computed((): ListRow[] => {
-    const rows = [...suggestions.value]
-    const otherIdx = rows.findIndex(
-      r => r.key === 'occupation_other' || r.key.endsWith('_other'),
-    )
-    const others = otherIdx >= 0 ? rows.splice(otherIdx, 1) : []
-    const raw = query.value.trim()
-    if (raw.length >= 2) {
-      const key = textToTagKey(raw)
-      const exactLabel = suggestions.value.some(
-        o => o.name.toLowerCase() === raw.toLowerCase(),
-      )
-      const exactKey = suggestions.value.some(o => o.key === key)
-      if (!exactLabel && !exactKey) {
-        rows.push({ key, name: raw, freeText: true })
-      }
-    }
-    return [...rows, ...others]
-  })
-}
-
 const {
   rootEl,
   listboxEl,
   query,
   open,
   loading,
+  loadingMore,
   listRows,
   activeIndex,
   onInput,
   onFocus,
   onBlur,
   onKeydown,
+  onListboxScroll,
   selectSuggestion,
-} = useCatalogCombobox<ListRow>({
+} = useCatalogCombobox<CatalogOccupation>({
   id: props.id,
   model,
   displayName,
   disabled: disabledRef,
   search: searchOccupations,
-  listRows: buildListRows,
   searchErrorFallback: t('onboard.error.occupation_search_failed'),
   emitChange: () => emit('change'),
   emitSearchError: message => emit('searchError', message),
-  onBlurCommit: () => {
-    if (model.value && displayName.value) {
-      query.value = displayName.value
-      return true
-    }
-    if (!model.value && query.value.trim().length >= 2) {
-      return commitFreeTextIfNeeded()
-    }
-    return false
-  },
-  onEnterWhenClosed: () => {
-    commitFreeTextIfNeeded()
-  },
 })
-
-function commitFreeTextIfNeeded(): boolean {
-  const raw = query.value.trim()
-  if (raw.length < 2) return false
-  const key = textToTagKey(raw)
-  const row = listRows.value.find(
-    r => r.freeText && r.key === key,
-  ) ?? listRows.value.find(
-    r => !r.freeText && (r.key === key || r.name.toLowerCase() === raw.toLowerCase()),
-  )
-  if (row) {
-    selectSuggestion(row)
-    return true
-  }
-  selectSuggestion({ key, name: raw, freeText: true })
-  return true
-}
 
 const showError = computed(
   () => props.intent === 'error' && !!props.errorMsg,
@@ -134,13 +74,6 @@ const showErrorSlot = computed(() => {
   if (props.reserveError !== undefined) return props.reserveError
   return !!props.label
 })
-
-function optionLabel(row: ListRow) {
-  if (row.freeText) {
-    return t('onboard.action.use_custom_occupation', { query: row.name })
-  }
-  return row.name
-}
 </script>
 
 <template>
@@ -183,6 +116,7 @@ function optionLabel(row: ListRow) {
         ref="listboxEl"
         role="listbox"
         class="absolute z-20 inset-x-0 top-full mt-1 max-h-56 overflow-auto rounded-md border border-line bg-card py-1 shadow-1"
+        @scroll="onListboxScroll"
       >
         <li
           v-if="loading && listRows.length === 0"
@@ -193,14 +127,20 @@ function optionLabel(row: ListRow) {
         <li
           v-for="(row, index) in listRows"
           :id="`${id}-option-${index}`"
-          :key="`${row.key}:${row.freeText ? 'free' : 'cat'}`"
+          :key="row.key"
           role="option"
           :aria-selected="index === activeIndex"
           class="cursor-pointer px-3 py-2 text-sm text-ink"
           :class="index === activeIndex ? 'bg-surface-hover' : 'hover:bg-surface-hover'"
           @mousedown.prevent="selectSuggestion(row)"
         >
-          {{ optionLabel(row) }}
+          {{ row.name }}
+        </li>
+        <li
+          v-if="loadingMore"
+          class="px-3 py-2 text-sm text-ink-3"
+        >
+          {{ t('common.info.loading') }}
         </li>
       </ul>
     </div>

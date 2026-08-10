@@ -14,10 +14,12 @@ async function syncProfile(
   authUserId: string,
   options: { alwaysAwait: boolean },
 ) {
+  const missing = cachedId == null
   const stale = isProfileCacheStale(cachedId, authUserId)
-  const task = stale ? refreshProfile(true) : refreshProfile(false)
+  const task = stale || missing ? refreshProfile(true) : refreshProfile(false)
 
-  if (options.alwaysAwait || stale) await task
+  // Always wait when cache is empty/stale, or on routes that gate on onboarded.
+  if (options.alwaysAwait || stale || missing) await task
   else void task
 }
 
@@ -60,10 +62,15 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!import.meta.client) return
 
   const { profile, refreshProfile, unauthorized } = useUserProfile()
-  const isHomeRoute = barePath.startsWith('/social')
+  const needsOnboardingGate
+    = barePath.startsWith('/social')
+      || barePath.startsWith('/onboard')
+      || barePath.startsWith('/find')
+      || barePath.startsWith('/following')
+      || barePath.startsWith('/settings')
 
   await syncProfile(refreshProfile, profile.value?.id, auth.user.id, {
-    alwaysAwait: isHomeRoute,
+    alwaysAwait: needsOnboardingGate,
   })
 
   if (unauthorized.value) {

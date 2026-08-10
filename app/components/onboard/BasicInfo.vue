@@ -7,6 +7,7 @@ import OccupationAutocomplete from '../shared/OccupationAutocomplete.vue'
 import TitleSection from './shared/TitleSection.vue'
 import { sanitizePersonName } from '~/utils/onboardInput'
 import {
+  dateOfBirthFieldError,
   maxDateOfBirthInput,
   minDateOfBirthInput,
 } from '~/utils/dateOfBirth'
@@ -15,7 +16,7 @@ import { useCatalogApi } from '~/composables/api/useCatalogApi'
 
 const { t } = useI18n()
 const toast = useToast()
-const { onboardInfo, infoErrors, clearInfoError, flushDraft } = useOnboard()
+const { onboardInfo, infoErrors, clearInfoError, setInfoError, flushDraft } = useOnboard()
 const { uploadAvatar } = useAvatarUpload()
 const { fetchTags } = useCatalogApi()
 
@@ -56,10 +57,26 @@ function onLastNameInput(event: Event) {
 const dobMin = minDateOfBirthInput()
 const dobMax = maxDateOfBirthInput()
 
+function validateDateOfBirth(raw = onboardInfo.dateOfBirth) {
+  const message = dateOfBirthFieldError(raw, t)
+  if (message) {
+    setInfoError('dateOfBirth', message)
+    return false
+  }
+  clearInfoError('dateOfBirth')
+  return true
+}
+
 function onDateOfBirthInput(event: Event) {
   const el = event.target as HTMLInputElement
   onboardInfo.dateOfBirth = el.value
-  clearInfoError('dateOfBirth')
+  if (el.value.length >= 10) validateDateOfBirth(el.value)
+  else clearInfoError('dateOfBirth')
+}
+
+function onDateOfBirthBlur(event: Event) {
+  const el = event.target as HTMLInputElement
+  if (el.value) validateDateOfBirth(el.value)
 }
 
 function onLocationSearchError(message: string) {
@@ -195,6 +212,7 @@ async function onPickAvatar(event: Event) {
           :max="dobMax"
           autocomplete="bday"
           @input="onDateOfBirthInput"
+          @blur="onDateOfBirthBlur"
         />
         <LocationAutocomplete
           id="location"

@@ -378,7 +378,10 @@
       "goal_network_peers": "Đọc cùng các nhà đầu tư thiên thần, scout và đối tác VC khác.",
       "goal_market_insights": "Bám sát xu hướng và thay đổi hệ sinh thái ảnh hưởng đến quyết định đầu tư.",
       "profile_photo_help": "Ảnh chân dung rõ ràng giúp mọi người nhận ra bạn. JPG hoặc PNG, tối đa 5 MB.",
-      "occupation_help": "Hiển thị dưới tên bạn trên hồ sơ và bài đăng."
+      "occupation_help": "Hiển thị dưới tên bạn trên hồ sơ và bài đăng.",
+      "time_remaining_step_1": "~2 phút tổng cộng",
+      "time_remaining_step_2": "~1 phút còn lại",
+      "time_remaining_step_3": "~30 giây còn lại"
     },
     "action": {
       "finish": "Hoàn tất & vào Fundedr",
@@ -397,6 +400,7 @@
       "last_name_special": "Họ chỉ được chứa chữ cái (không có số hoặc ký tự đặc biệt)",
       "dob_required": "Bắt buộc nhập ngày sinh",
       "dob_invalid": "Ngày sinh không hợp lệ",
+      "dob_future": "Ngày sinh không thể ở tương lai",
       "dob_too_young": "Bạn phải trên 16 tuổi",
       "dob_too_old": "Ngày sinh ngoài phạm vi cho phép",
       "location_required": "Bắt buộc chọn địa điểm",

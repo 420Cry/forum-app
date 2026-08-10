@@ -36,7 +36,7 @@ async function submit() {
       return
     }
     clearProfile()
-    const me = await refreshProfile(false)
+    const me = await refreshProfile(true)
     const target = postAuthPath(me?.profile ?? null)
     await navigateTo(localePath(target), { replace: true })
   }

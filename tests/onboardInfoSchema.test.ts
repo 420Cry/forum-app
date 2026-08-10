@@ -78,6 +78,26 @@ describe('createOnboardInfoSchema', () => {
     })
 
     expect(tooYoung.success).toBe(false)
+    if (!tooYoung.success) {
+      expect(tooYoung.error.issues[0]?.message).toBe(
+        'onboard.error.dob_too_young',
+      )
+    }
+  })
+
+  it('rejects future date of birth with future message', () => {
+    const future = schema.safeParse({
+      firstName: 'Alex',
+      lastName: 'Morgan',
+      dateOfBirth: '2027-01-15',
+      location: 'austin-us',
+      occupation: 'founder',
+    })
+
+    expect(future.success).toBe(false)
+    if (!future.success) {
+      expect(future.error.issues[0]?.message).toBe('onboard.error.dob_future')
+    }
   })
 
   it('rejects out-of-range date of birth', () => {

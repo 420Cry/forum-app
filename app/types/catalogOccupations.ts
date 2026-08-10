@@ -5,4 +5,6 @@ export type CatalogOccupation = {
 
 export type CatalogOccupationsResponse = {
   occupations: CatalogOccupation[]
+  total: number
+  hasMore: boolean
 }

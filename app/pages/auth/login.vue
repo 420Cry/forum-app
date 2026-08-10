@@ -22,7 +22,7 @@ async function submit() {
     toast.showSuccess(t('auth.info.signed_in_toast'), 1500)
     resetOnboarding()
     clearProfile()
-    const me = await refreshProfile(false)
+    const me = await refreshProfile(true)
     const target = postAuthPath(me?.profile ?? null)
     await navigateTo(localePath(target), { replace: true })
   }

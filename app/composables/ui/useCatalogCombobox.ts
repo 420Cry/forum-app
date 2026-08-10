@@ -1,4 +1,5 @@
 import type { Ref } from 'vue'
+import type { CatalogSearchResult } from '~/types/catalogSearch'
 
 export type CatalogComboboxRow = { key: string, name: string }
 
@@ -7,11 +8,10 @@ type Options<T extends CatalogComboboxRow> = {
   model: Ref<string>
   displayName: Ref<string>
   disabled: Ref<boolean>
-  search: (query: string) => Promise<T[]>
+  search: (query: string, offset: number) => Promise<CatalogSearchResult<T>>
   searchErrorFallback: string
   emitChange: () => void
   emitSearchError: (message: string) => void
-  /** Defaults to `suggestions`. Occupation adds free-text rows. */
   listRows?: (ctx: {
     suggestions: Ref<T[]>
     query: Ref<string>
@@ -32,11 +32,14 @@ export function useCatalogCombobox<T extends CatalogComboboxRow>(
   const open = ref(false)
   const focused = ref(false)
   const loading = ref(false)
+  const loadingMore = ref(false)
+  const hasMore = ref(false)
   const suggestions = ref<T[]>([]) as Ref<T[]>
   const activeIndex = ref(-1)
   let debounceTimer: ReturnType<typeof setTimeout> | null = null
   let blurTimer: ReturnType<typeof setTimeout> | null = null
   let requestSeq = 0
+  let activeQuery = ''
 
   const listRows = options.listRows
     ? options.listRows({ suggestions, query })
@@ -60,9 +63,13 @@ export function useCatalogCombobox<T extends CatalogComboboxRow>(
     },
   )
 
-  watch(listRows, (rows) => {
-    activeIndex.value = rows.length > 0 ? 0 : -1
-    if (listboxEl.value) listboxEl.value.scrollTop = 0
+  watch(listRows, (rows, prev) => {
+    if (!prev || rows.length <= prev.length) {
+      activeIndex.value = rows.length > 0 ? 0 : -1
+    }
+    if (!loadingMore.value && rows.length > 0 && prev?.length === 0) {
+      if (listboxEl.value) listboxEl.value.scrollTop = 0
+    }
   })
 
   function clearBlurTimer() {
@@ -97,19 +104,29 @@ export function useCatalogCombobox<T extends CatalogComboboxRow>(
     }
   }
 
-  async function runSearch(raw: string) {
+  async function runSearch(raw: string, append = false) {
     const seq = ++requestSeq
-    loading.value = true
+    activeQuery = raw
+    if (append) loadingMore.value = true
+    else loading.value = true
+
     try {
-      const rows = await options.search(raw)
+      const offset = append ? suggestions.value.length : 0
+      const result = await options.search(raw, offset)
       if (seq !== requestSeq) return
-      suggestions.value = rows
+
+      suggestions.value = append
+        ? [...suggestions.value, ...result.rows]
+        : result.rows
+      hasMore.value = result.hasMore
       open.value = focused.value
     }
     catch (err: unknown) {
       if (seq !== requestSeq) return
-      suggestions.value = [] as T[]
-      activeIndex.value = -1
+      if (!append) {
+        suggestions.value = [] as T[]
+        activeIndex.value = -1
+      }
       const statusCode
         = err && typeof err === 'object' && 'statusCode' in err
           ? Number((err as { statusCode?: number }).statusCode)
@@ -123,7 +140,10 @@ export function useCatalogCombobox<T extends CatalogComboboxRow>(
       )
     }
     finally {
-      if (seq === requestSeq) loading.value = false
+      if (seq === requestSeq) {
+        loading.value = false
+        loadingMore.value = false
+      }
     }
   }
 
@@ -148,6 +168,7 @@ export function useCatalogCombobox<T extends CatalogComboboxRow>(
     query.value = row.name
     closeDropdown()
     suggestions.value = [] as T[]
+    hasMore.value = false
     options.emitChange()
   }
 
@@ -182,6 +203,13 @@ export function useCatalogCombobox<T extends CatalogComboboxRow>(
       const handled = options.onBlurCommit?.() === true
       if (!handled) syncQueryFromSelection()
     }, 120)
+  }
+
+  function onListboxScroll(event: Event) {
+    const el = event.target as HTMLElement
+    if (loading.value || loadingMore.value || !hasMore.value) return
+    if (el.scrollTop + el.clientHeight < el.scrollHeight - 24) return
+    void runSearch(activeQuery, true)
   }
 
   function onDocumentScroll(event: Event) {
@@ -239,12 +267,14 @@ export function useCatalogCombobox<T extends CatalogComboboxRow>(
     query,
     open,
     loading,
+    loadingMore,
     listRows,
     activeIndex,
     onInput,
     onFocus,
     onBlur,
     onKeydown,
+    onListboxScroll,
     selectSuggestion,
     syncQueryFromSelection,
     t,

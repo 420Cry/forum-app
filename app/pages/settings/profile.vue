@@ -11,6 +11,7 @@ import { useUserProfile } from '~/composables/user/useUserProfile'
 import { createOnboardInfoSchema } from '~/types/onboard/schema/onboardInfoSchema'
 import { sanitizePersonName } from '~/utils/onboardInput'
 import {
+  dateOfBirthFieldError,
   maxDateOfBirthInput,
   minDateOfBirthInput,
 } from '~/utils/dateOfBirth'
@@ -144,11 +145,28 @@ function onLastNameInput(event: Event) {
   clearError('lastName')
 }
 
+function validateDateOfBirth(raw = dateOfBirth.value) {
+  const message = dateOfBirthFieldError(raw, t)
+  if (message) {
+    errors.value = { ...(errors.value ?? {}), dateOfBirth: message }
+    return false
+  }
+  clearError('dateOfBirth')
+  return true
+}
+
 function onDateOfBirthInput(event: Event) {
   if (!editing.value) return
   const el = event.target as HTMLInputElement
   dateOfBirth.value = el.value
-  clearError('dateOfBirth')
+  if (el.value.length >= 10) validateDateOfBirth(el.value)
+  else clearError('dateOfBirth')
+}
+
+function onDateOfBirthBlur(event: Event) {
+  if (!editing.value) return
+  const el = event.target as HTMLInputElement
+  if (el.value) validateDateOfBirth(el.value)
 }
 
 function clearError(field: string) {
@@ -383,6 +401,7 @@ async function onSave() {
             :max="dobMax"
             autocomplete="bday"
             @input="onDateOfBirthInput"
+            @blur="onDateOfBirthBlur"
           />
           <div
             v-else

@@ -42,14 +42,14 @@ export function isValidAdultDateOfBirth(
   raw: string,
   asOf: Date = new Date(),
 ): boolean {
-  const age = ageFromDateOfBirth(raw, asOf)
-  if (age == null) return false
-  if (age < MIN_AGE || age > MAX_AGE) return false
-  // Reject future calendar dates.
-  const parts = parseParts(raw)!
+  const parts = parseParts(raw)
+  if (!parts) return false
   const dob = new Date(parts.y, parts.m - 1, parts.d)
   const today = new Date(asOf.getFullYear(), asOf.getMonth(), asOf.getDate())
-  return dob.getTime() <= today.getTime()
+  if (dob.getTime() > today.getTime()) return false
+  const age = ageFromDateOfBirth(raw, asOf)
+  if (age == null) return false
+  return age >= MIN_AGE && age <= MAX_AGE
 }
 
 /** Max selectable date for `<input type="date">` (17th birthday). */
@@ -61,8 +61,37 @@ export function maxDateOfBirthInput(asOf: Date = new Date()): string {
   return `${y}-${m}-${day}`
 }
 
-/** Min selectable date (~120 years). */
+/** Max selectable date (~120 years). */
 export function minDateOfBirthInput(asOf: Date = new Date()): string {
   const y = asOf.getFullYear() - MAX_AGE
   return `${y}-01-01`
+}
+
+type Translate = (key: string) => string
+
+/** Field-level DOB message for inline validation (onboard / settings). */
+export function dateOfBirthFieldError(
+  raw: string,
+  translate: Translate,
+  asOf: Date = new Date(),
+): string | null {
+  const value = raw.trim()
+  if (!value) return translate('onboard.error.dob_required')
+  if (!DATE_OF_BIRTH_RE.test(value)) return translate('onboard.error.dob_invalid')
+
+  const parts = parseParts(value)
+  if (!parts) return translate('onboard.error.dob_invalid')
+
+  const dob = new Date(parts.y, parts.m - 1, parts.d)
+  const today = new Date(asOf.getFullYear(), asOf.getMonth(), asOf.getDate())
+  if (dob.getTime() > today.getTime()) {
+    return translate('onboard.error.dob_future')
+  }
+
+  const age = ageFromDateOfBirth(value, asOf)
+  if (age == null) return translate('onboard.error.dob_invalid')
+  if (age < MIN_AGE) return translate('onboard.error.dob_too_young')
+  if (age > MAX_AGE) return translate('onboard.error.dob_too_old')
+
+  return null
 }
