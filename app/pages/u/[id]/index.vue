@@ -5,6 +5,7 @@ import FollowListSheet from '~/components/profile/FollowListSheet.vue'
 import { usePublicUserPage } from '~/composables/profile/usePublicUserPage'
 import { useProfileFollowSheet } from '~/composables/social/useProfileFollowSheet'
 import { locationCatalogLabel } from '~/utils/catalogLabel'
+import { adjustFollowCount } from '~/utils/followCount'
 
 definePageMeta({ layout: 'home', access: 'public' })
 
@@ -65,10 +66,12 @@ const sheetError = computed(() =>
 /** Follow / unfollow from sheets on your own profile changes your following count. */
 function onSheetFollowChange(payload: { following: boolean }) {
   if (!isOwnProfile.value || !profile.value) return
-  const delta = payload.following ? 1 : -1
   profile.value = {
     ...profile.value,
-    followingCount: Math.max(0, (profile.value.followingCount ?? 0) + delta),
+    followingCount: adjustFollowCount(
+      profile.value.followingCount,
+      payload.following,
+    ),
   }
 }
 </script>

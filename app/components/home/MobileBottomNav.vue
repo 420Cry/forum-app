@@ -2,16 +2,14 @@
 import type { navigationLinkType } from '~/types/navigationType'
 import { useNavigationLinks } from '~/composables/useNavLink'
 import BaseIcon from '~/components/shared/BaseIcon.vue'
+import { isNavPathActive } from '~/utils/navActive'
 
 const navigationLinks = useNavigationLinks()
 const { t } = useI18n()
 const route = useRoute()
 
-const isActive = (link: navigationLinkType) => {
-  const path = route.path.replace(/\/$/, '') || '/'
-  const target = link.link.replace(/\/$/, '') || '/'
-  return path === target || path.startsWith(`${target}/`)
-}
+const isActive = (link: navigationLinkType) =>
+  isNavPathActive(route.path, link.link)
 </script>
 
 <template>
@@ -20,7 +18,7 @@ const isActive = (link: navigationLinkType) => {
     :aria-label="t('nav.aria.mobile')"
     style="padding-bottom: env(safe-area-inset-bottom, 0px)"
   >
-    <ul class="mx-auto grid max-w-340 grid-cols-4 px-2 py-1.5 ">
+    <ul class="mx-auto grid max-w-340 grid-cols-4 px-2 py-1.5">
       <li
         v-for="link in navigationLinks"
         :key="link.id"

@@ -2,16 +2,14 @@
 import type { navigationLinkType } from '~/types/navigationType'
 import { useNavigationLinks } from '~/composables/useNavLink'
 import BaseIcon from '@/components/shared/BaseIcon.vue'
+import { isNavPathActive } from '~/utils/navActive'
 
 const navigationLinks = useNavigationLinks()
 const { t } = useI18n()
 const route = useRoute()
 
-const isActive = (link: navigationLinkType) => {
-  const path = route.path.replace(/\/$/, '') || '/'
-  const target = link.link.replace(/\/$/, '') || '/'
-  return path === target || path.startsWith(`${target}/`)
-}
+const isActive = (link: navigationLinkType) =>
+  isNavPathActive(route.path, link.link)
 </script>
 
 <template>

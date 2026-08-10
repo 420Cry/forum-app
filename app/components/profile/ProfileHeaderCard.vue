@@ -6,6 +6,7 @@ import type { PillVariant } from '~/utils/stagePill'
 import { getAvatarColor } from '~/utils/avatarColor'
 import { accountNamePrefix } from '~/utils/accountSummary'
 import { buttonClass } from '~/utils/buttonClass'
+import { adjustFollowCount } from '~/utils/followCount'
 
 export type ProfileStat = {
   key: string
@@ -69,7 +70,7 @@ watch(
 function onFollowChange(following: boolean) {
   const followers = localStats.value.find(s => s.key === 'followers')
   if (followers) {
-    followers.count = Math.max(0, followers.count + (following ? 1 : -1))
+    followers.count = adjustFollowCount(followers.count, following)
   }
   emit('follow-change', following)
 }
