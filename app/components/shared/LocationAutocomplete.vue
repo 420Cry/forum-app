@@ -1,59 +1,23 @@
 <script lang="ts" setup>
-import { cva, type VariantProps } from 'class-variance-authority'
 import type { CatalogLocation } from '~/types/catalogLocations'
 import { useLocationsApi } from '~/composables/api/useLocationsApi'
+import { useCatalogCombobox } from '~/composables/ui/useCatalogCombobox'
+import {
+  catalogAutocompleteInput,
+  type CatalogAutocompleteInputIntent,
+} from '~/utils/catalogAutocompleteInput'
 
 defineOptions({ inheritAttrs: false })
 
 const model = defineModel<string>({ required: true })
-/** Selected suggestion display text — must not share the `label` prop name. */
 const displayName = defineModel<string>('displayName', { default: '' })
-
-const input = cva(
-  [
-    'bg-card',
-    'border',
-    'rounded-md',
-    'py-2.5',
-    'px-3',
-    'text-ink',
-    'text-sm',
-    'w-full',
-    'outline-none',
-    'transition-colors',
-    'placeholder:text-ink-4',
-    'disabled:bg-surface-hover',
-    'disabled:text-ink-2',
-    'disabled:cursor-default',
-  ],
-  {
-    variants: {
-      intent: {
-        primary: [
-          'border-line',
-          'focus:border-brand',
-          'focus:ring-2',
-          'focus:ring-brand/20',
-        ],
-        error: [
-          'border-red-500',
-          'focus:border-red-500',
-          'focus:ring-2',
-          'focus:ring-red-500/20',
-        ],
-      },
-    },
-  },
-)
-
-type InputProp = VariantProps<typeof input>
 
 const props = withDefaults(
   defineProps<{
     id: string
     label?: string
     placeholder?: string
-    intent?: InputProp['intent']
+    intent?: CatalogAutocompleteInputIntent
     errorMsg?: string
     disabled?: boolean
     reserveError?: boolean
@@ -74,18 +38,31 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const { searchLocations } = useLocationsApi()
+const disabledRef = computed(() => props.disabled)
 
-const rootEl = ref<HTMLElement | null>(null)
-const listboxEl = ref<HTMLElement | null>(null)
-const query = ref('')
-const open = ref(false)
-const focused = ref(false)
-const loading = ref(false)
-const suggestions = ref<CatalogLocation[]>([])
-const activeIndex = ref(-1)
-let debounceTimer: ReturnType<typeof setTimeout> | null = null
-let blurTimer: ReturnType<typeof setTimeout> | null = null
-let requestSeq = 0
+const {
+  rootEl,
+  listboxEl,
+  query,
+  open,
+  loading,
+  listRows,
+  activeIndex,
+  onInput,
+  onFocus,
+  onBlur,
+  onKeydown,
+  selectSuggestion,
+} = useCatalogCombobox<CatalogLocation>({
+  id: props.id,
+  model,
+  displayName,
+  disabled: disabledRef,
+  search: searchLocations,
+  searchErrorFallback: t('onboard.error.location_search_failed'),
+  emitChange: () => emit('change'),
+  emitSearchError: message => emit('searchError', message),
+})
 
 const showError = computed(
   () => props.intent === 'error' && !!props.errorMsg,
@@ -94,191 +71,6 @@ const showErrorSlot = computed(() => {
   if (showError.value) return true
   if (props.reserveError !== undefined) return props.reserveError
   return !!props.label
-})
-
-watch(
-  () => displayName.value,
-  (next) => {
-    if (!open.value && next) query.value = next
-  },
-  { immediate: true },
-)
-
-watch(
-  () => model.value,
-  (key) => {
-    if (!key && !open.value) {
-      query.value = ''
-      displayName.value = ''
-    }
-  },
-)
-
-function clearBlurTimer() {
-  if (blurTimer) {
-    clearTimeout(blurTimer)
-    blurTimer = null
-  }
-}
-
-function closeDropdown() {
-  open.value = false
-  activeIndex.value = -1
-}
-
-async function scrollActiveOptionIntoView() {
-  if (activeIndex.value < 0) return
-  await nextTick()
-  const el = document.getElementById(`${props.id}-option-${activeIndex.value}`)
-  el?.scrollIntoView({ block: 'nearest' })
-}
-
-watch(activeIndex, () => {
-  void scrollActiveOptionIntoView()
-})
-
-watch(suggestions, () => {
-  if (listboxEl.value) listboxEl.value.scrollTop = 0
-})
-
-function clearDebounce() {
-  if (debounceTimer) {
-    clearTimeout(debounceTimer)
-    debounceTimer = null
-  }
-}
-
-async function runSearch(raw: string) {
-  const seq = ++requestSeq
-  loading.value = true
-  try {
-    const rows = await searchLocations(raw)
-    if (seq !== requestSeq) return
-    suggestions.value = rows
-    activeIndex.value = rows.length > 0 ? 0 : -1
-    open.value = focused.value
-  }
-  catch (err: unknown) {
-    if (seq !== requestSeq) return
-    suggestions.value = []
-    activeIndex.value = -1
-    const statusCode
-      = err && typeof err === 'object' && 'statusCode' in err
-        ? Number((err as { statusCode?: number }).statusCode)
-        : 0
-    const msg
-      = err && typeof err === 'object' && 'statusMessage' in err
-        ? String((err as { statusMessage?: string }).statusMessage)
-        : t('onboard.error.location_search_failed')
-    emit('searchError', statusCode === 503 ? msg : t('onboard.error.location_search_failed'))
-  }
-  finally {
-    if (seq === requestSeq) loading.value = false
-  }
-}
-
-function scheduleSearch(raw: string) {
-  clearDebounce()
-  // Short debounce so 1-letter typeahead feels immediate.
-  const delay = raw.trim().length <= 1 ? 80 : 120
-  debounceTimer = setTimeout(() => {
-    void runSearch(raw)
-  }, delay)
-}
-
-function onInput(event: Event) {
-  const el = event.target as HTMLInputElement
-  query.value = el.value
-  // Typing invalidates a previous selection until a suggestion is picked again.
-  if (model.value) {
-    model.value = ''
-    displayName.value = ''
-    emit('change')
-  }
-  scheduleSearch(el.value)
-}
-
-function selectSuggestion(row: CatalogLocation) {
-  model.value = row.key
-  displayName.value = row.name
-  query.value = row.name
-  open.value = false
-  suggestions.value = []
-  activeIndex.value = -1
-  emit('change')
-}
-
-function onFocus() {
-  if (props.disabled) return
-  focused.value = true
-  clearBlurTimer()
-  void runSearch(query.value)
-}
-
-function syncQueryFromSelection() {
-  if (model.value && displayName.value) {
-    query.value = displayName.value
-  }
-  else if (!model.value) {
-    query.value = ''
-  }
-}
-
-function onBlur() {
-  focused.value = false
-  clearDebounce()
-  clearBlurTimer()
-  // Allow mousedown on options to fire first.
-  blurTimer = setTimeout(() => {
-    closeDropdown()
-    syncQueryFromSelection()
-  }, 120)
-}
-
-function onDocumentScroll(event: Event) {
-  if (!open.value) return
-  const target = event.target
-  if (target instanceof Node && rootEl.value?.contains(target)) return
-  closeDropdown()
-  syncQueryFromSelection()
-}
-
-function onKeydown(event: KeyboardEvent) {
-  if (!open.value || suggestions.value.length === 0) {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault()
-      void runSearch(query.value)
-    }
-    return
-  }
-  if (event.key === 'ArrowDown') {
-    event.preventDefault()
-    activeIndex.value = (activeIndex.value + 1) % suggestions.value.length
-  }
-  else if (event.key === 'ArrowUp') {
-    event.preventDefault()
-    activeIndex.value
-      = (activeIndex.value - 1 + suggestions.value.length)
-        % suggestions.value.length
-  }
-  else if (event.key === 'Enter') {
-    event.preventDefault()
-    const row = suggestions.value[activeIndex.value]
-    if (row) selectSuggestion(row)
-  }
-  else if (event.key === 'Escape') {
-    open.value = false
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('scroll', onDocumentScroll, true)
-})
-
-onBeforeUnmount(() => {
-  clearDebounce()
-  clearBlurTimer()
-  document.removeEventListener('scroll', onDocumentScroll, true)
 })
 </script>
 
@@ -307,7 +99,7 @@ onBeforeUnmount(() => {
         "
         :placeholder="placeholder"
         :disabled="disabled"
-        :class="input({ intent })"
+        :class="catalogAutocompleteInput({ intent })"
         :aria-invalid="showError ? true : undefined"
         :aria-describedby="showError ? `${id}-error` : undefined"
         autocomplete="off"
@@ -317,20 +109,20 @@ onBeforeUnmount(() => {
         @keydown="onKeydown"
       >
       <ul
-        v-if="open && (suggestions.length > 0 || loading)"
+        v-if="open && (listRows.length > 0 || loading)"
         :id="`${id}-listbox`"
         ref="listboxEl"
         role="listbox"
         class="absolute z-20 inset-x-0  top-full mt-1 max-h-56 overflow-auto rounded-md border border-line bg-card py-1 shadow-1"
       >
         <li
-          v-if="loading && suggestions.length === 0"
+          v-if="loading && listRows.length === 0"
           class="px-3 py-2 text-sm text-ink-3"
         >
           {{ t('common.info.loading') }}
         </li>
         <li
-          v-for="(row, index) in suggestions"
+          v-for="(row, index) in listRows"
           :id="`${id}-option-${index}`"
           :key="row.key"
           role="option"

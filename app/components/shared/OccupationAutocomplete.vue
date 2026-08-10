@@ -1,7 +1,11 @@
 <script lang="ts" setup>
-import { cva, type VariantProps } from 'class-variance-authority'
 import type { CatalogOccupation } from '~/types/catalogOccupations'
 import { useOccupationsApi } from '~/composables/api/useOccupationsApi'
+import { useCatalogCombobox } from '~/composables/ui/useCatalogCombobox'
+import {
+  catalogAutocompleteInput,
+  type CatalogAutocompleteInputIntent,
+} from '~/utils/catalogAutocompleteInput'
 import { textToTagKey } from '~/utils/tagKey'
 
 defineOptions({ inheritAttrs: false })
@@ -9,54 +13,14 @@ defineOptions({ inheritAttrs: false })
 type ListRow = CatalogOccupation & { freeText?: boolean }
 
 const model = defineModel<string>({ required: true })
-/** Selected suggestion display text — must not share the `label` prop name. */
 const displayName = defineModel<string>('displayName', { default: '' })
-
-const input = cva(
-  [
-    'bg-card',
-    'border',
-    'rounded-md',
-    'py-2.5',
-    'px-3',
-    'text-ink',
-    'text-sm',
-    'w-full',
-    'outline-none',
-    'transition-colors',
-    'placeholder:text-ink-4',
-    'disabled:bg-surface-hover',
-    'disabled:text-ink-2',
-    'disabled:cursor-default',
-  ],
-  {
-    variants: {
-      intent: {
-        primary: [
-          'border-line',
-          'focus:border-brand',
-          'focus:ring-2',
-          'focus:ring-brand/20',
-        ],
-        error: [
-          'border-red-500',
-          'focus:border-red-500',
-          'focus:ring-2',
-          'focus:ring-red-500/20',
-        ],
-      },
-    },
-  },
-)
-
-type InputProp = VariantProps<typeof input>
 
 const props = withDefaults(
   defineProps<{
     id: string
     label?: string
     placeholder?: string
-    intent?: InputProp['intent']
+    intent?: CatalogAutocompleteInputIntent
     errorMsg?: string
     disabled?: boolean
     reserveError?: boolean
@@ -77,18 +41,90 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const { searchOccupations } = useOccupationsApi()
+const disabledRef = computed(() => props.disabled)
 
-const rootEl = ref<HTMLElement | null>(null)
-const listboxEl = ref<HTMLElement | null>(null)
-const query = ref('')
-const open = ref(false)
-const focused = ref(false)
-const loading = ref(false)
-const suggestions = ref<CatalogOccupation[]>([])
-const activeIndex = ref(-1)
-let debounceTimer: ReturnType<typeof setTimeout> | null = null
-let blurTimer: ReturnType<typeof setTimeout> | null = null
-let requestSeq = 0
+function buildListRows({
+  suggestions,
+  query,
+}: {
+  suggestions: Ref<CatalogOccupation[]>
+  query: Ref<string>
+}) {
+  return computed((): ListRow[] => {
+    const rows = [...suggestions.value]
+    const otherIdx = rows.findIndex(
+      r => r.key === 'occupation_other' || r.key.endsWith('_other'),
+    )
+    const others = otherIdx >= 0 ? rows.splice(otherIdx, 1) : []
+    const raw = query.value.trim()
+    if (raw.length >= 2) {
+      const key = textToTagKey(raw)
+      const exactLabel = suggestions.value.some(
+        o => o.name.toLowerCase() === raw.toLowerCase(),
+      )
+      const exactKey = suggestions.value.some(o => o.key === key)
+      if (!exactLabel && !exactKey) {
+        rows.push({ key, name: raw, freeText: true })
+      }
+    }
+    return [...rows, ...others]
+  })
+}
+
+const {
+  rootEl,
+  listboxEl,
+  query,
+  open,
+  loading,
+  listRows,
+  activeIndex,
+  onInput,
+  onFocus,
+  onBlur,
+  onKeydown,
+  selectSuggestion,
+} = useCatalogCombobox<ListRow>({
+  id: props.id,
+  model,
+  displayName,
+  disabled: disabledRef,
+  search: searchOccupations,
+  listRows: buildListRows,
+  searchErrorFallback: t('onboard.error.occupation_search_failed'),
+  emitChange: () => emit('change'),
+  emitSearchError: message => emit('searchError', message),
+  onBlurCommit: () => {
+    if (model.value && displayName.value) {
+      query.value = displayName.value
+      return true
+    }
+    if (!model.value && query.value.trim().length >= 2) {
+      return commitFreeTextIfNeeded()
+    }
+    return false
+  },
+  onEnterWhenClosed: () => {
+    commitFreeTextIfNeeded()
+  },
+})
+
+function commitFreeTextIfNeeded(): boolean {
+  const raw = query.value.trim()
+  if (raw.length < 2) return false
+  const key = textToTagKey(raw)
+  const row = listRows.value.find(
+    r => r.freeText && r.key === key,
+  ) ?? listRows.value.find(
+    r => !r.freeText && (r.key === key || r.name.toLowerCase() === raw.toLowerCase()),
+  )
+  if (row) {
+    selectSuggestion(row)
+    return true
+  }
+  selectSuggestion({ key, name: raw, freeText: true })
+  return true
+}
 
 const showError = computed(
   () => props.intent === 'error' && !!props.errorMsg,
@@ -99,247 +135,12 @@ const showErrorSlot = computed(() => {
   return !!props.label
 })
 
-const freeTextOption = computed((): ListRow | null => {
-  const raw = query.value.trim()
-  if (raw.length < 2) return null
-  const key = textToTagKey(raw)
-  const exactLabel = suggestions.value.some(
-    o => o.name.toLowerCase() === raw.toLowerCase(),
-  )
-  const exactKey = suggestions.value.some(o => o.key === key)
-  if (exactLabel || exactKey) return null
-  return { key, name: raw, freeText: true }
-})
-
-const listRows = computed((): ListRow[] => {
-  const rows = [...suggestions.value]
-  const otherIdx = rows.findIndex(
-    r => r.key === 'occupation_other' || r.key.endsWith('_other'),
-  )
-  const others
-    = otherIdx >= 0 ? rows.splice(otherIdx, 1) : []
-  if (freeTextOption.value) rows.push(freeTextOption.value)
-  return [...rows, ...others]
-})
-
-watch(
-  () => displayName.value,
-  (next) => {
-    if (!open.value && next) query.value = next
-  },
-  { immediate: true },
-)
-
-watch(
-  () => model.value,
-  (key) => {
-    if (!key && !open.value) {
-      query.value = ''
-      displayName.value = ''
-    }
-  },
-)
-
-watch(listRows, (rows) => {
-  activeIndex.value = rows.length > 0 ? 0 : -1
-  if (listboxEl.value) listboxEl.value.scrollTop = 0
-})
-
-function clearBlurTimer() {
-  if (blurTimer) {
-    clearTimeout(blurTimer)
-    blurTimer = null
-  }
-}
-
-function closeDropdown() {
-  open.value = false
-  activeIndex.value = -1
-}
-
-async function scrollActiveOptionIntoView() {
-  if (activeIndex.value < 0) return
-  await nextTick()
-  const el = document.getElementById(`${props.id}-option-${activeIndex.value}`)
-  el?.scrollIntoView({ block: 'nearest' })
-}
-
-watch(activeIndex, () => {
-  void scrollActiveOptionIntoView()
-})
-
-function clearDebounce() {
-  if (debounceTimer) {
-    clearTimeout(debounceTimer)
-    debounceTimer = null
-  }
-}
-
-async function runSearch(raw: string) {
-  const seq = ++requestSeq
-  loading.value = true
-  try {
-    const rows = await searchOccupations(raw)
-    if (seq !== requestSeq) return
-    suggestions.value = rows
-    open.value = focused.value
-  }
-  catch (err: unknown) {
-    if (seq !== requestSeq) return
-    suggestions.value = []
-    activeIndex.value = -1
-    const statusCode
-      = err && typeof err === 'object' && 'statusCode' in err
-        ? Number((err as { statusCode?: number }).statusCode)
-        : 0
-    const msg
-      = err && typeof err === 'object' && 'statusMessage' in err
-        ? String((err as { statusMessage?: string }).statusMessage)
-        : t('onboard.error.occupation_search_failed')
-    emit(
-      'searchError',
-      statusCode === 503 ? msg : t('onboard.error.occupation_search_failed'),
-    )
-  }
-  finally {
-    if (seq === requestSeq) loading.value = false
-  }
-}
-
-function scheduleSearch(raw: string) {
-  clearDebounce()
-  const delay = raw.trim().length <= 1 ? 80 : 120
-  debounceTimer = setTimeout(() => {
-    void runSearch(raw)
-  }, delay)
-}
-
-function selectSuggestion(row: ListRow) {
-  model.value = row.key
-  displayName.value = row.name
-  query.value = row.name
-  open.value = false
-  suggestions.value = []
-  activeIndex.value = -1
-  emit('change')
-}
-
-function commitFreeTextIfNeeded() {
-  const raw = query.value.trim()
-  if (raw.length < 2) return false
-  const key = textToTagKey(raw)
-  const known = suggestions.value.find(
-    o =>
-      o.key === key
-      || o.name.toLowerCase() === raw.toLowerCase(),
-  )
-  if (known) {
-    selectSuggestion(known)
-    return true
-  }
-  selectSuggestion({ key, name: raw, freeText: true })
-  return true
-}
-
-function onInput(event: Event) {
-  const el = event.target as HTMLInputElement
-  query.value = el.value
-  if (model.value) {
-    model.value = ''
-    displayName.value = ''
-    emit('change')
-  }
-  scheduleSearch(el.value)
-}
-
-function onFocus() {
-  if (props.disabled) return
-  focused.value = true
-  clearBlurTimer()
-  void runSearch(query.value)
-}
-
-function syncQueryFromSelection() {
-  if (model.value && displayName.value) {
-    query.value = displayName.value
-    return
-  }
-  if (!model.value) query.value = ''
-}
-
-function onBlur() {
-  focused.value = false
-  clearDebounce()
-  clearBlurTimer()
-  blurTimer = setTimeout(() => {
-    closeDropdown()
-    if (model.value && displayName.value) {
-      query.value = displayName.value
-      return
-    }
-    if (!model.value && query.value.trim().length >= 2) {
-      commitFreeTextIfNeeded()
-      return
-    }
-    syncQueryFromSelection()
-  }, 120)
-}
-
-function onDocumentScroll(event: Event) {
-  if (!open.value) return
-  const target = event.target
-  if (target instanceof Node && rootEl.value?.contains(target)) return
-  closeDropdown()
-  syncQueryFromSelection()
-}
-
-function onKeydown(event: KeyboardEvent) {
-  if (!open.value || listRows.value.length === 0) {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault()
-      void runSearch(query.value)
-    }
-    else if (event.key === 'Enter') {
-      event.preventDefault()
-      commitFreeTextIfNeeded()
-    }
-    return
-  }
-  if (event.key === 'ArrowDown') {
-    event.preventDefault()
-    activeIndex.value = (activeIndex.value + 1) % listRows.value.length
-  }
-  else if (event.key === 'ArrowUp') {
-    event.preventDefault()
-    activeIndex.value
-      = (activeIndex.value - 1 + listRows.value.length) % listRows.value.length
-  }
-  else if (event.key === 'Enter') {
-    event.preventDefault()
-    const row = listRows.value[activeIndex.value]
-    if (row) selectSuggestion(row)
-  }
-  else if (event.key === 'Escape') {
-    open.value = false
-  }
-}
-
 function optionLabel(row: ListRow) {
   if (row.freeText) {
     return t('onboard.action.use_custom_occupation', { query: row.name })
   }
   return row.name
 }
-
-onMounted(() => {
-  document.addEventListener('scroll', onDocumentScroll, true)
-})
-
-onBeforeUnmount(() => {
-  clearDebounce()
-  clearBlurTimer()
-  document.removeEventListener('scroll', onDocumentScroll, true)
-})
 </script>
 
 <template>
@@ -367,7 +168,7 @@ onBeforeUnmount(() => {
         "
         :placeholder="placeholder"
         :disabled="disabled"
-        :class="input({ intent })"
+        :class="catalogAutocompleteInput({ intent })"
         :aria-invalid="showError ? true : undefined"
         :aria-describedby="showError ? `${id}-error` : undefined"
         autocomplete="off"
