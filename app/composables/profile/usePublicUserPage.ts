@@ -93,6 +93,13 @@ export function usePublicUserPage(routeKey: MaybeRefOrGetter<string>) {
     void load()
   })
 
+  watch(
+    () => toValue(routeKey),
+    (next, prev) => {
+      if (next && next !== prev) void load()
+    },
+  )
+
   watch(locale, () => {
     void ensureLoaded()
   })

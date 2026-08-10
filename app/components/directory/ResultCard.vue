@@ -5,6 +5,7 @@ import type { AccountType } from '~/types/profile'
 import type { PillVariant } from '~/utils/stagePill'
 import { getAvatarColor } from '~/utils/avatarColor'
 import { accountNamePrefix } from '~/utils/accountSummary'
+import { buttonClass } from '~/utils/buttonClass'
 
 const props = withDefaults(
   defineProps<{
@@ -59,8 +60,9 @@ function onFollowChange(following: boolean) {
 }
 
 /** Match BaseButton sm + secondary so Follow / View profile share one footprint. */
-const viewProfileClass
-  = 'inline-flex items-center justify-center gap-1.5 font-semibold rounded-pill transition-colors cursor-pointer select-none whitespace-nowrap text-center border border-line text-ink-2 bg-card hover:bg-surface-hover hover:border-line-2 px-3 py-1.5 text-[12.5px] leading-none min-h-8 w-full no-underline'
+const viewProfileClass = computed(() =>
+  `${buttonClass({ intent: 'secondary', size: 'sm', block: true })} no-underline`,
+)
 
 const profileTo = computed(() => localePath(props.href))
 </script>

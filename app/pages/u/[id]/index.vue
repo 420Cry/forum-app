@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import ProfileAboutCard from '~/components/profile/ProfileAboutCard.vue'
 import ProfileHeaderCard from '~/components/profile/ProfileHeaderCard.vue'
+import FollowListSheet from '~/components/profile/FollowListSheet.vue'
 import { usePublicUserPage } from '~/composables/profile/usePublicUserPage'
+import { useProfileFollowSheet } from '~/composables/social/useProfileFollowSheet'
 import { locationCatalogLabel } from '~/utils/catalogLabel'
 
 definePageMeta({ layout: 'home', access: 'public' })
@@ -11,6 +13,8 @@ const route = useRoute()
 const routeKey = computed(() => String(route.params.id ?? ''))
 const { profile, error, loading, isOwnProfile, facts, occupationTagline }
   = usePublicUserPage(routeKey)
+
+const { sheetOpen, sheetMode, onStatClick } = useProfileFollowSheet()
 
 const headerMeta = computed(() => {
   const p = profile.value
@@ -24,22 +28,49 @@ const headerMeta = computed(() => {
 const headerStats = computed(() => {
   const p = profile.value
   if (!p) return []
-  const key = p.urlKey || routeKey.value
   return [
     {
       key: 'followers',
       count: p.followersCount ?? 0,
       label: t('profiles.stat.followers'),
-      to: `/u/${key}/followers`,
+      interactive: true,
     },
     {
       key: 'following',
       count: p.followingCount ?? 0,
       label: t('profiles.stat.following'),
-      to: `/u/${key}/following`,
+      interactive: true,
     },
   ]
 })
+
+const sheetTitle = computed(() =>
+  sheetMode.value === 'followers'
+    ? t('profiles.heading.followers')
+    : t('profiles.heading.following'),
+)
+
+const sheetEmpty = computed(() =>
+  sheetMode.value === 'followers'
+    ? t('profiles.info.followers_empty')
+    : t('profiles.info.following_empty'),
+)
+
+const sheetError = computed(() =>
+  sheetMode.value === 'followers'
+    ? t('profiles.info.followers_error')
+    : t('profiles.info.following_error'),
+)
+
+/** Follow / unfollow from sheets on your own profile changes your following count. */
+function onSheetFollowChange(payload: { following: boolean }) {
+  if (!isOwnProfile.value || !profile.value) return
+  const delta = payload.following ? 1 : -1
+  profile.value = {
+    ...profile.value,
+    followingCount: Math.max(0, (profile.value.followingCount ?? 0) + delta),
+  }
+}
 </script>
 
 <template>
@@ -68,10 +99,22 @@ const headerStats = computed(() => {
         :pill-variant="profile.role === 'Investor' ? 'investor' : undefined"
         :pill-label="profile.role ?? undefined"
         :avatar-url="profile.avatarUrl"
+        @stat-click="onStatClick"
       />
       <ProfileAboutCard
         :about="null"
         :facts="facts"
+      />
+      <FollowListSheet
+        v-model:open="sheetOpen"
+        :title="sheetTitle"
+        :mode="sheetMode"
+        target-type="user"
+        :target-id="profile.id"
+        :user-id="profile.id"
+        :empty-message="sheetEmpty"
+        :error-message="sheetError"
+        @follow-change="onSheetFollowChange"
       />
     </template>
   </div>

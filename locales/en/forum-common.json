@@ -430,6 +430,10 @@
     "find": "Find",
     "following": "Following",
     "settings": "Settings",
+    "aria": {
+      "main": "Main",
+      "mobile": "Mobile"
+    },
     "stat": {
       "profile_views": "Profile views",
       "connections": "Connections"

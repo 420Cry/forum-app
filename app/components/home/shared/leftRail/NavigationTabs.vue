@@ -17,6 +17,7 @@ const isActive = (link: navigationLinkType) => {
 <template>
   <nav
     class="w-full bg-card border border-line rounded-lg shadow-1 p-1.5 flex flex-col"
+    :aria-label="t('nav.aria.main')"
   >
     <NuxtLink
       v-for="link in navigationLinks"

@@ -430,6 +430,10 @@
     "find": "Tìm kiếm",
     "following": "Đang theo dõi",
     "settings": "Cài đặt",
+    "aria": {
+      "main": "Chính",
+      "mobile": "Di động"
+    },
     "stat": {
       "profile_views": "Lượt xem hồ sơ",
       "connections": "Kết nối"

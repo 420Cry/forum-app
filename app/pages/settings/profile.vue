@@ -8,6 +8,7 @@ import { useCatalogApi } from '~/composables/api/useCatalogApi'
 import { useOnboardApi } from '~/composables/api/onboard/useOnboardApi'
 import { useAvatarUpload } from '~/composables/media/useAvatarUpload'
 import { useUserProfile } from '~/composables/user/useUserProfile'
+import { useAccount } from '~/composables/accounts/useAccount'
 import { createOnboardInfoSchema } from '~/types/onboard/schema/onboardInfoSchema'
 import { sanitizePersonName } from '~/utils/onboardInput'
 import {
@@ -28,6 +29,7 @@ definePageMeta({ layout: 'home', access: 'protected' })
 const { t, te, locale } = useI18n()
 const toast = useToast()
 const { profile, refreshProfile } = useUserProfile()
+const { refreshAccounts } = useAccount()
 const { updateProfile } = useOnboardApi()
 const { uploadAvatar } = useAvatarUpload()
 const { fetchTags, clearCatalogCache } = useCatalogApi()
@@ -194,7 +196,7 @@ async function onPickAvatar(event: Event) {
     await updateProfile({ avatarUrl: url })
     avatarUrl.value = url
     avatarFailed.value = false
-    await refreshProfile(true)
+    await Promise.all([refreshProfile(true), refreshAccounts()])
     toast.showSuccess(t('settings.info.avatar_saved'), 2000)
   }
   catch (err: unknown) {
@@ -246,7 +248,7 @@ async function onSave() {
       locationLabels.value.set(data.location, locationName.value)
     }
     clearCatalogCache()
-    await refreshProfile(true)
+    await Promise.all([refreshProfile(true), refreshAccounts()])
     hydrate()
     editing.value = false
     toast.showSuccess(t('settings.info.profile_saved'), 2000)

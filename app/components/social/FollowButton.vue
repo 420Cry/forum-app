@@ -82,7 +82,7 @@ watch(
   </BaseButton>
   <BaseButton
     v-else-if="!isSelf"
-    :intent="following ? 'secondary' : 'primary-outline'"
+    :intent="following ? 'soft' : 'primary-outline'"
     size="sm"
     :block="block"
     :disabled="busy || !ready"

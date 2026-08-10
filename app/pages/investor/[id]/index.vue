@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import ProfileHeaderCard from '~/components/profile/ProfileHeaderCard.vue'
 import ProfileAboutCard from '~/components/profile/ProfileAboutCard.vue'
+import FollowListSheet from '~/components/profile/FollowListSheet.vue'
 import { useProfilesApi } from '~/composables/api/useProfilesApi'
+import { useProfileFollowSheet } from '~/composables/social/useProfileFollowSheet'
 import type { InvestorProfile } from '~/types/profile'
 
 definePageMeta({ layout: 'home', access: 'public' })
@@ -15,6 +17,10 @@ const id = computed(() => String(route.params.id ?? ''))
 const profile = ref<InvestorProfile | null>(null)
 const error = ref(false)
 const loading = ref(true)
+
+const { sheetOpen, sheetMode, onStatClick } = useProfileFollowSheet({
+  allowedModes: ['followers'],
+})
 
 onMounted(async () => {
   try {
@@ -40,7 +46,7 @@ const headerStats = computed(() => {
       key: 'followers',
       count: p.followersCount ?? p.connections ?? 0,
       label: t('profiles.stat.followers'),
-      to: `/investor/${p.id}/followers`,
+      interactive: true,
     },
     {
       key: 'views',
@@ -113,10 +119,20 @@ const facts = computed(() => {
         pill-variant="investor"
         :pill-label="t('find.type.investor')"
         :avatar-url="avatar"
+        @stat-click="onStatClick"
       />
       <ProfileAboutCard
         :about="profile.description"
         :facts="facts"
+      />
+      <FollowListSheet
+        v-model:open="sheetOpen"
+        :title="t('profiles.heading.followers')"
+        :mode="sheetMode"
+        target-type="investor"
+        :target-id="profile.id"
+        :empty-message="t('profiles.info.followers_empty')"
+        :error-message="t('profiles.info.followers_error')"
       />
     </template>
   </div>
