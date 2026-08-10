@@ -83,6 +83,7 @@ jobs:
           repository: 420Cry/forum-api
           ref: main
           path: forum-api
+          token: ${{ secrets.FORUM_CI_PAT }}
 
       - name: Checkout forum-test-automation
         uses: actions/checkout@v4
@@ -90,6 +91,7 @@ jobs:
           repository: 420Cry/forum-test-automation
           ref: main
           path: forum-test-automation
+          token: ${{ secrets.FORUM_CI_PAT }}
 
       - name: Checkout forum-server
         uses: actions/checkout@v4
@@ -97,6 +99,7 @@ jobs:
           repository: 420Cry/forum-server
           ref: main
           path: forum-server
+          token: ${{ secrets.FORUM_CI_PAT }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -133,8 +136,9 @@ jobs:
 
       - name: E2E summary
         if: always()
-        run: node scripts/report-e2e-summary.mjs >> "$GITHUB_STEP_SUMMARY"
-        working-directory: forum-test-automation
+        run: |
+          RESULTS="forum-test-automation/playwright-report/results.json"
+          node forum-app/.github/scripts/report-e2e-summary.mjs "$RESULTS" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload Playwright report
         if: always()

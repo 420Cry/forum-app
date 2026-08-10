@@ -92,7 +92,9 @@ mkdir -p "${E2E_DIR}/playwright/.auth"
   bun run playwright:test
 )
 
-if [[ -f "${E2E_DIR}/scripts/report-e2e-summary.mjs" ]]; then
-  node "${E2E_DIR}/scripts/report-e2e-summary.mjs" \
+SUMMARY_SCRIPT="${ROOT}/forum-app/.github/scripts/report-e2e-summary.mjs"
+RESULTS_JSON="${E2E_DIR}/playwright-report/results.json"
+if [[ -f "${SUMMARY_SCRIPT}" ]]; then
+  node "${SUMMARY_SCRIPT}" "${RESULTS_JSON}" \
     >> "${GITHUB_STEP_SUMMARY:-/dev/stdout}" 2>/dev/null || true
 fi

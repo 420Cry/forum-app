@@ -37,6 +37,8 @@ Workflow: `.github/workflows/ci.yml` on every push/PR to `main`.
 
 E2e checks out **forum-app at the PR branch** plus `forum-api`, `forum-test-automation`, and `forum-server` at `main`. Stack boot lives in `.github/scripts/ci-e2e.sh`.
 
+Sibling checkouts need repo (or org) secret **`FORUM_CI_PAT`**: a classic or fine-grained PAT with `contents: read` on `420Cry/forum-api`, `420Cry/forum-test-automation`, and `420Cry/forum-server`. The default `GITHUB_TOKEN` cannot read private sibling repos (GitHub reports them as “not found”).
+
 ## Hard constraints
 
 - **Never commit** `.env`, `.env.local`, or any file containing Supabase keys/tokens.
