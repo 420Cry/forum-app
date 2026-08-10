@@ -20,6 +20,26 @@ const headerMeta = computed(() => {
     : null
   return [p.role, location].filter(Boolean) as string[]
 })
+
+const headerStats = computed(() => {
+  const p = profile.value
+  if (!p) return []
+  const key = p.urlKey || routeKey.value
+  return [
+    {
+      key: 'followers',
+      count: p.followersCount ?? 0,
+      label: t('profiles.stat.followers'),
+      to: `/u/${key}/followers`,
+    },
+    {
+      key: 'following',
+      count: p.followingCount ?? 0,
+      label: t('profiles.stat.following'),
+      to: `/u/${key}/following`,
+    },
+  ]
+})
 </script>
 
 <template>
@@ -44,6 +64,7 @@ const headerMeta = computed(() => {
         :is-own="isOwnProfile"
         :tagline="occupationTagline"
         :meta="headerMeta"
+        :stats="headerStats"
         :pill-variant="profile.role === 'Investor' ? 'investor' : undefined"
         :pill-label="profile.role ?? undefined"
         :avatar-url="profile.avatarUrl"

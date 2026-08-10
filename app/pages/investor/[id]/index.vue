@@ -32,6 +32,24 @@ const avatar = computed(
   () => profile.value?.avatarUrl || profile.value?.logoUrl || null,
 )
 
+const headerStats = computed(() => {
+  const p = profile.value
+  if (!p) return []
+  return [
+    {
+      key: 'followers',
+      count: p.followersCount ?? p.connections ?? 0,
+      label: t('profiles.stat.followers'),
+      to: `/investor/${p.id}/followers`,
+    },
+    {
+      key: 'views',
+      count: p.views ?? 0,
+      label: t('profiles.stat.views'),
+    },
+  ]
+})
+
 function formatCheck(min: number | null, max: number | null) {
   if (min == null && max == null) return null
   const fmt = (n: number) =>
@@ -91,12 +109,7 @@ const facts = computed(() => {
         :owner-user-id="profile.userId"
         :tagline="profile.description"
         :meta="[profile.industry]"
-        :followers-label="
-          t('profiles.info.stats', {
-            views: profile.views,
-            connections: profile.connections,
-          })
-        "
+        :stats="headerStats"
         pill-variant="investor"
         :pill-label="t('find.type.investor')"
         :avatar-url="avatar"

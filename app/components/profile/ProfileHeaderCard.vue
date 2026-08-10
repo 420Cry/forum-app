@@ -6,6 +6,13 @@ import type { PillVariant } from '~/utils/stagePill'
 import { getAvatarColor } from '~/utils/avatarColor'
 import { accountNamePrefix } from '~/utils/accountSummary'
 
+export type ProfileStat = {
+  key: string
+  count: number
+  label: string
+  to?: string
+}
+
 const props = withDefaults(
   defineProps<{
     name: string
@@ -17,7 +24,7 @@ const props = withDefaults(
     isOwn?: boolean
     tagline?: string | null
     meta?: string[]
-    followersLabel?: string | null
+    stats?: ProfileStat[]
     pillVariant?: PillVariant
     pillLabel?: string
     avatarUrl?: string | null
@@ -27,12 +34,16 @@ const props = withDefaults(
     isOwn: false,
     tagline: null,
     meta: () => [],
-    followersLabel: null,
+    stats: () => [],
     pillVariant: undefined,
     pillLabel: undefined,
     avatarUrl: null,
   },
 )
+
+const emit = defineEmits<{
+  'follow-change': [following: boolean]
+}>()
 
 const localePath = useLocalePath()
 const { t } = useI18n()
@@ -43,8 +54,29 @@ const metaParts = computed(() =>
   props.meta.filter((part): part is string => Boolean(part && part.trim())),
 )
 
+const localStats = ref<ProfileStat[]>([])
+watch(
+  () => props.stats,
+  (next) => {
+    localStats.value = next.map(stat => ({ ...stat }))
+  },
+  { immediate: true, deep: true },
+)
+
+function onFollowChange(following: boolean) {
+  const followers = localStats.value.find(s => s.key === 'followers')
+  if (followers) {
+    followers.count = Math.max(0, followers.count + (following ? 1 : -1))
+  }
+  emit('follow-change', following)
+}
+
 const editProfileClass
   = 'inline-flex items-center justify-center gap-1.5 font-semibold rounded-pill transition-colors cursor-pointer select-none whitespace-nowrap text-center border border-brand text-brand bg-transparent hover:bg-brand-tint px-3 py-1.5 text-[12.5px] leading-none min-h-8 no-underline'
+
+const statLinkClass
+  = 'inline-flex items-baseline gap-1.5 no-underline text-ink hover:opacity-80 transition-opacity'
+const statPlainClass = 'inline-flex items-baseline gap-1.5 text-ink'
 </script>
 
 <template>
@@ -108,12 +140,25 @@ const editProfileClass
               <span>{{ part }}</span>
             </template>
           </div>
-          <p
-            v-if="followersLabel"
-            class="text-[13px] text-brand font-semibold mt-2.5"
+          <div
+            v-if="localStats.length"
+            class="flex items-center gap-5 flex-wrap mt-3"
           >
-            {{ followersLabel }}
-          </p>
+            <component
+              :is="stat.to ? 'NuxtLink' : 'span'"
+              v-for="stat in localStats"
+              :key="stat.key"
+              v-bind="stat.to ? { to: localePath(stat.to) } : {}"
+              :class="stat.to ? statLinkClass : statPlainClass"
+            >
+              <span class="text-[15px] font-semibold tabular-nums">
+                {{ stat.count }}
+              </span>
+              <span class="text-[13px] text-ink-4 font-medium">
+                {{ stat.label }}
+              </span>
+            </component>
+          </div>
         </div>
         <div class="flex gap-2 items-center">
           <NuxtLink
@@ -128,6 +173,7 @@ const editProfileClass
             :target-type="targetType"
             :target-id="targetId"
             :owner-user-id="ownerUserId"
+            @change="onFollowChange"
           />
         </div>
       </div>

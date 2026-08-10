@@ -260,7 +260,9 @@
       "startup_create": "Tạo trang startup",
       "investor_edit": "Trang nhà đầu tư",
       "investor_create": "Tạo trang nhà đầu tư",
-      "about": "Giới thiệu"
+      "about": "Giới thiệu",
+      "followers": "Người theo dõi",
+      "following": "Đang theo dõi"
     },
     "info": {
       "startup_edit": "Chia sẻ công ty với founder và nhà đầu tư.",
@@ -269,7 +271,18 @@
       "investor_saved": "Đã lưu trang nhà đầu tư.",
       "unnamed": "Chưa có tên",
       "stats": "{views} lượt xem · {connections} kết nối",
-      "no_about": "Chưa có phần giới thiệu."
+      "no_about": "Chưa có phần giới thiệu.",
+      "followers_subtitle": "Những người theo dõi hồ sơ này.",
+      "following_subtitle": "Các tài khoản người này đang theo dõi.",
+      "followers_empty": "Chưa có người theo dõi.",
+      "following_empty": "Chưa theo dõi ai.",
+      "followers_error": "Không tải được danh sách người theo dõi.",
+      "following_error": "Không tải được danh sách đang theo dõi."
+    },
+    "stat": {
+      "followers": "người theo dõi",
+      "following": "đang theo dõi",
+      "views": "lượt xem"
     },
     "label": {
       "company_name": "Tên công ty",

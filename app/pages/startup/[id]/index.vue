@@ -33,6 +33,24 @@ const avatar = computed(
   () => profile.value?.avatarUrl || profile.value?.logoUrl || null,
 )
 
+const headerStats = computed(() => {
+  const p = profile.value
+  if (!p) return []
+  return [
+    {
+      key: 'followers',
+      count: p.followersCount ?? p.connections ?? 0,
+      label: t('profiles.stat.followers'),
+      to: `/startup/${p.id}/followers`,
+    },
+    {
+      key: 'views',
+      count: p.views ?? 0,
+      label: t('profiles.stat.views'),
+    },
+  ]
+})
+
 const facts = computed(() => {
   const p = profile.value
   if (!p) return []
@@ -85,12 +103,7 @@ const facts = computed(() => {
         :owner-user-id="profile.userId"
         :tagline="profile.description"
         :meta="[profile.industry]"
-        :followers-label="
-          t('profiles.info.stats', {
-            views: profile.views,
-            connections: profile.connections,
-          })
-        "
+        :stats="headerStats"
         :pill-variant="stageToPillVariant(profile.stage)"
         :pill-label="t(`profiles.stage.${profile.stage}`)"
         :avatar-url="avatar"

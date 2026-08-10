@@ -36,6 +36,7 @@ export type StartupProfile = {
   foundedAt: string
   views: number
   connections: number
+  followersCount?: number
   href: string
 }
 
@@ -53,6 +54,7 @@ export type InvestorProfile = {
   maxInvestmentUsd: number | null
   views: number
   connections: number
+  followersCount?: number
   href: string
 }
 
@@ -71,6 +73,8 @@ export type PublicUserProfile = {
   avatarUrl: string | null
   /** Goal tag keys — translate via onboard.heading.goal_*. */
   goals: string[]
+  followersCount?: number
+  followingCount?: number
 }
 
 export type FindResults = {

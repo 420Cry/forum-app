@@ -3,9 +3,14 @@ import { stripLocalePrefix } from '~/utils/localePath'
 
 export const AUTH_REDIRECT_QUERY = 'redirect'
 
-function firstQueryValue(
-  raw: string | string[] | null | undefined,
-): string | null {
+/** Vue Router query values may be `null` or an array of `string | null`. */
+type AuthRedirectQuery
+  = | string
+    | null
+    | undefined
+    | ReadonlyArray<string | null | undefined>
+
+function firstQueryValue(raw: AuthRedirectQuery): string | null {
   if (raw == null) return null
   const value = Array.isArray(raw) ? raw[0] : raw
   if (typeof value !== 'string') return null
@@ -17,9 +22,7 @@ function firstQueryValue(
  * Accept only same-origin app paths (logical, locale-stripped).
  * Blocks open redirects and auth-form loops.
  */
-export function sanitizeAuthRedirect(
-  raw: string | string[] | null | undefined,
-): string | null {
+export function sanitizeAuthRedirect(raw: AuthRedirectQuery): string | null {
   const value = firstQueryValue(raw)
   if (!value) return null
 
@@ -45,7 +48,7 @@ export function sanitizeAuthRedirect(
 /** Prefer a safe return path for onboarded users; otherwise onboarding. */
 export function resolvePostAuthPath(
   profile: UserProfile | null | undefined,
-  redirectRaw?: string | string[] | null,
+  redirectRaw?: AuthRedirectQuery,
 ): string {
   if (!isOnboardingComplete(profile)) return '/onboard'
   return sanitizeAuthRedirect(redirectRaw) ?? '/social'

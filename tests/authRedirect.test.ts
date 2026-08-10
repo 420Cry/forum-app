@@ -41,6 +41,12 @@ describe('sanitizeAuthRedirect', () => {
     expect(sanitizeAuthRedirect('/en/auth/register')).toBeNull()
     expect(sanitizeAuthRedirect('../etc/passwd')).toBeNull()
   })
+
+  it('tolerates Vue Router null / array query shapes', () => {
+    expect(sanitizeAuthRedirect(null)).toBeNull()
+    expect(sanitizeAuthRedirect([null, '/u/alex'])).toBeNull()
+    expect(sanitizeAuthRedirect(['/u/alex', '/u/other'])).toBe('/u/alex')
+  })
 })
 
 describe('resolvePostAuthPath', () => {
