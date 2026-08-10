@@ -36,7 +36,7 @@ async function submit() {
       return
     }
     clearProfile()
-    const me = await refreshProfile(false)
+    const me = await refreshProfile(true)
     const target = postAuthPath(me?.profile ?? null)
     await navigateTo(localePath(target), { replace: true })
   }
@@ -58,6 +58,7 @@ async function submit() {
     >
       <form
         class="space-y-4"
+        onsubmit="return false"
         @submit.prevent="submit"
       >
         <div>

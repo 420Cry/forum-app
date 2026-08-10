@@ -13,7 +13,11 @@ const incompleteProfile: UserProfile = {
   name: null,
   occupation: null,
   age: null,
+  dateOfBirth: null,
   location: null,
+  avatarUrl: null,
+  urlKey: null,
+  profilePath: null,
   goals: [],
 }
 
@@ -24,7 +28,11 @@ const completeProfile: UserProfile = {
   name: 'Alex Morgan',
   occupation: 'Angel',
   age: 30,
+  dateOfBirth: '1996-01-15',
   location: 'Austin',
+  avatarUrl: null,
+  urlKey: 'alex-morgan',
+  profilePath: '/u/alex-morgan',
   goals: ['discover_startups'],
 }
 
@@ -47,8 +55,8 @@ describe('user profile helpers', () => {
       expect(postAuthPath(incompleteProfile)).toBe('/onboard')
     })
 
-    it('routes onboarded users to home', () => {
-      expect(postAuthPath(completeProfile)).toBe('/home')
+    it('routes onboarded users to social', () => {
+      expect(postAuthPath(completeProfile)).toBe('/social')
     })
   })
 

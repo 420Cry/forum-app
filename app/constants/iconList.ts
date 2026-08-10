@@ -15,7 +15,11 @@ export const iconList = {
   camera: 'material-symbols:photo-camera-outline-rounded',
   check: 'material-symbols:fitbit-check-small-rounded',
   home: 'material-symbols:home-outline',
-  message: 'material-symbols:chat-bubble-outline-rounded',
-  notification: 'material-symbols:notifications-outline-rounded',
   chevron: 'material-symbols:keyboard-arrow-down-rounded',
+  settings: 'material-symbols:settings-outline-rounded',
+  person: 'material-symbols:person-outline-rounded',
+  following: 'material-symbols:person-add-outline-rounded',
+  close: 'material-symbols:close-rounded',
+  filters: 'material-symbols:instant-mix',
+  sort: 'material-symbols:sort-rounded',
 } as const

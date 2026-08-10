@@ -5,6 +5,8 @@ import { useUserApi } from '../api/useUserApi'
 import { useSupabaseToken } from '../auth/useSupabaseToken'
 
 let profileRefreshInFlight: Promise<AuthMeResponse | null> | null = null
+/** Bumped on clear so in-flight fetches cannot write stale results back. */
+let profileEpoch = 0
 
 export function useUserProfile() {
   const profile = useState<AuthMeResponse | null>('forum-user-me', () => null)
@@ -18,13 +20,21 @@ export function useUserProfile() {
   async function refreshProfile(force = false) {
     if (!force && profile.value) return profile.value
 
-    if (profileRefreshInFlight && !force) {
+    // Coalesce concurrent refreshes — even forced ones. Callers that cleared
+    // the cache already bumped the epoch; stacking refreshSession storms hung
+    // /auth/me in the browser and left onboarded users on /onboard.
+    if (profileRefreshInFlight) {
       return profileRefreshInFlight
     }
 
+    const epoch = profileEpoch
     const run = async (): Promise<AuthMeResponse | null> => {
       const { getAccessToken } = useSupabaseToken()
-      const token = await getAccessToken(force)
+      // Profile force-refresh must not force a JWT refreshSession — that raced
+      // with parallel middleware/onMounted calls and starved /auth/me.
+      const token = await getAccessToken(false)
+      if (epoch !== profileEpoch) return profile.value
+
       if (!token) {
         profile.value = null
         unauthorized.value = true
@@ -34,33 +44,41 @@ export function useUserProfile() {
       loading.value = true
       try {
         const { fetchMe } = useUserApi()
-        profile.value = await fetchMe(force)
+        const me = await fetchMe(false)
+        if (epoch !== profileEpoch) return profile.value
+        profile.value = me
         unauthorized.value = false
         return profile.value
       }
       catch (err) {
+        if (epoch !== profileEpoch) return profile.value
         profile.value = null
         unauthorized.value = isFetchUnauthorized(err)
         return null
       }
       finally {
-        loading.value = false
+        if (epoch === profileEpoch) loading.value = false
       }
     }
 
-    profileRefreshInFlight = run()
+    const pending = run()
+    profileRefreshInFlight = pending
     try {
-      return await profileRefreshInFlight
+      return await pending
     }
     finally {
-      profileRefreshInFlight = null
+      if (profileRefreshInFlight === pending) {
+        profileRefreshInFlight = null
+      }
     }
   }
 
   function clearProfile() {
+    profileEpoch += 1
     profile.value = null
     unauthorized.value = false
     profileRefreshInFlight = null
+    loading.value = false
   }
 
   return {

@@ -19,6 +19,8 @@ const {
   hydrateFromProfile,
   restoreOnboardSession,
   enableDraftSync,
+  disableDraftSync,
+  flushDraft,
   isLoading,
 } = useOnboard()
 const { refreshProfile, unauthorized, loading: profileLoading } = useUserProfile()
@@ -26,7 +28,7 @@ const { refreshProfile, unauthorized, loading: profileLoading } = useUserProfile
 const pageReady = ref(false)
 
 onMounted(async () => {
-  const me = await refreshProfile(false)
+  const me = await refreshProfile(true)
 
   if (unauthorized.value) {
     toast.showError(t('auth.error.session_invalid'), 4000)
@@ -41,16 +43,22 @@ onMounted(async () => {
     return
   }
 
-  if (restoreOnboardSession(userProfile)) {
+  if (restoreOnboardSession(userProfile, me?.id ?? null)) {
     enableDraftSync()
     pageReady.value = true
     return
   }
 
-  hydrateFromProfile(userProfile)
+  hydrateFromProfile(userProfile, me?.id ?? null)
   updateOnboardPage()
   enableDraftSync()
   pageReady.value = true
+})
+
+onUnmounted(() => {
+  void flushDraft().finally(() => {
+    disableDraftSync()
+  })
 })
 </script>
 

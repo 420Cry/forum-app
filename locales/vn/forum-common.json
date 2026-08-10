@@ -12,6 +12,10 @@
     "heading": {
       "forum": "Diễn đàn"
     },
+    "role": {
+      "founder": "Founder",
+      "investor": "Nhà đầu tư"
+    },
     "info": {
       "selected_count": "Đã chọn {count}",
       "update_anytime": "Bạn có thể cập nhật bất cứ lúc nào trong hồ sơ",
@@ -104,7 +108,227 @@
   "social": {
     "account": {
       "signed_in_as": "Đã đăng nhập với",
-      "add_startup_page": "Thêm trang startup"
+      "add_startup_page": "Thêm trang startup",
+      "add_investor_page": "Thêm trang nhà đầu tư"
+    },
+    "action": {
+      "follow": "+ Theo dõi",
+      "unfollow": "Đang theo dõi",
+      "learn_more": "Tìm hiểu thêm"
+    },
+    "heading": {
+      "become_member": "Trở thành thành viên",
+      "suggested_follow": "Gợi ý theo dõi",
+      "feed": "Mạng xã hội"
+    },
+    "info": {
+      "become_member": "Mở khóa đánh giá, xếp hạng và lời giới thiệu trực tiếp tới founders.",
+      "feed_soon": "Bảng tin sẽ xuất hiện tại đây. Hiện bạn có thể dùng Tìm kiếm và Đang theo dõi để khám phá.",
+      "followed_toast": "Đã theo dõi.",
+      "unfollowed_toast": "Đã bỏ theo dõi."
+    },
+    "error": {
+      "follow_failed": "Không thể cập nhật theo dõi. Thử lại."
+    },
+    "badge": {
+      "opportunity": "Cơ hội"
+    },
+    "empty": {
+      "suggested_title": "Chưa có gợi ý",
+      "suggested_body": "Theo dõi founders và nhà đầu tư, chúng tôi sẽ gợi ý thêm người tương tự."
+    }
+  },
+  "settings": {
+    "heading": {
+      "settings": "Cài đặt",
+      "edit_profile": "Hồ sơ cá nhân",
+      "you": "Bạn",
+      "organization": "Tổ chức",
+      "security": "Bảo mật",
+      "photo": "Ảnh",
+      "about_you": "Về bạn",
+      "profile_url": "URL hồ sơ",
+      "password": "Mật khẩu",
+      "reset_email": "Đặt lại qua email"
+    },
+    "info": {
+      "subtitle": "Hồ sơ cá nhân và mật khẩu.",
+      "edit_profile": "Xem tên, ảnh và cách bạn hiện diện với người khác.",
+      "edit_profile_cta": "Xem và chỉnh sửa hồ sơ cá nhân",
+      "about_help": "Thông tin này hiển thị trên hồ sơ công khai của bạn.",
+      "profile_url_help": "Đây là liên kết công khai tới hồ sơ của bạn. Dùng chữ thường, số và dấu gạch ngang.",
+      "profile_saved": "Đã lưu hồ sơ.",
+      "avatar_saved": "Đã cập nhật ảnh.",
+      "you_section": "Cách bạn hiện diện với tư cách cá nhân trên Fundedr.",
+      "security_section": "Đặt lại mật khẩu bằng link gửi tới email của bạn.",
+      "organization_section": "Trang công ty hoặc quỹ công khai theo vai trò của bạn.",
+      "startup_edit": "Trang công ty mà nhà đầu tư và founder thấy.",
+      "investor_edit": "Trang quỹ / nhà đầu tư mà founder thấy.",
+      "password": "Vì lý do bảo mật, đổi mật khẩu chỉ thực hiện qua email.",
+      "password_cta": "Gửi email link để đặt mật khẩu mới.",
+      "reset_email": "Chúng tôi sẽ gửi link đặt lại tới email của tài khoản. Mở link để chọn mật khẩu mới.",
+      "unnamed": "Hồ sơ của bạn",
+      "no_role": "Chưa chọn vai trò"
+    },
+    "action": {
+      "save": "Lưu thay đổi",
+      "saving": "Đang lưu...",
+      "uploading": "Đang tải lên...",
+      "edit": "Sửa",
+      "cancel": "Hủy",
+      "sending": "Đang gửi...",
+      "send_reset_email": "Gửi email đặt lại",
+      "resend_reset_email": "Gửi lại"
+    },
+    "error": {
+      "avatar_type": "Dùng ảnh JPG, PNG hoặc WebP.",
+      "avatar_size": "Ảnh phải từ 5 MB trở xuống.",
+      "avatar_auth": "Đăng nhập để tải ảnh lên.",
+      "avatar_upload": "Không thể tải ảnh lên. Thử lại.",
+      "avatar_bucket": "Kho ảnh chưa sẵn sàng.",
+      "password_email_missing": "Tài khoản này không có email.",
+      "slug_required": "URL hồ sơ là bắt buộc.",
+      "slug_format": "Chỉ dùng chữ thường, số và dấu gạch ngang.",
+      "slug_taken": "URL hồ sơ này đã được dùng."
+    }
+  },
+  "find": {
+    "heading": {
+      "title": "Tìm người & công ty",
+      "directory": "Danh bạ"
+    },
+    "info": {
+      "subtitle": "Tìm founder, startup và nhà đầu tư trên Fundedr.",
+      "suggestions": "Gợi ý để khám phá — tìm kiếm khi bạn muốn cụ thể hơn.",
+      "suggestions_empty": "Chưa có ai khác để gợi ý. Quay lại khi có thêm người tham gia.",
+      "results": "{count} kết quả",
+      "matching": "founders và nhà đầu tư khớp bộ lọc của bạn",
+      "empty": "Chưa có kết quả. Thử tìm kiếm khác.",
+      "filters_empty": "Không có bộ lọc cho loại này."
+    },
+    "label": {
+      "query": "Tìm kiếm",
+      "query_placeholder": "Tìm theo tên…",
+      "type": "Loại"
+    },
+    "filter": {
+      "location": "Địa điểm",
+      "occupation": "Nghề nghiệp",
+      "role": "Vai trò",
+      "role_founder": "Founder",
+      "role_investor": "Nhà đầu tư",
+      "industry": "Ngành",
+      "stage": "Giai đoạn",
+      "any": "Bất kỳ"
+    },
+    "sort": {
+      "newest": "Mới nhất",
+      "name": "Tên A–Z"
+    },
+    "type": {
+      "all": "Tất cả",
+      "user": "Người",
+      "startup": "Startup",
+      "investor": "Nhà đầu tư"
+    },
+    "action": {
+      "search": "Tìm kiếm",
+      "searching": "Đang tìm...",
+      "view_profile": "Xem hồ sơ",
+      "clear": "Xóa",
+      "clear_all": "Xóa tất cả",
+      "filters": "Bộ lọc",
+      "sort": "Sắp xếp",
+      "show_results": "Xem kết quả",
+      "see_more": "Xem thêm trong Tìm kiếm"
+    }
+  },
+  "following": {
+    "heading": {
+      "title": "Đang theo dõi"
+    },
+    "info": {
+      "subtitle": "Các tài khoản bạn đang theo dõi.",
+      "empty": "Bạn chưa theo dõi ai.",
+      "error": "Không tải được danh sách theo dõi. Thử lại."
+    }
+  },
+  "profiles": {
+    "heading": {
+      "startup_edit": "Trang startup",
+      "startup_create": "Tạo trang startup",
+      "investor_edit": "Trang nhà đầu tư",
+      "investor_create": "Tạo trang nhà đầu tư",
+      "about": "Giới thiệu"
+    },
+    "info": {
+      "startup_edit": "Chia sẻ công ty với founder và nhà đầu tư.",
+      "investor_edit": "Chia sẻ quỹ và lĩnh vực đầu tư.",
+      "startup_saved": "Đã lưu trang startup.",
+      "investor_saved": "Đã lưu trang nhà đầu tư.",
+      "unnamed": "Chưa có tên",
+      "stats": "{views} lượt xem · {connections} kết nối",
+      "no_about": "Chưa có phần giới thiệu.",
+      "own_preview": "Đây là hồ sơ công khai của bạn — cách người khác nhìn thấy bạn."
+    },
+    "label": {
+      "company_name": "Tên công ty",
+      "company_name_placeholder": "vd. HelloWorld",
+      "firm_name": "Tên quỹ",
+      "firm_name_placeholder": "vd. North Peak Capital",
+      "description": "Mô tả",
+      "description_placeholder": "Mô tả ngắn",
+      "stage": "Giai đoạn",
+      "industry": "Ngành",
+      "industry_placeholder": "vd. Climate",
+      "website": "Website",
+      "website_placeholder": "https://example.com",
+      "contact_email": "Email liên hệ",
+      "contact_email_placeholder": "hello{'@'}example.com",
+      "founded_at": "Ngày thành lập",
+      "min_investment": "Đầu tư tối thiểu (USD)",
+      "max_investment": "Đầu tư tối đa (USD)",
+      "profile_url": "URL hồ sơ",
+      "profile_url_placeholder": "vd. dao-nguyen"
+    },
+    "stage": {
+      "pre_seed": "Pre-seed",
+      "seed": "Seed",
+      "series_a": "Series A",
+      "growth": "Growth",
+      "scale": "Scale",
+      "exit": "Exit"
+    },
+    "error": {
+      "not_found": "Không tìm thấy hồ sơ này."
+    },
+    "action": {
+      "back_to_find": "Quay lại Tìm kiếm",
+      "add_industry": "Thêm",
+      "remove_industry": "Xóa ngành",
+      "edit_profile": "Chỉnh sửa hồ sơ",
+      "view_own_profile": "Xem hồ sơ của bạn"
+    },
+    "section": {
+      "identity": "Danh tính",
+      "identity_help": "Tên và giai đoạn. Có thể chỉnh sau.",
+      "pitch": "Pitch",
+      "pitch_help": "Hai hoặc ba câu. Phiên bản bạn sẽ nói khi gặp mặt.",
+      "firm": "Công ty hoặc quỹ",
+      "firm_help": "Như sẽ hiện trên hồ sơ của bạn.",
+      "thesis": "Ngành và luận điểm",
+      "thesis_help": "Các lĩnh vực bạn đầu tư và ghi chú ngắn founders đọc trước."
+    },
+    "fact": {
+      "role": "Vai trò",
+      "occupation": "Nghề nghiệp",
+      "location": "Địa điểm",
+      "goals": "Mục tiêu",
+      "stage": "Giai đoạn",
+      "industry": "Ngành",
+      "founded": "Thành lập",
+      "website": "Website",
+      "check_size": "Quy mô đầu tư"
     }
   },
   "onboard": {
@@ -130,14 +354,13 @@
     "label": {
       "first_name": "Tên",
       "last_name": "Họ",
-      "age": "Tuổi",
+      "date_of_birth": "Ngày sinh",
       "location": "Địa điểm",
       "occupation": "Nghề nghiệp",
       "first_name_placeholder": "vd. Alex",
       "last_name_placeholder": "vd. Morgan",
-      "age_placeholder": "vd. 28",
-      "location_placeholder": "Thành phố, quốc gia",
-      "occupation_placeholder": "vd. Founder & nhà nghiên cứu"
+      "location_placeholder": "vd. London, Berlin, Singapore",
+      "occupation_placeholder": "Nhập nghề nghiệp"
     },
     "info": {
       "role_subtitle": "Chọn phương án phù hợp nhất. Bạn có thể giữ cả hai vai trò sau — bước này chỉ thiết lập bảng tin chính.",
@@ -155,12 +378,16 @@
       "goal_network_peers": "Đọc cùng các nhà đầu tư thiên thần, scout và đối tác VC khác.",
       "goal_market_insights": "Bám sát xu hướng và thay đổi hệ sinh thái ảnh hưởng đến quyết định đầu tư.",
       "profile_photo_help": "Ảnh chân dung rõ ràng giúp mọi người nhận ra bạn. JPG hoặc PNG, tối đa 5 MB.",
-      "occupation_help": "Hiển thị dưới tên bạn trên hồ sơ và bài đăng."
+      "occupation_help": "Hiển thị dưới tên bạn trên hồ sơ và bài đăng.",
+      "time_remaining_step_1": "~2 phút tổng cộng",
+      "time_remaining_step_2": "~1 phút còn lại",
+      "time_remaining_step_3": "~30 giây còn lại"
     },
     "action": {
       "finish": "Hoàn tất & vào Fundedr",
       "finishing": "Đang thiết lập...",
-      "upload_photo": "Tải ảnh lên"
+      "upload_photo": "Tải ảnh lên",
+      "use_custom_occupation": "Dùng \"{query}\""
     },
     "error": {
       "select_role": "Vui lòng chọn vai trò trước khi tiếp tục!",
@@ -171,16 +398,28 @@
       "last_name_required": "Bắt buộc nhập họ",
       "last_name_min": "Họ phải có ít nhất 2 ký tự",
       "last_name_special": "Họ chỉ được chứa chữ cái (không có số hoặc ký tự đặc biệt)",
-      "age_required": "Bắt buộc nhập tuổi",
-      "age_invalid": "Tuổi phải là số nguyên",
-      "age_min": "Bạn phải trên 16 tuổi",
-      "location_required": "Bắt buộc nhập địa điểm",
-      "location_min": "Địa điểm phải có ít nhất 2 ký tự",
-      "location_special": "Địa điểm không được chứa ký tự đặc biệt",
-      "occupation_required": "Bắt buộc nhập nghề nghiệp",
-      "occupation_min": "Nghề nghiệp phải có ít nhất 2 ký tự",
-      "occupation_special": "Nghề nghiệp không được chứa ký tự đặc biệt",
+      "dob_required": "Bắt buộc nhập ngày sinh",
+      "dob_invalid": "Ngày sinh không hợp lệ",
+      "dob_future": "Ngày sinh không thể ở tương lai",
+      "dob_too_young": "Bạn phải trên 16 tuổi",
+      "dob_too_old": "Ngày sinh ngoài phạm vi cho phép",
+      "location_required": "Bắt buộc chọn địa điểm",
+      "location_invalid": "Vui lòng chọn thành phố và quốc gia",
+      "location_search_failed": "Không tìm được địa điểm. Thử lại sau.",
+      "occupation_required": "Bắt buộc chọn nghề nghiệp",
+      "occupation_invalid": "Vui lòng chọn nghề nghiệp",
+      "occupation_search_failed": "Không tìm được nghề nghiệp. Thử lại sau.",
       "role_invalid": "Vai trò chỉ có thể là Founder hoặc Investor"
+    }
+  },
+  "nav": {
+    "social": "Mạng xã hội",
+    "find": "Tìm kiếm",
+    "following": "Đang theo dõi",
+    "settings": "Cài đặt",
+    "stat": {
+      "profile_views": "Lượt xem hồ sơ",
+      "connections": "Kết nối"
     }
   }
 }

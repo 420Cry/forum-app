@@ -18,7 +18,8 @@ services:
       NITRO_HOST: "0.0.0.0"
       NITRO_PORT: ${PORT:-3000}
       CHOKIDAR_USEPOLLING: "true"
-    command: bun run dev
+    # Keep anonymous /app/node_modules in sync with package.json on start.
+    command: sh -c "bun install && bun run dev"
     networks:
       - forum.test
 

@@ -41,17 +41,18 @@ describe('resolveVerifiedUser', () => {
     expect(result.status).toBe('unverified')
   })
 
-  it('falls back to refresh + getUser when user is missing locally', async () => {
+  it('refreshes and fetches the user when local state is empty', async () => {
     const supabase = makeSupabase(verifiedUser)
     const session = { access_token: 'token' } as never
 
     const result = await resolveVerifiedUser(supabase, session, null)
 
-    expect(supabase.auth.refreshSession).toHaveBeenCalled()
     expect(result.status).toBe('verified')
+    expect(supabase.auth.refreshSession).toHaveBeenCalled()
+    expect(supabase.auth.getUser).toHaveBeenCalled()
   })
 
-  it('returns none when no user can be resolved at all', async () => {
+  it('returns none when refresh yields no user', async () => {
     const session = { access_token: 'token' } as never
     const result = await resolveVerifiedUser(makeSupabase(), session, null)
     expect(result).toEqual({ status: 'none', user: null })
@@ -62,17 +63,19 @@ describe('onboardingRedirect', () => {
   const complete = { onboarded: true } as UserProfile
   const incomplete = { onboarded: false } as UserProfile
 
-  it('sends not-onboarded users from /home to /onboard', () => {
-    expect(onboardingRedirect('/home', incomplete)).toBe('/onboard')
-    expect(onboardingRedirect('/home', null)).toBe('/onboard')
+  it('sends not-onboarded users from /social and /find to /onboard', () => {
+    expect(onboardingRedirect('/social', incomplete)).toBe('/onboard')
+    expect(onboardingRedirect('/social', null)).toBe('/onboard')
+    expect(onboardingRedirect('/find', incomplete)).toBe('/onboard')
+    expect(onboardingRedirect('/find', null)).toBe('/onboard')
   })
 
-  it('sends onboarded users from /onboard to /home', () => {
-    expect(onboardingRedirect('/onboard', complete)).toBe('/home')
+  it('sends onboarded users from /onboard to /social', () => {
+    expect(onboardingRedirect('/onboard', complete)).toBe('/social')
   })
 
   it('lets users stay when the route matches their state', () => {
-    expect(onboardingRedirect('/home', complete)).toBeNull()
+    expect(onboardingRedirect('/social', complete)).toBeNull()
     expect(onboardingRedirect('/onboard', incomplete)).toBeNull()
     expect(onboardingRedirect('/onboard', null)).toBeNull()
   })
@@ -83,8 +86,8 @@ describe('onboardingRedirect', () => {
   })
 
   it('handles locale-prefixed paths', () => {
-    expect(onboardingRedirect('/en/home', incomplete)).toBe('/onboard')
-    expect(onboardingRedirect('/vn/onboard', complete)).toBe('/home')
-    expect(onboardingRedirect('/en/home', complete)).toBeNull()
+    expect(onboardingRedirect('/en/social', incomplete)).toBe('/onboard')
+    expect(onboardingRedirect('/vn/onboard', complete)).toBe('/social')
+    expect(onboardingRedirect('/en/social', complete)).toBeNull()
   })
 })

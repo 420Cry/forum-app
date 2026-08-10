@@ -41,24 +41,31 @@ async function confirmFromLink() {
   status.value = 'confirming'
   failureMessage.value = null
 
-  const callback = await resolveFromUrl()
-  if (!callback.ok) {
-    status.value = 'failed'
-    failureMessage.value = callback.message
-    return
+  try {
+    const callback = await resolveFromUrl()
+    if (!callback.ok) {
+      status.value = 'failed'
+      failureMessage.value = callback.message
+      return
+    }
+
+    await refreshUser()
+
+    const { data: sessionData } = await supabase.auth.getSession()
+    const hasToken = hasAccessToken(sessionData.session)
+    if (!hasToken) {
+      status.value = 'failed'
+      return
+    }
+
+    status.value = 'success'
+    void refreshProfile(true).catch(() => {})
+    scheduleRedirect()
   }
-
-  await refreshUser()
-
-  const { data: sessionData } = await supabase.auth.getSession()
-  if (!hasAccessToken(sessionData.session)) {
+  catch (err) {
     status.value = 'failed'
-    return
+    failureMessage.value = err instanceof Error ? err.message : null
   }
-
-  status.value = 'success'
-  void refreshProfile(true).catch(() => {})
-  scheduleRedirect()
 }
 
 onMounted(() => {

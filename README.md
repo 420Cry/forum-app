@@ -50,7 +50,7 @@ Local signup verification emails are captured by Supabase Inbucket. With `forum 
 
 ### Locales
 
-Routes use a language prefix (`strategy: 'prefix'`): `/en/home`, `/vn/auth/login`. Visiting `/` redirects to the browser locale or `en`. Switch language from the header (EN / VN).
+Routes use a language prefix (`strategy: 'prefix'`): `/en/social`, `/vn/auth/login`. Visiting `/` redirects to the browser locale or `en`. Switch language from the header (EN / VN).
 
 ### Local hosts
 
@@ -98,7 +98,7 @@ App URL with forum-server: **http://app.forum.test**
 ## Auth & routing
 
 - Sign-in uses Supabase (`@nuxtjs/supabase`). After login, the app fetches `/auth/me` and routes via `postAuthPath()`:
-  - `profile.onboarded === true` → `/home`
+  - `profile.onboarded === true` → `/social`
   - otherwise → `/onboard`
 - Each page declares its access level via `definePageMeta({ access: 'guest' | 'callback' | 'protected' })`. Global middleware (`app/middleware/setup.global.ts`) reads this meta and delegates to `app/utils/routeGuards.ts`. See [AGENTS.md](./AGENTS.md) and [../ARCHITECTURE.md](../ARCHITECTURE.md).
 - Email confirmation and password reset pages use `access: 'callback'` and are never redirected by middleware.

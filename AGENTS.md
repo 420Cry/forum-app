@@ -16,13 +16,28 @@ Read [../ARCHITECTURE.md](../ARCHITECTURE.md) for the cross-repo system map.
 ## Verify (run before claiming "done")
 
 ```bash
-bun run lint    # must exit 0
-bun run test    # vitest --run; must exit 0 (includes locale parity in tests/localeParity.test.ts)
+bun run lint           # must exit 0
+bun run test           # vitest --run; must exit 0
+bun run test:coverage  # optional locally; CI runs this on every PR
 ```
 
-From the monorepo dev-server: `forum lint:fix` runs eslint --fix in both forum-app and forum-api.
+From the monorepo dev-server: `forum test:unit` (api + app), `forum test:e2e` (full Playwright stack), `forum test` (both).
 
 **Definition of done:** lint green, tests green, change manually verified on http://app.forum.test for at least one flow affected by the change.
+
+## CI (GitHub Actions)
+
+Workflow: `.github/workflows/ci.yml` on every push/PR to `main`.
+
+| Job | What it runs |
+| --- | --- |
+| **verify** | `lint`, `test:coverage` (Vitest + v8), unit coverage artifact + job summary |
+| **docker** | `Dockerfile` build (after verify) |
+| **e2e** | Full stack (Supabase + Docker) + Playwright from `forum-test-automation`; e2e scenario summary in job output |
+
+E2e checks out **forum-app at the PR branch** plus `forum-api`, `forum-test-automation`, and `forum-server` at `main`. Stack boot lives in `.github/scripts/ci-e2e.sh`.
+
+Sibling checkouts need repo (or org) secret **`FORUM_CI_PAT`**: a classic or fine-grained PAT with `contents: read` on `420Cry/forum-api`, `420Cry/forum-test-automation`, and `420Cry/forum-server`. The default `GITHUB_TOKEN` cannot read private sibling repos (GitHub reports them as “not found”).
 
 ## Hard constraints
 
@@ -58,7 +73,7 @@ From the monorepo dev-server: `forum lint:fix` runs eslint --fix in both forum-a
 Every page must declare how middleware treats it:
 
 ```ts
-definePageMeta({ access: 'guest' })      // auth forms — redirects verified users to /home
+definePageMeta({ access: 'guest' })      // auth forms — redirects verified users to /social
 definePageMeta({ access: 'callback' })   // email-link landing pages — never redirected
 definePageMeta({ access: 'protected' })  // requires verified session
 // omit access for public pages (default)

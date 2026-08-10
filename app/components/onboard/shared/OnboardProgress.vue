@@ -5,7 +5,15 @@ const props = defineProps<{
   label: string
 }>()
 
+const { t } = useI18n()
+
 const fillPercent = computed(() => (props.step / props.totalSteps) * 100)
+
+const timeRemainingKey = computed(() => {
+  if (props.step >= props.totalSteps) return 'onboard.info.time_remaining_step_3'
+  if (props.step === 2) return 'onboard.info.time_remaining_step_2'
+  return 'onboard.info.time_remaining_step_1'
+})
 </script>
 
 <template>
@@ -18,7 +26,7 @@ const fillPercent = computed(() => (props.step / props.totalSteps) * 100)
           <b class="font-semibold text-ink">Step {{ step }} of {{ totalSteps }}</b>
           &nbsp;·&nbsp;{{ label }}
         </span>
-        <span>~ 2 min total</span>
+        <span>{{ t(timeRemainingKey) }}</span>
       </div>
       <div class="h-1.5 w-full overflow-hidden rounded-full bg-surface-hover">
         <div

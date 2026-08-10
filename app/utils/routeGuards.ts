@@ -68,6 +68,7 @@ export function onboardingRedirect(
   const completed = isOnboardingComplete(profile)
 
   if (barePath.startsWith('/social') && !completed) return '/onboard'
+  if (barePath.startsWith('/find') && !completed) return '/onboard'
   if (barePath === '/onboard' && completed) return '/social'
   return null
 }

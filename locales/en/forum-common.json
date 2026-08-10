@@ -12,6 +12,10 @@
     "heading": {
       "forum": "Forum"
     },
+    "role": {
+      "founder": "Founder",
+      "investor": "Investor"
+    },
     "info": {
       "selected_count": "{count} selected",
       "update_anytime": "You can update these any time from your profile",
@@ -104,7 +108,227 @@
   "social": {
     "account": {
       "signed_in_as": "Signed in as",
-      "add_startup_page": "Add a startup page"
+      "add_startup_page": "Add a startup page",
+      "add_investor_page": "Add an investor page"
+    },
+    "action": {
+      "follow": "+ Follow",
+      "unfollow": "Following",
+      "learn_more": "Learn more"
+    },
+    "heading": {
+      "become_member": "Become a member",
+      "suggested_follow": "Suggested to follow",
+      "feed": "Social"
+    },
+    "info": {
+      "become_member": "Unlock testimonials, ratings, and direct intros to founders.",
+      "feed_soon": "Your feed will live here. For now, use Find and Following to discover people.",
+      "followed_toast": "Following.",
+      "unfollowed_toast": "Unfollowed."
+    },
+    "error": {
+      "follow_failed": "Could not update follow. Try again."
+    },
+    "badge": {
+      "opportunity": "Opportunity"
+    },
+    "empty": {
+      "suggested_title": "No one to suggest yet",
+      "suggested_body": "Follow founders and investors, and we will surface more like them."
+    }
+  },
+  "settings": {
+    "heading": {
+      "settings": "Settings",
+      "edit_profile": "Personal profile",
+      "you": "You",
+      "organization": "Organization",
+      "security": "Security",
+      "photo": "Photo",
+      "about_you": "About you",
+      "profile_url": "Profile URL",
+      "password": "Password",
+      "reset_email": "Reset via email"
+    },
+    "info": {
+      "subtitle": "Your personal profile and password.",
+      "edit_profile": "Review your name, photo, and how you appear to others.",
+      "edit_profile_cta": "View and edit personal profile",
+      "about_help": "These details show on your public profile.",
+      "profile_url_help": "This is the public link to your profile. Use lowercase letters, numbers, and hyphens.",
+      "profile_saved": "Profile saved.",
+      "avatar_saved": "Photo updated.",
+      "you_section": "How you appear as a person on Fundedr.",
+      "security_section": "Reset your password with a link sent to your email.",
+      "organization_section": "Your public company or fund page for your role.",
+      "startup_edit": "The company page investors and founders see.",
+      "investor_edit": "The fund or investor page founders see.",
+      "password": "For security, password changes go through your email.",
+      "password_cta": "Email a link to set a new password.",
+      "reset_email": "We'll send a reset link to the email on this account. Open it to choose a new password.",
+      "unnamed": "Your profile",
+      "no_role": "No role set"
+    },
+    "action": {
+      "save": "Save changes",
+      "saving": "Saving...",
+      "uploading": "Uploading...",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "sending": "Sending...",
+      "send_reset_email": "Send reset email",
+      "resend_reset_email": "Send again"
+    },
+    "error": {
+      "avatar_type": "Use a JPG, PNG, or WebP image.",
+      "avatar_size": "Image must be 5 MB or smaller.",
+      "avatar_auth": "Sign in to upload a photo.",
+      "avatar_upload": "Could not upload photo. Try again.",
+      "avatar_bucket": "Photo storage is not ready yet.",
+      "password_email_missing": "No email on this account.",
+      "slug_required": "Profile URL is required.",
+      "slug_format": "Use lowercase letters, numbers, and hyphens only.",
+      "slug_taken": "That profile URL is already taken."
+    }
+  },
+  "find": {
+    "heading": {
+      "title": "Find people & companies",
+      "directory": "Directory"
+    },
+    "info": {
+      "subtitle": "Search founders, startups, and investors on Fundedr.",
+      "suggestions": "People to discover — search when you want something specific.",
+      "suggestions_empty": "No one else to suggest yet. Check back as more people join.",
+      "results": "{count} results",
+      "matching": "founders and investors matching your filters",
+      "empty": "No matches yet. Try a different search.",
+      "filters_empty": "No filters for this type."
+    },
+    "label": {
+      "query": "Search",
+      "query_placeholder": "Search by name…",
+      "type": "Type"
+    },
+    "filter": {
+      "location": "Location",
+      "occupation": "Occupation",
+      "role": "Role",
+      "role_founder": "Founder",
+      "role_investor": "Investor",
+      "industry": "Industry",
+      "stage": "Stage",
+      "any": "Any"
+    },
+    "sort": {
+      "newest": "Newest",
+      "name": "Name A–Z"
+    },
+    "type": {
+      "all": "All",
+      "user": "People",
+      "startup": "Startups",
+      "investor": "Investors"
+    },
+    "action": {
+      "search": "Search",
+      "searching": "Searching...",
+      "view_profile": "View profile",
+      "clear": "Clear",
+      "clear_all": "Clear all",
+      "filters": "Filters",
+      "sort": "Sort",
+      "show_results": "Show results",
+      "see_more": "See more in Find"
+    }
+  },
+  "following": {
+    "heading": {
+      "title": "Following"
+    },
+    "info": {
+      "subtitle": "Accounts you follow.",
+      "empty": "You are not following anyone yet.",
+      "error": "Could not load who you follow. Try again."
+    }
+  },
+  "profiles": {
+    "heading": {
+      "startup_edit": "Startup page",
+      "startup_create": "Create a startup page",
+      "investor_edit": "Investor page",
+      "investor_create": "Create an investor page",
+      "about": "About"
+    },
+    "info": {
+      "startup_edit": "Share your company with founders and investors.",
+      "investor_edit": "Share your firm and investment focus.",
+      "startup_saved": "Startup page saved.",
+      "investor_saved": "Investor page saved.",
+      "unnamed": "Unnamed",
+      "stats": "{views} views · {connections} connections",
+      "no_about": "No about section yet.",
+      "own_preview": "This is your public profile — how others see you."
+    },
+    "label": {
+      "company_name": "Company name",
+      "company_name_placeholder": "e.g. HelloWorld",
+      "firm_name": "Firm name",
+      "firm_name_placeholder": "e.g. North Peak Capital",
+      "description": "Description",
+      "description_placeholder": "A short overview",
+      "stage": "Stage",
+      "industry": "Industry",
+      "industry_placeholder": "e.g. Climate",
+      "website": "Website",
+      "website_placeholder": "https://example.com",
+      "contact_email": "Contact email",
+      "contact_email_placeholder": "hello{'@'}example.com",
+      "founded_at": "Founded on",
+      "min_investment": "Min investment (USD)",
+      "max_investment": "Max investment (USD)",
+      "profile_url": "Profile URL",
+      "profile_url_placeholder": "e.g. dao-nguyen"
+    },
+    "stage": {
+      "pre_seed": "Pre-seed",
+      "seed": "Seed",
+      "series_a": "Series A",
+      "growth": "Growth",
+      "scale": "Scale",
+      "exit": "Exit"
+    },
+    "error": {
+      "not_found": "This profile could not be found."
+    },
+    "action": {
+      "back_to_find": "Back to Find",
+      "add_industry": "Add",
+      "remove_industry": "Remove industry",
+      "edit_profile": "Edit profile",
+      "view_own_profile": "View your profile"
+    },
+    "section": {
+      "identity": "Identity",
+      "identity_help": "Name and stage. Both can change later.",
+      "pitch": "Pitch",
+      "pitch_help": "Two or three sentences. The version you would give over coffee.",
+      "firm": "Company or fund",
+      "firm_help": "As it should appear on your profile.",
+      "thesis": "Industries and thesis",
+      "thesis_help": "Sectors you back and a short note founders will read first."
+    },
+    "fact": {
+      "role": "Role",
+      "occupation": "Occupation",
+      "location": "Location",
+      "goals": "Goals",
+      "stage": "Stage",
+      "industry": "Industry",
+      "founded": "Founded",
+      "website": "Website",
+      "check_size": "Check size"
     }
   },
   "onboard": {
@@ -130,14 +354,13 @@
     "label": {
       "first_name": "First name",
       "last_name": "Last name",
-      "age": "Age",
+      "date_of_birth": "Date of birth",
       "location": "Location",
       "occupation": "Occupation",
       "first_name_placeholder": "e.g. Alex",
       "last_name_placeholder": "e.g. Morgan",
-      "age_placeholder": "e.g. 28",
-      "location_placeholder": "City, country",
-      "occupation_placeholder": "e.g. Founder & researcher"
+      "location_placeholder": "e.g. London, Berlin, Singapore",
+      "occupation_placeholder": "Type an occupation"
     },
     "info": {
       "role_subtitle": "Pick the option that fits you best. You can hold both roles later — this just sets up your home feed.",
@@ -155,12 +378,16 @@
       "goal_network_peers": "Read alongside other angels, scouts, and VC partners at the same edge.",
       "goal_market_insights": "Stay close to trends and ecosystem shifts that change which bets make sense.",
       "profile_photo_help": "A clear headshot helps people recognise you. JPG or PNG, up to 5 MB.",
-      "occupation_help": "This appears under your name on your profile and posts."
+      "occupation_help": "This appears under your name on your profile and posts.",
+      "time_remaining_step_1": "~2 min total",
+      "time_remaining_step_2": "~1 min left",
+      "time_remaining_step_3": "~30 sec left"
     },
     "action": {
       "finish": "Finish & enter Fundedr",
       "finishing": "Setting up...",
-      "upload_photo": "Upload photo"
+      "upload_photo": "Upload photo",
+      "use_custom_occupation": "Use \"{query}\""
     },
     "error": {
       "select_role": "Please select your role before continue!",
@@ -171,16 +398,28 @@
       "last_name_required": "Last name required",
       "last_name_min": "Last name must have at least 2 characters",
       "last_name_special": "Last name can only contain letters (no numbers or symbols)",
-      "age_required": "Age required",
-      "age_invalid": "Age must be a whole number",
-      "age_min": "You must be older than 16",
+      "dob_required": "Date of birth required",
+      "dob_invalid": "Enter a valid date of birth",
+      "dob_future": "Date of birth cannot be in the future",
+      "dob_too_young": "You must be older than 16",
+      "dob_too_old": "Date of birth is out of range",
       "location_required": "Location required",
-      "location_min": "Location must have at least 2 characters",
-      "location_special": "Location must not contain special characters",
+      "location_invalid": "Please select a city and country",
+      "location_search_failed": "Location search is unavailable. Try again later.",
       "occupation_required": "Occupation required",
-      "occupation_min": "Occupation must have at least 2 characters",
-      "occupation_special": "Occupation must not contain special characters",
+      "occupation_invalid": "Please select an occupation",
+      "occupation_search_failed": "Occupation search is unavailable. Try again later.",
       "role_invalid": "User role can only be Founder or Investor"
+    }
+  },
+  "nav": {
+    "social": "Social",
+    "find": "Find",
+    "following": "Following",
+    "settings": "Settings",
+    "stat": {
+      "profile_views": "Profile views",
+      "connections": "Connections"
     }
   }
 }
