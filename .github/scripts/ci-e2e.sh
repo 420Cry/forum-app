@@ -186,9 +186,5 @@ mkdir -p "${E2E_DIR}/playwright/.auth"
   bun run playwright:test
 )
 
-SUMMARY_SCRIPT="${ROOT}/forum-app/.github/scripts/report-e2e-summary.mjs"
-RESULTS_JSON="${E2E_DIR}/playwright-report/results.json"
-if [[ -f "${SUMMARY_SCRIPT}" ]]; then
-  node "${SUMMARY_SCRIPT}" "${RESULTS_JSON}" \
-    >> "${GITHUB_STEP_SUMMARY:-/dev/stdout}" 2>/dev/null || true
-fi
+# E2E summary is written by the workflow "E2E summary" step (if: always()),
+# not here — otherwise the job summary gets the table twice.
