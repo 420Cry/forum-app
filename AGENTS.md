@@ -35,7 +35,9 @@ Workflow: `.github/workflows/ci.yml` on every push/PR to `main`.
 | **docker** | `Dockerfile` build (after verify) |
 | **e2e** | Full stack (Supabase + Docker) + Playwright from `forum-test-automation`; e2e scenario summary in job output |
 
-E2e checks out **forum-app at the PR branch** plus `forum-api`, `forum-test-automation`, and `forum-server` at `main`. Stack boot lives in `.github/scripts/ci-e2e.sh`.
+E2e checks out **forum-app at the PR/push branch**. Sibling repos (`forum-api`, `forum-test-automation`, `forum-server`) use the **same branch name when it exists**, otherwise fall back to `main` (see `.github/scripts/resolve-sibling-ref.sh`). Stack boot lives in `.github/scripts/ci-e2e.sh`.
+
+Example: app / api / test-automation all on `4FOR-56` → e2e runs that trio together. If only app has `4FOR-56`, api and e2e stay on `main`.
 
 Sibling checkouts need repo (or org) secret **`FORUM_CI_PAT`**: a classic or fine-grained PAT with `contents: read` on `420Cry/forum-api`, `420Cry/forum-test-automation`, and `420Cry/forum-server`. The default `GITHUB_TOKEN` cannot read private sibling repos (GitHub reports them as “not found”).
 

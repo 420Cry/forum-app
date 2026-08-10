@@ -18,10 +18,14 @@ import {
 import { useZodValidation } from '~/composables/validate/useZodValidation'
 import { accountNamePrefix } from '~/utils/accountSummary'
 import { getAvatarColor } from '~/utils/avatarColor'
+import {
+  locationCatalogLabel,
+  occupationCatalogLabel,
+} from '~/utils/catalogLabel'
 
 definePageMeta({ layout: 'home', access: 'protected' })
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 const toast = useToast()
 const { profile, refreshProfile } = useUserProfile()
 const { updateProfile } = useOnboardApi()
@@ -50,20 +54,20 @@ const occupationLabels = ref<Map<string, string>>(new Map())
 const dobMin = minDateOfBirthInput()
 const dobMax = maxDateOfBirthInput()
 
-const locationLabel = computed(
-  () =>
-    locationName.value
-    || locationLabels.value.get(location.value)
-    || location.value
-    || '—',
-)
-const occupationLabel = computed(
-  () =>
-    occupationName.value
-    || occupationLabels.value.get(occupation.value)
-    || occupation.value
-    || '—',
-)
+const locationLabel = computed(() => {
+  const key = location.value
+  const fromMap = key ? locationLabels.value.get(key) : undefined
+  const raw = locationName.value || fromMap || key || '—'
+  if (!key || raw === '—') return raw
+  return locationCatalogLabel(key, raw, t, te)
+})
+const occupationLabel = computed(() => {
+  const key = occupation.value
+  const fromMap = key ? occupationLabels.value.get(key) : undefined
+  const raw = occupationName.value || fromMap || key || '—'
+  if (!key || raw === '—') return raw
+  return occupationCatalogLabel(key, raw, t, te)
+})
 const dateOfBirthLabel = computed(() => dateOfBirth.value || '—')
 
 const displayName = computed(() => {

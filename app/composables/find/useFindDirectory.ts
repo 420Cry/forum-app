@@ -11,6 +11,10 @@ import { FIND_TYPE_FILTERS, joinCsv } from '~/types/find'
 import type { FindResults } from '~/types/profile'
 import { facetChips, optionLabel } from '~/utils/findChips'
 import { flattenFindResults } from '~/utils/findResults'
+import {
+  locationCatalogLabel,
+  occupationCatalogLabel,
+} from '~/utils/catalogLabel'
 
 const emptyResults = (): FindResults => ({
   users: [],
@@ -19,7 +23,7 @@ const emptyResults = (): FindResults => ({
 })
 
 export function useFindDirectory() {
-  const { t } = useI18n()
+  const { t, te } = useI18n()
   const { find } = useProfilesApi()
   const { fetchTags } = useCatalogApi()
 
@@ -131,8 +135,10 @@ export function useFindDirectory() {
   )
 
   const flatResults = computed(() =>
-    flattenFindResults(results.value, (key, params) =>
-      params ? t(key, params as never) : t(key),
+    flattenFindResults(
+      results.value,
+      (key, params) => (params ? t(key, params as never) : t(key)),
+      te,
     ),
   )
 
@@ -242,11 +248,11 @@ export function useFindDirectory() {
     ])
     locationOptions.value = locations.map(tag => ({
       value: tag.key,
-      label: tag.name,
+      label: locationCatalogLabel(tag.key, tag.name, t, te),
     }))
     occupationOptions.value = occupations.map(tag => ({
       value: tag.key,
-      label: tag.name,
+      label: occupationCatalogLabel(tag.key, tag.name, t, te),
     }))
     industryOptions.value = industries.map(tag => ({
       value: tag.key,

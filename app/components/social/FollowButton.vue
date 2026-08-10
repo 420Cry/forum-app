@@ -2,6 +2,10 @@
 import BaseButton from '~/components/shared/BaseButton.vue'
 import type { AccountType } from '~/types/profile'
 import { useFollowTarget } from '~/composables/social/useFollowTarget'
+import {
+  AUTH_REDIRECT_QUERY,
+  authReturnPathFromRoute,
+} from '~/utils/authRedirect'
 
 const props = withDefaults(
   defineProps<{
@@ -16,6 +20,8 @@ const props = withDefaults(
 )
 
 const { t } = useI18n()
+const localePath = useLocalePath()
+const route = useRoute()
 const user = useSupabaseUser()
 const { profile: me } = useUserProfile()
 const emit = defineEmits<{
@@ -36,6 +42,14 @@ const { following, busy, ready, refreshStatus, toggleFollow } = useFollowTarget(
   () => props.targetId,
 )
 
+function goSignInToFollow() {
+  const redirect = authReturnPathFromRoute(route.fullPath)
+  void navigateTo({
+    path: localePath('/auth/login'),
+    query: redirect ? { [AUTH_REDIRECT_QUERY]: redirect } : undefined,
+  })
+}
+
 async function onToggle() {
   const wasFollowing = following.value
   await toggleFollow()
@@ -45,20 +59,29 @@ async function onToggle() {
 }
 
 onMounted(() => {
-  if (!isSelf.value) void refreshStatus()
+  if (isSignedIn.value && !isSelf.value) void refreshStatus()
 })
 
 watch(
   () => [props.targetType, props.targetId, user.value?.id, me.value?.id] as const,
   () => {
-    if (!isSelf.value) void refreshStatus()
+    if (isSignedIn.value && !isSelf.value) void refreshStatus()
   },
 )
 </script>
 
 <template>
   <BaseButton
-    v-if="isSignedIn && !isSelf"
+    v-if="!isSignedIn"
+    intent="primary-outline"
+    size="sm"
+    :block="block"
+    @click="goSignInToFollow"
+  >
+    {{ t('social.action.sign_in_to_follow') }}
+  </BaseButton>
+  <BaseButton
+    v-else-if="!isSelf"
     :intent="following ? 'secondary' : 'primary-outline'"
     size="sm"
     :block="block"

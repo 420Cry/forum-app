@@ -27,10 +27,17 @@ const catalogsLoading = ref(true)
 
 onMounted(async () => {
   try {
-    const locations = await fetchTags('location').catch(() => [])
+    const [locations, occupations] = await Promise.all([
+      fetchTags('location').catch(() => []),
+      fetchTags('occupation').catch(() => []),
+    ])
     if (onboardInfo.location && !onboardInfo.locationName) {
       const match = locations.find(tag => tag.key === onboardInfo.location)
       if (match) onboardInfo.locationName = match.name
+    }
+    if (onboardInfo.occupation && !onboardInfo.occupationName) {
+      const match = occupations.find(tag => tag.key === onboardInfo.occupation)
+      if (match) onboardInfo.occupationName = match.name
     }
   }
   finally {

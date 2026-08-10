@@ -1,9 +1,14 @@
 import { useProfilesApi } from '~/composables/api/useProfilesApi'
 import type { PublicUserProfile } from '~/types/profile'
+import {
+  goalCatalogLabel,
+  locationCatalogLabel,
+  occupationCatalogLabel,
+} from '~/utils/catalogLabel'
 import { resolveViewerId } from '~/utils/viewerId'
 
 export function usePublicUserPage(routeKey: MaybeRefOrGetter<string>) {
-  const { t } = useI18n()
+  const { t, te } = useI18n()
   const localePath = useLocalePath()
   const user = useSupabaseUser()
   const { profile: me } = useUserProfile()
@@ -20,19 +25,41 @@ export function usePublicUserPage(routeKey: MaybeRefOrGetter<string>) {
     const rows: { key: string, value: string, chips?: string[] }[] = []
     if (p.role) rows.push({ key: t('profiles.fact.role'), value: p.role })
     if (p.occupation) {
-      rows.push({ key: t('profiles.fact.occupation'), value: p.occupation })
+      const occupationKey = p.occupationKey ?? ''
+      rows.push({
+        key: t('profiles.fact.occupation'),
+        value: occupationKey
+          ? occupationCatalogLabel(occupationKey, p.occupation, t, te)
+          : p.occupation,
+      })
     }
     if (p.location) {
-      rows.push({ key: t('profiles.fact.location'), value: p.location })
+      const locationKey = p.locationKey ?? ''
+      rows.push({
+        key: t('profiles.fact.location'),
+        value: locationKey
+          ? locationCatalogLabel(locationKey, p.location, t, te)
+          : p.location,
+      })
     }
     if (p.goals.length) {
+      const goalLabels = p.goals.map(key => goalCatalogLabel(key, key, t, te))
       rows.push({
         key: t('profiles.fact.goals'),
-        value: p.goals.join(', '),
-        chips: p.goals,
+        value: goalLabels.join(', '),
+        chips: goalLabels,
       })
     }
     return rows
+  })
+
+  const occupationTagline = computed(() => {
+    const p = profile.value
+    if (!p?.occupation) return null
+    const key = p.occupationKey ?? ''
+    return key
+      ? occupationCatalogLabel(key, p.occupation, t, te)
+      : p.occupation
   })
 
   async function load() {
@@ -63,5 +90,13 @@ export function usePublicUserPage(routeKey: MaybeRefOrGetter<string>) {
     void load()
   })
 
-  return { profile, error, loading, isOwnProfile, facts, load }
+  return {
+    profile,
+    error,
+    loading,
+    isOwnProfile,
+    facts,
+    occupationTagline,
+    load,
+  }
 }

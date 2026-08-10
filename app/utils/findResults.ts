@@ -1,25 +1,42 @@
 import type { FindResults } from '~/types/profile'
 import type { FindResultRow } from '~/types/find'
+import {
+  locationCatalogLabel,
+  occupationCatalogLabel,
+} from '~/utils/catalogLabel'
 import { stageToPillVariant } from '~/utils/stagePill'
 
 type Translate = (key: string, params?: Record<string, unknown>) => string
+type HasKey = (key: string) => boolean
 
 export function flattenFindResults(
   results: FindResults,
   t: Translate,
+  te: HasKey = () => false,
 ): FindResultRow[] {
   const rows: FindResultRow[] = []
 
   for (const user of results.users) {
+    const occupation = user.occupation
+      ? occupationCatalogLabel(
+          user.occupationKey ?? '',
+          user.occupation,
+          t,
+          te,
+        )
+      : null
+    const location = user.location
+      ? locationCatalogLabel(user.locationKey ?? '', user.location, t, te)
+      : null
     rows.push({
       key: `user-${user.id}`,
       name: user.name || t('profiles.info.unnamed'),
       href: user.profilePath,
       targetType: 'user',
       targetId: user.id,
-      industry: user.occupation,
+      industry: occupation,
       description: null,
-      meta: [user.role, user.location].filter(Boolean) as string[],
+      meta: [user.role, location].filter(Boolean) as string[],
       pillVariant: undefined,
       pillLabel: user.role ?? undefined,
       avatarUrl: user.avatarUrl,
