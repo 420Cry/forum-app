@@ -71,6 +71,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: verify
     timeout-minutes: 45
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout forum-app (PR branch)
         uses: actions/checkout@v4
@@ -139,6 +142,17 @@ jobs:
         run: |
           RESULTS="forum-test-automation/playwright-report/results.json"
           node forum-app/.github/scripts/report-e2e-summary.mjs "$RESULTS" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment E2E report on PR
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          E2E_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          RESULTS="forum-test-automation/playwright-report/results.json"
+          node forum-app/.github/scripts/report-e2e-summary.mjs "$RESULTS" --collapse > e2e-comment.md
+          bash forum-app/.github/scripts/pr-sticky-comment.sh \
+            '<!-- e2e-report -->' e2e-comment.md '${{ github.event.pull_request.number }}'
 
       - name: Upload Playwright report
         if: always()
