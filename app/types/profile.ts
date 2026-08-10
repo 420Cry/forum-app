@@ -36,6 +36,7 @@ export type StartupProfile = {
   foundedAt: string
   views: number
   connections: number
+  followersCount?: number
   href: string
 }
 
@@ -53,6 +54,7 @@ export type InvestorProfile = {
   maxInvestmentUsd: number | null
   views: number
   connections: number
+  followersCount?: number
   href: string
 }
 
@@ -62,11 +64,17 @@ export type PublicUserProfile = {
   profilePath: string
   name: string | null
   role: 'Founder' | 'Investor' | null
+  /** Display label from API (English catalog name). */
   occupation: string | null
+  occupationKey?: string | null
+  /** Display label from API (city / fixed seed). */
   location: string | null
+  locationKey?: string | null
   avatarUrl: string | null
-  /** Display labels from API — render as-is. */
+  /** Goal tag keys — translate via onboard.heading.goal_*. */
   goals: string[]
+  followersCount?: number
+  followingCount?: number
 }
 
 export type FindResults = {

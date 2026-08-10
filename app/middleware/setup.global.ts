@@ -3,6 +3,10 @@ import type { RouteAccess } from '~/types/routes'
 import { isProfileCacheStale } from '~/utils/profileCache'
 import { stripLocalePrefix } from '~/utils/localePath'
 import { onboardingRedirect, resolveVerifiedUser } from '~/utils/routeGuards'
+import {
+  AUTH_REDIRECT_QUERY,
+  sanitizeAuthRedirect,
+} from '~/utils/authRedirect'
 
 const REDIRECT_REPLACE = { replace: true } as const
 
@@ -49,7 +53,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   if (access === 'guest') {
     if (auth.status === 'verified') {
-      return navigateTo(localePath('/social'), REDIRECT_REPLACE)
+      const safe = sanitizeAuthRedirect(to.query[AUTH_REDIRECT_QUERY])
+      return navigateTo(localePath(safe ?? '/social'), REDIRECT_REPLACE)
     }
     return
   }
@@ -62,6 +67,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!import.meta.client) return
 
   const { profile, refreshProfile, unauthorized } = useUserProfile()
+  if (unauthorized.value) {
+    return navigateTo(localePath('/auth/login'))
+  }
+
   const needsOnboardingGate
     = barePath.startsWith('/social')
       || barePath.startsWith('/onboard')

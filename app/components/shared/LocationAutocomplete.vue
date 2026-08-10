@@ -6,6 +6,7 @@ import {
   catalogAutocompleteInput,
   type CatalogAutocompleteInputIntent,
 } from '~/utils/catalogAutocompleteInput'
+import { locationCatalogLabel } from '~/utils/catalogLabel'
 
 defineOptions({ inheritAttrs: false })
 
@@ -36,9 +37,13 @@ const emit = defineEmits<{
   searchError: [message: string]
 }>()
 
-const { t } = useI18n()
+const { t, te, locale } = useI18n()
 const { searchLocations } = useLocationsApi()
 const disabledRef = computed(() => props.disabled)
+
+function labelFor(row: CatalogLocation): string {
+  return locationCatalogLabel(row.key, row.name, t, te)
+}
 
 const {
   rootEl,
@@ -60,10 +65,35 @@ const {
   model,
   displayName,
   disabled: disabledRef,
-  search: searchLocations,
+  search: async (q, offset) => {
+    const result = await searchLocations(q, offset)
+    return {
+      ...result,
+      rows: result.rows.map(row => ({ ...row, name: labelFor(row) })),
+    }
+  },
   searchErrorFallback: t('onboard.error.location_search_failed'),
   emitChange: () => emit('change'),
   emitSearchError: message => emit('searchError', message),
+})
+
+watch(
+  () => [model.value, displayName.value] as const,
+  ([key, name]) => {
+    if (!key || name) return
+    displayName.value = locationCatalogLabel(key, key, t, te)
+  },
+  { immediate: true },
+)
+
+watch(locale, () => {
+  if (!model.value) return
+  displayName.value = locationCatalogLabel(
+    model.value,
+    displayName.value || model.value,
+    t,
+    te,
+  )
 })
 
 const showError = computed(

@@ -8,6 +8,7 @@ import { useCatalogApi } from '~/composables/api/useCatalogApi'
 import { useOnboardApi } from '~/composables/api/onboard/useOnboardApi'
 import { useAvatarUpload } from '~/composables/media/useAvatarUpload'
 import { useUserProfile } from '~/composables/user/useUserProfile'
+import { useAccount } from '~/composables/accounts/useAccount'
 import { createOnboardInfoSchema } from '~/types/onboard/schema/onboardInfoSchema'
 import { sanitizePersonName } from '~/utils/onboardInput'
 import {
@@ -18,16 +19,22 @@ import {
 import { useZodValidation } from '~/composables/validate/useZodValidation'
 import { accountNamePrefix } from '~/utils/accountSummary'
 import { getAvatarColor } from '~/utils/avatarColor'
+import {
+  locationCatalogLabel,
+} from '~/utils/catalogLabel'
+import { useOccupationLabels } from '~/composables/catalog/useOccupationLabels'
 
 definePageMeta({ layout: 'home', access: 'protected' })
 
-const { t } = useI18n()
+const { t, te, locale } = useI18n()
 const toast = useToast()
 const { profile, refreshProfile } = useUserProfile()
+const { refreshAccounts } = useAccount()
 const { updateProfile } = useOnboardApi()
 const { uploadAvatar } = useAvatarUpload()
 const { fetchTags, clearCatalogCache } = useCatalogApi()
 const { formInputValidate } = useZodValidation()
+const { ensureLoaded, label: occupationLabelFn } = useOccupationLabels()
 
 const editing = ref(false)
 const firstName = ref('')
@@ -46,24 +53,22 @@ const saving = ref(false)
 const uploading = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
 const locationLabels = ref<Map<string, string>>(new Map())
-const occupationLabels = ref<Map<string, string>>(new Map())
 const dobMin = minDateOfBirthInput()
 const dobMax = maxDateOfBirthInput()
 
-const locationLabel = computed(
-  () =>
-    locationName.value
-    || locationLabels.value.get(location.value)
-    || location.value
-    || '—',
-)
-const occupationLabel = computed(
-  () =>
-    occupationName.value
-    || occupationLabels.value.get(occupation.value)
-    || occupation.value
-    || '—',
-)
+const locationLabel = computed(() => {
+  const key = location.value
+  const fromMap = key ? locationLabels.value.get(key) : undefined
+  const raw = locationName.value || fromMap || key || '—'
+  if (!key || raw === '—') return raw
+  return locationCatalogLabel(key, raw, t, te)
+})
+const occupationLabel = computed(() => {
+  const key = occupation.value
+  const raw = occupationName.value || (key ? occupationLabelFn(key, key) : '') || '—'
+  if (!key || raw === '—') return raw
+  return occupationLabelFn(key, raw)
+})
 const dateOfBirthLabel = computed(() => dateOfBirth.value || '—')
 
 const displayName = computed(() => {
@@ -89,7 +94,7 @@ function hydrate() {
     = (p.location && locationLabels.value.get(p.location)) || ''
   occupation.value = p.occupation ?? ''
   occupationName.value
-    = (p.occupation && occupationLabels.value.get(p.occupation)) || ''
+    = (p.occupation && occupationLabelFn(p.occupation, '')) || ''
   urlKey.value = p.urlKey ?? ''
   profilePath.value = p.profilePath
   avatarUrl.value = p.avatarUrl
@@ -97,14 +102,17 @@ function hydrate() {
 }
 
 onMounted(async () => {
-  const [, locations, occupations] = await Promise.all([
+  const [, locations] = await Promise.all([
     refreshProfile(),
     fetchTags('location').catch(() => []),
-    fetchTags('occupation').catch(() => []),
+    ensureLoaded().catch(() => undefined),
   ])
   locationLabels.value = new Map(locations.map(tag => [tag.key, tag.name]))
-  occupationLabels.value = new Map(occupations.map(tag => [tag.key, tag.name]))
   hydrate()
+})
+
+watch(locale, () => {
+  void ensureLoaded()
 })
 
 function onLocationSearchError(message: string) {
@@ -188,7 +196,7 @@ async function onPickAvatar(event: Event) {
     await updateProfile({ avatarUrl: url })
     avatarUrl.value = url
     avatarFailed.value = false
-    await refreshProfile(true)
+    await Promise.all([refreshProfile(true), refreshAccounts()])
     toast.showSuccess(t('settings.info.avatar_saved'), 2000)
   }
   catch (err: unknown) {
@@ -239,11 +247,8 @@ async function onSave() {
     if (data.location && locationName.value) {
       locationLabels.value.set(data.location, locationName.value)
     }
-    if (data.occupation && occupationName.value) {
-      occupationLabels.value.set(data.occupation, occupationName.value)
-    }
     clearCatalogCache()
-    await refreshProfile(true)
+    await Promise.all([refreshProfile(true), refreshAccounts()])
     hydrate()
     editing.value = false
     toast.showSuccess(t('settings.info.profile_saved'), 2000)

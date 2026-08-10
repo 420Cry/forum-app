@@ -1,19 +1,35 @@
 <script setup lang="ts">
 import { useOnboard, useSupabaseAuth, useToast, useUserProfile } from '~/composables'
-import { postAuthPath } from '~/types/user'
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
+import {
+  AUTH_REDIRECT_QUERY,
+  resolvePostAuthPath,
+  sanitizeAuthRedirect,
+} from '~/utils/authRedirect'
 
 definePageMeta({ layout: 'auth', access: 'guest' })
 
 const { t } = useI18n()
 const localePath = useLocalePath()
+const route = useRoute()
 const { login, loading, error, clearError } = useSupabaseAuth()
 const { refreshProfile, clearProfile } = useUserProfile()
 const { resetOnboarding } = useOnboard()
 const toast = useToast()
 const email = ref('')
 const password = ref('')
+
+const redirectParam = computed(() =>
+  sanitizeAuthRedirect(route.query[AUTH_REDIRECT_QUERY]),
+)
+
+const registerTo = computed(() => ({
+  path: localePath('/auth/register'),
+  query: redirectParam.value
+    ? { [AUTH_REDIRECT_QUERY]: redirectParam.value }
+    : undefined,
+}))
 
 async function submit() {
   clearError()
@@ -23,7 +39,7 @@ async function submit() {
     resetOnboarding()
     clearProfile()
     const me = await refreshProfile(true)
-    const target = postAuthPath(me?.profile ?? null)
+    const target = resolvePostAuthPath(me?.profile ?? null, redirectParam.value)
     await navigateTo(localePath(target), { replace: true })
   }
 }
@@ -106,7 +122,7 @@ async function submit() {
       <p class="mt-4 text-center text-sm text-ink-3">
         {{ t('auth.info.no_account') }}
         <NuxtLink
-          :to="localePath('/auth/register')"
+          :to="registerTo"
           class="font-semibold text-brand hover:text-brand-hover"
         >
           {{ t('auth.action.create_account') }}

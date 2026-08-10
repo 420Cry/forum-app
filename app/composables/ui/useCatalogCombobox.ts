@@ -56,7 +56,9 @@ export function useCatalogCombobox<T extends CatalogComboboxRow>(
   watch(
     () => options.model.value,
     (key) => {
-      if (!key && !open.value) {
+      // While the user is typing, clearSelection() empties the key before the
+      // dropdown opens — never wipe the in-progress query in that window.
+      if (!key && !open.value && !focused.value) {
         query.value = ''
         options.displayName.value = ''
       }
@@ -184,6 +186,8 @@ export function useCatalogCombobox<T extends CatalogComboboxRow>(
     const el = event.target as HTMLInputElement
     query.value = el.value
     clearSelection()
+    // Open immediately so listRows can show while the debounced search runs.
+    open.value = focused.value
     scheduleSearch(el.value)
   }
 

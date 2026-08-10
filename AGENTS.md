@@ -35,7 +35,9 @@ Workflow: `.github/workflows/ci.yml` on every push/PR to `main`.
 | **docker** | `Dockerfile` build (after verify) |
 | **e2e** | Full stack (Supabase + Docker) + Playwright from `forum-test-automation`; e2e scenario summary in job output |
 
-E2e checks out **forum-app at the PR branch** plus `forum-api`, `forum-test-automation`, and `forum-server` at `main`. Stack boot lives in `.github/scripts/ci-e2e.sh`.
+E2e checks out **forum-app at the PR/push branch**. Sibling repos (`forum-api`, `forum-test-automation`, `forum-server`) use the **same branch name when it exists**, otherwise fall back to `main` (see `.github/scripts/resolve-sibling-ref.sh`). Stack boot lives in `.github/scripts/ci-e2e.sh`.
+
+Example: app / api / test-automation all on `4FOR-56` → e2e runs that trio together. If only app has `4FOR-56`, api and e2e stay on `main`.
 
 Sibling checkouts need repo (or org) secret **`FORUM_CI_PAT`**: a classic or fine-grained PAT with `contents: read` on `420Cry/forum-api`, `420Cry/forum-test-automation`, and `420Cry/forum-server`. The default `GITHUB_TOKEN` cannot read private sibling repos (GitHub reports them as “not found”).
 
@@ -52,7 +54,7 @@ Sibling checkouts need repo (or org) secret **`FORUM_CI_PAT`**: a classic or fin
 - **Onboarding** — three-step wizard (`/onboard`); completion = `profile.onboarded === true` from `/auth/me`.
 - **Goal keys** — stable API identifiers (`raise_capital`, …) in `app/constants/onboardContent.ts`; display text is i18n only.
 - **Route access** — page protection level declared in `definePageMeta({ access })`; see `app/types/routes.ts`.
-- **i18n** — `en` and `vn` with URL prefix (`/en/...`, `/vn/...`). Locale files: `locales/{en,vn}/forum-common.json`. Use `localePath()` for navigation; language switcher in the header. See `docs/conventions/translations.md`.
+- **i18n** — `en` and `vn` with URL prefix (`/en/...`, `/vn/...`). Locale files: `locales/{en,vn}/forum-common.json`. Occupation labels come from `forum-api` (`/catalog/occupations?locale=`). Use `localePath()` for navigation; language switcher in the header. See `docs/conventions/translations.md`.
 
 ## Navigation
 

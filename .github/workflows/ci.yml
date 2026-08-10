@@ -95,11 +95,40 @@ jobs:
         with:
           path: forum-app
 
+      - name: Resolve sibling branch refs
+        id: refs
+        env:
+          GH_TOKEN: ${{ secrets.FORUM_CI_PAT }}
+          # PR source branch, or the pushed branch name on push events.
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          set -euo pipefail
+          resolve() {
+            bash forum-app/.github/scripts/resolve-sibling-ref.sh "$1" "$BRANCH" main
+          }
+          API_REF="$(resolve 420Cry/forum-api)"
+          E2E_REF="$(resolve 420Cry/forum-test-automation)"
+          SERVER_REF="$(resolve 420Cry/forum-server)"
+          {
+            echo "api=${API_REF}"
+            echo "e2e=${E2E_REF}"
+            echo "server=${SERVER_REF}"
+          } >> "$GITHUB_OUTPUT"
+          {
+            echo "### E2E sibling refs"
+            echo "- app branch: \`${BRANCH}\`"
+            echo "- forum-api: \`${API_REF}\`"
+            echo "- forum-test-automation: \`${E2E_REF}\`"
+            echo "- forum-server: \`${SERVER_REF}\`"
+            echo
+            echo "Matching branch name is used when it exists in the sibling repo; otherwise \`main\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Checkout forum-api
         uses: actions/checkout@v4
         with:
           repository: 420Cry/forum-api
-          ref: main
+          ref: ${{ steps.refs.outputs.api }}
           path: forum-api
           token: ${{ secrets.FORUM_CI_PAT }}
 
@@ -107,7 +136,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 420Cry/forum-test-automation
-          ref: main
+          ref: ${{ steps.refs.outputs.e2e }}
           path: forum-test-automation
           token: ${{ secrets.FORUM_CI_PAT }}
 
@@ -115,7 +144,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 420Cry/forum-server
-          ref: main
+          ref: ${{ steps.refs.outputs.server }}
           path: forum-server
           token: ${{ secrets.FORUM_CI_PAT }}
 

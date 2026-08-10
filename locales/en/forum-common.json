@@ -114,6 +114,7 @@
     "action": {
       "follow": "+ Follow",
       "unfollow": "Following",
+      "sign_in_to_follow": "Sign in to follow",
       "learn_more": "Learn more"
     },
     "heading": {
@@ -259,7 +260,9 @@
       "startup_create": "Create a startup page",
       "investor_edit": "Investor page",
       "investor_create": "Create an investor page",
-      "about": "About"
+      "about": "About",
+      "followers": "Followers",
+      "following": "Following"
     },
     "info": {
       "startup_edit": "Share your company with founders and investors.",
@@ -269,7 +272,17 @@
       "unnamed": "Unnamed",
       "stats": "{views} views · {connections} connections",
       "no_about": "No about section yet.",
-      "own_preview": "This is your public profile — how others see you."
+      "followers_subtitle": "People who follow this profile.",
+      "following_subtitle": "Accounts this person follows.",
+      "followers_empty": "No followers yet.",
+      "following_empty": "Not following anyone yet.",
+      "followers_error": "Couldn’t load followers.",
+      "following_error": "Couldn’t load following."
+    },
+    "stat": {
+      "followers": "followers",
+      "following": "following",
+      "views": "views"
     },
     "label": {
       "company_name": "Company name",
@@ -417,9 +430,19 @@
     "find": "Find",
     "following": "Following",
     "settings": "Settings",
+    "aria": {
+      "main": "Main",
+      "mobile": "Mobile"
+    },
     "stat": {
       "profile_views": "Profile views",
       "connections": "Connections"
+    }
+  },
+  "catalog": {
+    "location": {
+      "remote": "Remote",
+      "location_other": "Other"
     }
   }
 }

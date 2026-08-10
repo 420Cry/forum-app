@@ -1,13 +1,19 @@
 import { useProfilesApi } from '~/composables/api/useProfilesApi'
 import type { PublicUserProfile } from '~/types/profile'
+import {
+  goalCatalogLabel,
+  locationCatalogLabel,
+} from '~/utils/catalogLabel'
+import { useOccupationLabels } from '~/composables/catalog/useOccupationLabels'
 import { resolveViewerId } from '~/utils/viewerId'
 
 export function usePublicUserPage(routeKey: MaybeRefOrGetter<string>) {
-  const { t } = useI18n()
+  const { t, te, locale } = useI18n()
   const localePath = useLocalePath()
   const user = useSupabaseUser()
   const { profile: me } = useUserProfile()
   const { getPublicUser } = useProfilesApi()
+  const { ensureLoaded, label: occupationLabel } = useOccupationLabels()
 
   const profile = ref<PublicUserProfile | null>(null)
   const error = ref(false)
@@ -20,19 +26,41 @@ export function usePublicUserPage(routeKey: MaybeRefOrGetter<string>) {
     const rows: { key: string, value: string, chips?: string[] }[] = []
     if (p.role) rows.push({ key: t('profiles.fact.role'), value: p.role })
     if (p.occupation) {
-      rows.push({ key: t('profiles.fact.occupation'), value: p.occupation })
+      const occupationKey = p.occupationKey ?? ''
+      rows.push({
+        key: t('profiles.fact.occupation'),
+        value: occupationKey
+          ? occupationLabel(occupationKey, p.occupation)
+          : p.occupation,
+      })
     }
     if (p.location) {
-      rows.push({ key: t('profiles.fact.location'), value: p.location })
+      const locationKey = p.locationKey ?? ''
+      rows.push({
+        key: t('profiles.fact.location'),
+        value: locationKey
+          ? locationCatalogLabel(locationKey, p.location, t, te)
+          : p.location,
+      })
     }
     if (p.goals.length) {
+      const goalLabels = p.goals.map(key => goalCatalogLabel(key, key, t, te))
       rows.push({
         key: t('profiles.fact.goals'),
-        value: p.goals.join(', '),
-        chips: p.goals,
+        value: goalLabels.join(', '),
+        chips: goalLabels,
       })
     }
     return rows
+  })
+
+  const occupationTagline = computed(() => {
+    const p = profile.value
+    if (!p?.occupation) return null
+    const key = p.occupationKey ?? ''
+    return key
+      ? occupationLabel(key, p.occupation)
+      : p.occupation
   })
 
   async function load() {
@@ -46,6 +74,8 @@ export function usePublicUserPage(routeKey: MaybeRefOrGetter<string>) {
       ])
       isOwnProfile.value = !!viewerId && next.id === viewerId
       profile.value = next
+      // Labels can resolve after paint; do not block profile render on catalog warm-up.
+      void ensureLoaded().catch(() => undefined)
       if (next.urlKey !== key) {
         await navigateTo(localePath(next.profilePath), { replace: true })
       }
@@ -63,5 +93,24 @@ export function usePublicUserPage(routeKey: MaybeRefOrGetter<string>) {
     void load()
   })
 
-  return { profile, error, loading, isOwnProfile, facts, load }
+  watch(
+    () => toValue(routeKey),
+    (next, prev) => {
+      if (next && next !== prev) void load()
+    },
+  )
+
+  watch(locale, () => {
+    void ensureLoaded()
+  })
+
+  return {
+    profile,
+    error,
+    loading,
+    isOwnProfile,
+    facts,
+    occupationTagline,
+    load,
+  }
 }

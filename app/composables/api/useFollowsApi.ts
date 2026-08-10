@@ -33,6 +33,22 @@ export function useFollowsApi() {
     return $fetch<AccountSummary[]>(`${baseUrl}/follows/me`, { headers })
   }
 
+  async function listFollowers(targetType: AccountType, targetId: string) {
+    const headers = await getAuthHeaders()
+    return $fetch<AccountSummary[]>(`${baseUrl}/follows/followers`, {
+      headers,
+      query: { targetType, targetId },
+    })
+  }
+
+  async function listFollowingForUser(userId: string) {
+    const headers = await getAuthHeaders()
+    return $fetch<AccountSummary[]>(`${baseUrl}/follows/following`, {
+      headers,
+      query: { userId },
+    })
+  }
+
   async function status(targetType: AccountType, targetId: string) {
     const headers = await getAuthHeaders()
     return $fetch<{ following: boolean }>(`${baseUrl}/follows/status`, {
@@ -41,5 +57,12 @@ export function useFollowsApi() {
     })
   }
 
-  return { follow, unfollow, listFollowing, status }
+  return {
+    follow,
+    unfollow,
+    listFollowing,
+    listFollowers,
+    listFollowingForUser,
+    status,
+  }
 }

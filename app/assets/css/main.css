@@ -15,6 +15,7 @@
   /* Brand — Deep Sea Green */
   --color-brand: #075056;
   --color-brand-hover: #053e43;
+  --color-brand-active: #043237;
   --color-brand-light: #0e7a74;
   --color-brand-50: #eef6f6;
   --color-brand-100: #d6ecec;
@@ -26,12 +27,20 @@
   --color-brand-700: #075056;
   /* Subtle tint for selected surfaces / focus rings */
   --color-brand-tint: rgba(7, 80, 86, 0.07);
+  --color-brand-tint-strong: rgba(7, 80, 86, 0.14);
 
   /* Accent — Blaze Orange */
   --color-accent: #ff5b04;
   --color-accent-hover: #e04e00;
+  --color-accent-active: #c44500;
   --color-accent-soft: #ffe7d8;
   --color-accent-text: #9c3a02;
+
+  /* Danger */
+  --color-danger: #c43c2c;
+  --color-danger-hover: #a83224;
+  --color-danger-active: #8f2a1f;
+  --color-danger-tint: rgba(196, 60, 44, 0.08);
 
   /* Ink scale */
   --color-ink: #16232a;
