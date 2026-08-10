@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ResultCard from '~/components/directory/ResultCard.vue'
 import { useFollowsApi } from '~/composables/api/useFollowsApi'
+import type { AccountType } from '~/types/profile'
 import { toAccountSummaryView } from '~/utils/accountSummary'
 import { stageToPillVariant } from '~/utils/stagePill'
 
@@ -10,6 +11,7 @@ const { t } = useI18n()
 const { listFollowing } = useFollowsApi()
 
 const loading = ref(true)
+const loadError = ref(false)
 const items = ref<ReturnType<typeof toAccountSummaryView>[]>([])
 
 function pillFor(account: (typeof items.value)[number]) {
@@ -27,13 +29,27 @@ function pillFor(account: (typeof items.value)[number]) {
   return { variant: undefined, label: undefined }
 }
 
+function onFollowChange(payload: {
+  targetType: AccountType
+  targetId: string
+  following: boolean
+}) {
+  if (payload.following) return
+  items.value = items.value.filter(
+    item =>
+      !(item.accountType === payload.targetType && item.id === payload.targetId),
+  )
+}
+
 onMounted(async () => {
   try {
     const list = await listFollowing()
     items.value = list.map(toAccountSummaryView)
+    loadError.value = false
   }
   catch {
     items.value = []
+    loadError.value = true
   }
   finally {
     loading.value = false
@@ -59,6 +75,12 @@ onMounted(async () => {
       {{ t('common.info.loading') }}
     </p>
     <div
+      v-else-if="loadError"
+      class="bg-card border border-line rounded-md shadow-1 px-5 py-8 text-center text-sm text-ink-3"
+    >
+      {{ t('following.info.error') }}
+    </div>
+    <div
       v-else-if="items.length === 0"
       class="bg-card border border-line rounded-md shadow-1 px-5 py-8 text-center text-sm text-ink-3"
     >
@@ -76,6 +98,7 @@ onMounted(async () => {
       :pill-variant="pillFor(item).variant"
       :pill-label="pillFor(item).label"
       :avatar-url="item.avatar || null"
+      @follow-change="onFollowChange"
     />
   </div>
 </template>

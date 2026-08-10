@@ -123,7 +123,12 @@
     },
     "info": {
       "become_member": "Unlock testimonials, ratings, and direct intros to founders.",
-      "feed_soon": "Your feed will live here. For now, use Find and Following to discover people."
+      "feed_soon": "Your feed will live here. For now, use Find and Following to discover people.",
+      "followed_toast": "Following.",
+      "unfollowed_toast": "Unfollowed."
+    },
+    "error": {
+      "follow_failed": "Could not update follow. Try again."
     },
     "badge": {
       "opportunity": "Opportunity"
@@ -198,12 +203,27 @@
       "suggestions_empty": "No one else to suggest yet. Check back as more people join.",
       "results": "{count} results",
       "matching": "founders and investors matching your filters",
-      "empty": "No matches yet. Try a different search."
+      "empty": "No matches yet. Try a different search.",
+      "filters_empty": "No filters for this type."
     },
     "label": {
       "query": "Search",
-      "query_placeholder": "Name, company, or keyword",
+      "query_placeholder": "Search by name…",
       "type": "Type"
+    },
+    "filter": {
+      "location": "Location",
+      "occupation": "Occupation",
+      "role": "Role",
+      "role_founder": "Founder",
+      "role_investor": "Investor",
+      "industry": "Industry",
+      "stage": "Stage",
+      "any": "Any"
+    },
+    "sort": {
+      "newest": "Newest",
+      "name": "Name A–Z"
     },
     "type": {
       "all": "All",
@@ -215,7 +235,11 @@
       "search": "Search",
       "searching": "Searching...",
       "view_profile": "View profile",
+      "clear": "Clear",
       "clear_all": "Clear all",
+      "filters": "Filters",
+      "sort": "Sort",
+      "show_results": "Show results",
       "see_more": "See more in Find"
     }
   },
@@ -225,7 +249,8 @@
     },
     "info": {
       "subtitle": "Accounts you follow.",
-      "empty": "You are not following anyone yet."
+      "empty": "You are not following anyone yet.",
+      "error": "Could not load who you follow. Try again."
     }
   },
   "profiles": {
@@ -243,7 +268,8 @@
       "investor_saved": "Investor page saved.",
       "unnamed": "Unnamed",
       "stats": "{views} views · {connections} connections",
-      "no_about": "No about section yet."
+      "no_about": "No about section yet.",
+      "own_preview": "This is your public profile — how others see you."
     },
     "label": {
       "company_name": "Company name",
@@ -279,7 +305,9 @@
     "action": {
       "back_to_find": "Back to Find",
       "add_industry": "Add",
-      "remove_industry": "Remove industry"
+      "remove_industry": "Remove industry",
+      "edit_profile": "Edit profile",
+      "view_own_profile": "View your profile"
     },
     "section": {
       "identity": "Identity",
@@ -326,14 +354,13 @@
     "label": {
       "first_name": "First name",
       "last_name": "Last name",
-      "age": "Age",
+      "date_of_birth": "Date of birth",
       "location": "Location",
       "occupation": "Occupation",
       "first_name_placeholder": "e.g. Alex",
       "last_name_placeholder": "e.g. Morgan",
-      "age_placeholder": "e.g. 28",
-      "location_placeholder": "City, country",
-      "occupation_placeholder": "e.g. Founder & researcher"
+      "location_placeholder": "e.g. London, Berlin, Singapore",
+      "occupation_placeholder": "Type an occupation"
     },
     "info": {
       "role_subtitle": "Pick the option that fits you best. You can hold both roles later — this just sets up your home feed.",
@@ -356,7 +383,8 @@
     "action": {
       "finish": "Finish & enter Fundedr",
       "finishing": "Setting up...",
-      "upload_photo": "Upload photo"
+      "upload_photo": "Upload photo",
+      "use_custom_occupation": "Use \"{query}\""
     },
     "error": {
       "select_role": "Please select your role before continue!",
@@ -367,15 +395,16 @@
       "last_name_required": "Last name required",
       "last_name_min": "Last name must have at least 2 characters",
       "last_name_special": "Last name can only contain letters (no numbers or symbols)",
-      "age_required": "Age required",
-      "age_invalid": "Age must be a whole number",
-      "age_min": "You must be older than 16",
+      "dob_required": "Date of birth required",
+      "dob_invalid": "Enter a valid date of birth",
+      "dob_too_young": "You must be older than 16",
+      "dob_too_old": "Date of birth is out of range",
       "location_required": "Location required",
-      "location_min": "Location must have at least 2 characters",
-      "location_special": "Location must not contain special characters",
+      "location_invalid": "Please select a city and country",
+      "location_search_failed": "Location search is unavailable. Try again later.",
       "occupation_required": "Occupation required",
-      "occupation_min": "Occupation must have at least 2 characters",
-      "occupation_special": "Occupation must not contain special characters",
+      "occupation_invalid": "Please select an occupation",
+      "occupation_search_failed": "Occupation search is unavailable. Try again later.",
       "role_invalid": "User role can only be Founder or Investor"
     }
   },

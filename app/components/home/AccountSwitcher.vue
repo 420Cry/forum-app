@@ -2,6 +2,10 @@
 import { useAccount } from '~/composables/accounts/useAccount'
 import BaseIcon from '../shared/BaseIcon.vue'
 
+const emit = defineEmits<{
+  close: []
+}>()
+
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { logout } = useSupabaseAuth()
@@ -42,6 +46,16 @@ watch(
 onMounted(() => {
   void refreshAccounts()
 })
+
+async function openProfile(accountId: string, href: string) {
+  handleActive(accountId)
+  emit('close')
+  await navigateTo(localePath(href))
+}
+
+function onSettingsClick() {
+  emit('close')
+}
 </script>
 
 <template>
@@ -63,7 +77,7 @@ onMounted(() => {
         role="menuitem"
         class="flex w-full cursor-pointer items-center gap-3 rounded-sm px-2.5 py-2.75 text-left hover:bg-surface-hover"
         :class="{ 'bg-brand-tint': account.id === activeAccountId }"
-        @click="handleActive(account.id)"
+        @click="openProfile(account.id, account.href)"
       >
         <img
           v-if="account.avatar && !account.avatarLoadFailed"
@@ -105,6 +119,7 @@ onMounted(() => {
       :to="localePath('/settings')"
       role="menuitem"
       class="flex w-full cursor-pointer items-center gap-2.5 rounded-sm px-2.5 py-2.25 no-underline hover:bg-surface-hover"
+      @click="onSettingsClick"
     >
       <div
         class="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-hover"

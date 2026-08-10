@@ -11,6 +11,10 @@ const props = withDefaults(
     name: string
     targetType: AccountType
     targetId: string
+    /** For org pages: hide Follow when the viewer owns the page. */
+    ownerUserId?: string | null
+    /** Owner viewing their own public profile — show Edit instead of Follow. */
+    isOwn?: boolean
     tagline?: string | null
     meta?: string[]
     followersLabel?: string | null
@@ -19,6 +23,8 @@ const props = withDefaults(
     avatarUrl?: string | null
   }>(),
   {
+    ownerUserId: null,
+    isOwn: false,
     tagline: null,
     meta: () => [],
     followersLabel: null,
@@ -28,12 +34,17 @@ const props = withDefaults(
   },
 )
 
+const localePath = useLocalePath()
+const { t } = useI18n()
 const avatarFailed = ref(false)
 const initials = computed(() => accountNamePrefix(props.name || '?'))
 const avatarColor = computed(() => getAvatarColor(props.targetId || props.name))
 const metaParts = computed(() =>
   props.meta.filter((part): part is string => Boolean(part && part.trim())),
 )
+
+const editProfileClass
+  = 'inline-flex items-center justify-center gap-1.5 font-semibold rounded-pill transition-colors cursor-pointer select-none whitespace-nowrap text-center border border-brand text-brand bg-transparent hover:bg-brand-tint px-3 py-1.5 text-[12.5px] leading-none min-h-8 no-underline'
 </script>
 
 <template>
@@ -105,9 +116,18 @@ const metaParts = computed(() =>
           </p>
         </div>
         <div class="flex gap-2 items-center">
+          <NuxtLink
+            v-if="isOwn"
+            :to="localePath('/settings/profile')"
+            :class="editProfileClass"
+          >
+            {{ t('profiles.action.edit_profile') }}
+          </NuxtLink>
           <FollowButton
+            v-else
             :target-type="targetType"
             :target-id="targetId"
+            :owner-user-id="ownerUserId"
           />
         </div>
       </div>

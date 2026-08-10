@@ -2,18 +2,40 @@
 import BaseInput from '../shared/BaseInput.vue'
 import BaseButton from '../shared/BaseButton.vue'
 import BaseIcon from '../shared/BaseIcon.vue'
+import LocationAutocomplete from '../shared/LocationAutocomplete.vue'
+import OccupationAutocomplete from '../shared/OccupationAutocomplete.vue'
 import TitleSection from './shared/TitleSection.vue'
-import { sanitizeAgeInput, sanitizePersonName } from '~/utils/onboardInput'
+import { sanitizePersonName } from '~/utils/onboardInput'
+import {
+  maxDateOfBirthInput,
+  minDateOfBirthInput,
+} from '~/utils/dateOfBirth'
 import { useAvatarUpload } from '~/composables/media/useAvatarUpload'
+import { useCatalogApi } from '~/composables/api/useCatalogApi'
 
 const { t } = useI18n()
 const toast = useToast()
 const { onboardInfo, infoErrors, clearInfoError, flushDraft } = useOnboard()
 const { uploadAvatar } = useAvatarUpload()
+const { fetchTags } = useCatalogApi()
 
 const avatarFailed = ref(false)
 const uploading = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
+const catalogsLoading = ref(true)
+
+onMounted(async () => {
+  try {
+    const locations = await fetchTags('location').catch(() => [])
+    if (onboardInfo.location && !onboardInfo.locationName) {
+      const match = locations.find(tag => tag.key === onboardInfo.location)
+      if (match) onboardInfo.locationName = match.name
+    }
+  }
+  finally {
+    catalogsLoading.value = false
+  }
+})
 
 function onFirstNameInput(event: Event) {
   const el = event.target as HTMLInputElement
@@ -31,12 +53,21 @@ function onLastNameInput(event: Event) {
   clearInfoError('lastName')
 }
 
-function onAgeInput(event: Event) {
+const dobMin = minDateOfBirthInput()
+const dobMax = maxDateOfBirthInput()
+
+function onDateOfBirthInput(event: Event) {
   const el = event.target as HTMLInputElement
-  const next = sanitizeAgeInput(el.value)
-  if (next !== el.value) el.value = next
-  onboardInfo.age = next
-  clearInfoError('age')
+  onboardInfo.dateOfBirth = el.value
+  clearInfoError('dateOfBirth')
+}
+
+function onLocationSearchError(message: string) {
+  toast.showError(message, 3000)
+}
+
+function onOccupationSearchError(message: string) {
+  toast.showError(message, 3000)
 }
 
 async function onPickAvatar(event: Event) {
@@ -50,7 +81,6 @@ async function onPickAvatar(event: Event) {
     const url = await uploadAvatar(file)
     onboardInfo.avatarUrl = url
     avatarFailed.value = false
-    // Persist immediately so a reload right after upload keeps the photo.
     void flushDraft()
   }
   catch (err: unknown) {
@@ -99,7 +129,7 @@ async function onPickAvatar(event: Event) {
         <p class="mb-1 text-[12.5px] font-semibold text-ink-2">
           {{ t('onboard.heading.profile_photo') }}
         </p>
-        <p class="text-[13.5px] leading-relaxed text-ink-3">
+        <p class="text-[13.5px]/relaxed  text-ink-3">
           {{ t('onboard.info.profile_photo_help') }}
         </p>
         <input
@@ -153,44 +183,47 @@ async function onPickAvatar(event: Event) {
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4.5">
-        <div class="flex flex-col gap-1">
-          <BaseInput
-            id="age"
-            v-model="onboardInfo.age"
-            :label="t('onboard.label.age')"
-            :placeholder="t('onboard.label.age_placeholder')"
-            :intent="infoErrors?.age ? 'error' : 'primary'"
-            :error-msg="infoErrors?.age"
-            inputmode="numeric"
-            autocomplete="off"
-            @input="onAgeInput"
-          />
-        </div>
-        <div class="flex flex-col gap-1">
-          <BaseInput
-            id="location"
-            v-model="onboardInfo.location"
-            :label="t('onboard.label.location')"
-            :placeholder="t('onboard.label.location_placeholder')"
-            :intent="infoErrors?.location ? 'error' : 'primary'"
-            :error-msg="infoErrors?.location"
-            @input="clearInfoError('location')"
-          />
-        </div>
+      <div class="grid grid-cols-2 gap-4.5 items-start">
+        <BaseInput
+          id="dateOfBirth"
+          v-model="onboardInfo.dateOfBirth"
+          type="date"
+          :label="t('onboard.label.date_of_birth')"
+          :intent="infoErrors?.dateOfBirth ? 'error' : 'primary'"
+          :error-msg="infoErrors?.dateOfBirth"
+          :min="dobMin"
+          :max="dobMax"
+          autocomplete="bday"
+          @input="onDateOfBirthInput"
+        />
+        <LocationAutocomplete
+          id="location"
+          v-model="onboardInfo.location"
+          v-model:display-name="onboardInfo.locationName"
+          :label="t('onboard.label.location')"
+          :placeholder="t('onboard.label.location_placeholder')"
+          :disabled="catalogsLoading"
+          :intent="infoErrors?.location ? 'error' : 'primary'"
+          :error-msg="infoErrors?.location"
+          @change="clearInfoError('location')"
+          @search-error="onLocationSearchError"
+        />
       </div>
 
       <div class="flex flex-col gap-1">
-        <BaseInput
+        <OccupationAutocomplete
           id="occupation"
           v-model="onboardInfo.occupation"
+          v-model:display-name="onboardInfo.occupationName"
           :label="t('onboard.label.occupation')"
           :placeholder="t('onboard.label.occupation_placeholder')"
+          :disabled="catalogsLoading"
           :intent="infoErrors?.occupation ? 'error' : 'primary'"
           :error-msg="infoErrors?.occupation"
-          @input="clearInfoError('occupation')"
+          @change="clearInfoError('occupation')"
+          @search-error="onOccupationSearchError"
         />
-        <p class="mt-1 text-xs text-ink-4">
+        <p class="text-xs text-ink-4">
           {{ t('onboard.info.occupation_help') }}
         </p>
       </div>

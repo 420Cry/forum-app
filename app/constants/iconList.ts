@@ -20,4 +20,6 @@ export const iconList = {
   person: 'material-symbols:person-outline-rounded',
   following: 'material-symbols:person-add-outline-rounded',
   close: 'material-symbols:close-rounded',
+  filters: 'material-symbols:instant-mix',
+  sort: 'material-symbols:sort-rounded',
 } as const

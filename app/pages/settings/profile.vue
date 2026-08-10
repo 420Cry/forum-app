@@ -1,14 +1,22 @@
 <script setup lang="ts">
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
-import BaseIcon from '~/components/shared/BaseIcon.vue'
+import LocationAutocomplete from '~/components/shared/LocationAutocomplete.vue'
+import OccupationAutocomplete from '~/components/shared/OccupationAutocomplete.vue'
 import SettingsBackLink from '~/components/settings/SettingsBackLink.vue'
+import { useCatalogApi } from '~/composables/api/useCatalogApi'
 import { useOnboardApi } from '~/composables/api/onboard/useOnboardApi'
 import { useAvatarUpload } from '~/composables/media/useAvatarUpload'
 import { useUserProfile } from '~/composables/user/useUserProfile'
 import { createOnboardInfoSchema } from '~/types/onboard/schema/onboardInfoSchema'
-import { sanitizeAgeInput, sanitizePersonName } from '~/utils/onboardInput'
+import { sanitizePersonName } from '~/utils/onboardInput'
+import {
+  maxDateOfBirthInput,
+  minDateOfBirthInput,
+} from '~/utils/dateOfBirth'
 import { useZodValidation } from '~/composables/validate/useZodValidation'
+import { accountNamePrefix } from '~/utils/accountSummary'
+import { getAvatarColor } from '~/utils/avatarColor'
 
 definePageMeta({ layout: 'home', access: 'protected' })
 
@@ -17,14 +25,17 @@ const toast = useToast()
 const { profile, refreshProfile } = useUserProfile()
 const { updateProfile } = useOnboardApi()
 const { uploadAvatar } = useAvatarUpload()
+const { fetchTags, clearCatalogCache } = useCatalogApi()
 const { formInputValidate } = useZodValidation()
 
 const editing = ref(false)
 const firstName = ref('')
 const lastName = ref('')
-const age = ref('')
+const dateOfBirth = ref('')
 const location = ref('')
+const locationName = ref('')
 const occupation = ref('')
+const occupationName = ref('')
 const urlKey = ref('')
 const profilePath = ref<string | null>(null)
 const avatarUrl = ref<string | null>(null)
@@ -33,6 +44,37 @@ const errors = ref<Record<string, string> | null>(null)
 const saving = ref(false)
 const uploading = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
+const locationLabels = ref<Map<string, string>>(new Map())
+const occupationLabels = ref<Map<string, string>>(new Map())
+const dobMin = minDateOfBirthInput()
+const dobMax = maxDateOfBirthInput()
+
+const locationLabel = computed(
+  () =>
+    locationName.value
+    || locationLabels.value.get(location.value)
+    || location.value
+    || '—',
+)
+const occupationLabel = computed(
+  () =>
+    occupationName.value
+    || occupationLabels.value.get(occupation.value)
+    || occupation.value
+    || '—',
+)
+const dateOfBirthLabel = computed(() => dateOfBirth.value || '—')
+
+const displayName = computed(() => {
+  const fromFields = `${firstName.value} ${lastName.value}`.trim()
+  if (fromFields) return fromFields
+  return profile.value?.profile?.name?.trim() || ''
+})
+
+const avatarInitials = computed(() => accountNamePrefix(displayName.value || '?'))
+const avatarColor = computed(() =>
+  getAvatarColor(profile.value?.id || displayName.value || 'user'),
+)
 
 function hydrate() {
   const p = profile.value?.profile
@@ -40,9 +82,13 @@ function hydrate() {
   const parts = (p.name ?? '').trim().split(/\s+/)
   firstName.value = parts[0] ?? ''
   lastName.value = parts.slice(1).join(' ')
-  age.value = p.age != null ? String(p.age) : ''
+  dateOfBirth.value = p.dateOfBirth ?? ''
   location.value = p.location ?? ''
+  locationName.value
+    = (p.location && locationLabels.value.get(p.location)) || ''
   occupation.value = p.occupation ?? ''
+  occupationName.value
+    = (p.occupation && occupationLabels.value.get(p.occupation)) || ''
   urlKey.value = p.urlKey ?? ''
   profilePath.value = p.profilePath
   avatarUrl.value = p.avatarUrl
@@ -50,9 +96,23 @@ function hydrate() {
 }
 
 onMounted(async () => {
-  await refreshProfile()
+  const [, locations, occupations] = await Promise.all([
+    refreshProfile(),
+    fetchTags('location').catch(() => []),
+    fetchTags('occupation').catch(() => []),
+  ])
+  locationLabels.value = new Map(locations.map(tag => [tag.key, tag.name]))
+  occupationLabels.value = new Map(occupations.map(tag => [tag.key, tag.name]))
   hydrate()
 })
+
+function onLocationSearchError(message: string) {
+  toast.showError(message, 3000)
+}
+
+function onOccupationSearchError(message: string) {
+  toast.showError(message, 3000)
+}
 
 function startEditing() {
   hydrate()
@@ -84,13 +144,11 @@ function onLastNameInput(event: Event) {
   clearError('lastName')
 }
 
-function onAgeInput(event: Event) {
+function onDateOfBirthInput(event: Event) {
   if (!editing.value) return
   const el = event.target as HTMLInputElement
-  const next = sanitizeAgeInput(el.value)
-  if (next !== el.value) el.value = next
-  age.value = next
-  clearError('age')
+  dateOfBirth.value = el.value
+  clearError('dateOfBirth')
 }
 
 function clearError(field: string) {
@@ -133,7 +191,7 @@ async function onSave() {
     {
       firstName: firstName.value,
       lastName: lastName.value,
-      age: age.value,
+      dateOfBirth: dateOfBirth.value,
       location: location.value,
       occupation: occupation.value,
     },
@@ -153,11 +211,20 @@ async function onSave() {
     await updateProfile({
       firstName: data.firstName,
       lastName: data.lastName,
-      age: data.age,
+      dateOfBirth: data.dateOfBirth,
       location: data.location,
+      locationName: locationName.value || undefined,
       occupation: data.occupation,
+      occupationName: occupationName.value || undefined,
       urlKey: urlKey.value.trim(),
     })
+    if (data.location && locationName.value) {
+      locationLabels.value.set(data.location, locationName.value)
+    }
+    if (data.occupation && occupationName.value) {
+      occupationLabels.value.set(data.occupation, occupationName.value)
+    }
+    clearCatalogCache()
     await refreshProfile(true)
     hydrate()
     editing.value = false
@@ -224,12 +291,13 @@ async function onSave() {
           />
           <div
             v-else
-            class="size-20 rounded-full border-2 border-dashed border-line-2 bg-surface-hover flex items-center justify-center text-ink-4"
+            class="size-20 rounded-full flex items-center justify-center shrink-0 shadow-1"
+            :style="{ backgroundImage: avatarColor }"
+            :aria-label="displayName || t('settings.heading.photo')"
           >
-            <BaseIcon
-              name="camera"
-              size="1.75em"
-            />
+            <span class="font-semibold text-[28px] text-white leading-none">
+              {{ avatarInitials }}
+            </span>
           </div>
         </div>
 
@@ -302,43 +370,80 @@ async function onSave() {
           />
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
           <BaseInput
-            id="settings-age"
-            v-model="age"
-            :label="t('onboard.label.age')"
-            :placeholder="t('onboard.label.age_placeholder')"
-            :intent="editing && errors?.age ? 'error' : 'primary'"
-            :error-msg="editing ? errors?.age : undefined"
-            :reserve-error="editing"
-            :readonly="!editing"
-            inputmode="numeric"
-            @input="onAgeInput"
+            v-if="editing"
+            id="settings-dateOfBirth"
+            v-model="dateOfBirth"
+            type="date"
+            :label="t('onboard.label.date_of_birth')"
+            :intent="errors?.dateOfBirth ? 'error' : 'primary'"
+            :error-msg="errors?.dateOfBirth"
+            :min="dobMin"
+            :max="dobMax"
+            autocomplete="bday"
+            @input="onDateOfBirthInput"
           />
-          <BaseInput
+          <div
+            v-else
+            class="min-w-0 flex flex-col"
+          >
+            <p class="block text-sm font-semibold text-ink-2 mb-1">
+              {{ t('onboard.label.date_of_birth') }}
+            </p>
+            <p class="text-[14.5px] text-ink font-medium py-2.5">
+              {{ dateOfBirthLabel }}
+            </p>
+          </div>
+          <LocationAutocomplete
+            v-if="editing"
             id="settings-location"
             v-model="location"
+            v-model:display-name="locationName"
             :label="t('onboard.label.location')"
             :placeholder="t('onboard.label.location_placeholder')"
-            :intent="editing && errors?.location ? 'error' : 'primary'"
-            :error-msg="editing ? errors?.location : undefined"
-            :reserve-error="editing"
-            :readonly="!editing"
-            @input="clearError('location')"
+            :intent="errors?.location ? 'error' : 'primary'"
+            :error-msg="errors?.location"
+            @change="clearError('location')"
+            @search-error="onLocationSearchError"
           />
+          <div
+            v-else
+            class="min-w-0 flex flex-col"
+          >
+            <p class="block text-sm font-semibold text-ink-2 mb-1">
+              {{ t('onboard.label.location') }}
+            </p>
+            <p class="text-[14.5px] text-ink font-medium py-2.5">
+              {{ locationLabel }}
+            </p>
+          </div>
         </div>
 
-        <BaseInput
-          id="settings-occupation"
-          v-model="occupation"
-          :label="t('onboard.label.occupation')"
-          :placeholder="t('onboard.label.occupation_placeholder')"
-          :intent="editing && errors?.occupation ? 'error' : 'primary'"
-          :error-msg="editing ? errors?.occupation : undefined"
-          :reserve-error="editing"
-          :readonly="!editing"
-          @input="clearError('occupation')"
-        />
+        <div v-if="editing">
+          <OccupationAutocomplete
+            id="settings-occupation"
+            v-model="occupation"
+            v-model:display-name="occupationName"
+            :label="t('onboard.label.occupation')"
+            :placeholder="t('onboard.label.occupation_placeholder')"
+            :intent="errors?.occupation ? 'error' : 'primary'"
+            :error-msg="errors?.occupation"
+            @change="clearError('occupation')"
+            @search-error="onOccupationSearchError"
+          />
+        </div>
+        <div
+          v-else
+          class="min-w-0"
+        >
+          <p class="block text-sm font-semibold text-ink-2 mb-1">
+            {{ t('onboard.label.occupation') }}
+          </p>
+          <p class="text-[14.5px] text-ink font-medium">
+            {{ occupationLabel }}
+          </p>
+        </div>
       </div>
     </section>
 

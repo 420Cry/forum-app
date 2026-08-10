@@ -12,15 +12,18 @@ import type { UserProfile } from '~/types/user'
 import { inferOnboardingStep, isOnboardingComplete } from '~/types/user'
 import { isFetchUnauthorized } from '~/utils/authSession'
 import { useUserProfile } from '../user/useUserProfile'
+import { useCatalogApi } from '../api/useCatalogApi'
 
 type onboardInfoType = {
   role: '' | roleTitlesType
   goals: goalKeyType[]
   firstName: string
   lastName: string
-  age: string
+  dateOfBirth: string
   location: string
+  locationName: string
   occupation: string
+  occupationName: string
   avatarUrl: string | null
 }
 
@@ -30,9 +33,11 @@ function emptyOnboardInfo(): onboardInfoType {
     goals: [],
     firstName: '',
     lastName: '',
-    age: '',
+    dateOfBirth: '',
     location: '',
+    locationName: '',
     occupation: '',
+    occupationName: '',
     avatarUrl: null,
   }
 }
@@ -69,9 +74,11 @@ async function persistDraft() {
       goals: onboardInfo.goals,
       firstName: onboardInfo.firstName,
       lastName: onboardInfo.lastName,
-      age: onboardInfo.age,
+      dateOfBirth: onboardInfo.dateOfBirth,
       location: onboardInfo.location,
+      locationName: onboardInfo.locationName,
       occupation: onboardInfo.occupation,
+      occupationName: onboardInfo.occupationName,
       avatarUrl: onboardInfo.avatarUrl,
     })
     await saveOnboardingDraft(payload)
@@ -168,6 +175,7 @@ export const useOnboard = () => {
 
   const toast = useToast()
   const { refreshProfile } = useUserProfile()
+  const { clearCatalogCache } = useCatalogApi()
 
   const resetOnboarding = () => {
     clearOnboardSession()
@@ -191,7 +199,7 @@ export const useOnboard = () => {
       onboardInfo.firstName = firstName ?? ''
       onboardInfo.lastName = rest.join(' ')
     }
-    if (profile.age != null) onboardInfo.age = String(profile.age)
+    if (profile.dateOfBirth) onboardInfo.dateOfBirth = profile.dateOfBirth
     if (profile.location) onboardInfo.location = profile.location
     if (profile.occupation) onboardInfo.occupation = profile.occupation
     if (profile.avatarUrl) onboardInfo.avatarUrl = profile.avatarUrl
@@ -256,9 +264,11 @@ export const useOnboard = () => {
         goals,
         firstName: data.firstName,
         lastName: data.lastName,
-        age: data.age,
+        dateOfBirth: data.dateOfBirth,
         location: data.location,
+        locationName: onboardInfo.locationName || undefined,
         occupation: data.occupation,
+        occupationName: onboardInfo.occupationName || undefined,
       })
       if (!res.success) {
         toast.showError(t('common.error.try_again_later'), 1500)
@@ -274,6 +284,7 @@ export const useOnboard = () => {
       }
       await refreshProfile(true)
       resetOnboarding()
+      clearCatalogCache()
       await navigateTo(localePath('/social'), { replace: true })
       return true
     }

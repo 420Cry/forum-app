@@ -7,7 +7,7 @@ const emptySource = {
   goals: [] as const,
   firstName: '',
   lastName: '',
-  age: '',
+  dateOfBirth: '',
   location: '',
   occupation: '',
 }
@@ -28,7 +28,7 @@ describe('buildOnboardDraftPayload', () => {
     ).toEqual({ step: 1, role: 'Founder' })
   })
 
-  it('includes parsed age and goal keys when present', () => {
+  it('includes date of birth and goal keys when present', () => {
     expect(
       buildOnboardDraftPayload({
         step: 3,
@@ -36,7 +36,7 @@ describe('buildOnboardDraftPayload', () => {
         goals: ['raise_capital', 'discover_startups'],
         firstName: 'Ada',
         lastName: 'Lovelace',
-        age: '30',
+        dateOfBirth: '1996-01-15',
         location: 'London',
         occupation: 'Angel',
       }),
@@ -46,40 +46,41 @@ describe('buildOnboardDraftPayload', () => {
       goals: ['raise_capital', 'discover_startups'],
       firstName: 'Ada',
       lastName: 'Lovelace',
-      age: 30,
+      dateOfBirth: '1996-01-15',
       location: 'London',
       occupation: 'Angel',
     })
   })
 
-  it('skips invalid age strings', () => {
+  it('skips invalid date of birth strings', () => {
     expect(
       buildOnboardDraftPayload({
         ...emptySource,
-        age: 'not-a-number',
+        dateOfBirth: 'not-a-date',
       }),
     ).toEqual({ step: 1 })
   })
 
-  it('skips ages below the draft minimum', () => {
+  it('skips underage dates of birth', () => {
     expect(
       buildOnboardDraftPayload({
         ...emptySource,
-        age: '1',
+        dateOfBirth: '2015-01-01',
       }),
     ).toEqual({ step: 1 })
   })
 
-  it('includes avatarUrl when present', () => {
+  it('includes locationName for Places picks', () => {
     expect(
       buildOnboardDraftPayload({
         ...emptySource,
-        step: 3,
-        avatarUrl: 'https://cdn.example.com/a.webp',
+        location: 'place_abc123',
+        locationName: 'Hanoi, Vietnam',
       }),
     ).toEqual({
-      step: 3,
-      avatarUrl: 'https://cdn.example.com/a.webp',
+      step: 1,
+      location: 'place_abc123',
+      locationName: 'Hanoi, Vietnam',
     })
   })
 })

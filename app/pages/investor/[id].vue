@@ -88,6 +88,7 @@ const facts = computed(() => {
         :name="profile.firmName"
         target-type="investor"
         :target-id="profile.id"
+        :owner-user-id="profile.userId"
         :tagline="profile.description"
         :meta="[profile.industry]"
         :followers-label="

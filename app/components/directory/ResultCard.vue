@@ -35,6 +35,10 @@ const props = withDefaults(
   },
 )
 
+const emit = defineEmits<{
+  followChange: [payload: { targetType: AccountType, targetId: string, following: boolean }]
+}>()
+
 const { t } = useI18n()
 const localePath = useLocalePath()
 const avatarFailed = ref(false)
@@ -46,9 +50,19 @@ const metaParts = computed(() =>
   props.meta.filter((part): part is string => Boolean(part && part.trim())),
 )
 
+function onFollowChange(following: boolean) {
+  emit('followChange', {
+    targetType: props.targetType,
+    targetId: props.targetId,
+    following,
+  })
+}
+
 /** Match BaseButton sm + secondary so Follow / View profile share one footprint. */
 const viewProfileClass
   = 'inline-flex items-center justify-center gap-1.5 font-semibold rounded-pill transition-colors cursor-pointer select-none whitespace-nowrap text-center border border-line text-ink-2 bg-card hover:bg-surface-hover hover:border-line-2 px-3 py-1.5 text-[12.5px] leading-none min-h-8 w-full no-underline'
+
+const profileTo = computed(() => localePath(props.href))
 </script>
 
 <template>
@@ -63,27 +77,36 @@ const viewProfileClass
       {{ t('social.badge.opportunity') }}
     </span>
 
-    <img
-      v-if="avatarUrl && !avatarFailed"
-      :src="avatarUrl"
-      class="size-14 rounded-full object-cover shrink-0"
-      @error="avatarFailed = true"
-    />
-    <div
-      v-else
-      class="size-14 rounded-full flex justify-center items-center shrink-0 shadow-1"
-      :style="{ backgroundImage: avatarColor }"
+    <NuxtLink
+      :to="profileTo"
+      class="size-14 shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+      :aria-label="name"
     >
-      <span class="font-semibold text-[20px] text-white">
-        {{ initials }}
-      </span>
-    </div>
+      <img
+        v-if="avatarUrl && !avatarFailed"
+        :src="avatarUrl"
+        class="size-14 rounded-full object-cover"
+        @error="avatarFailed = true"
+      />
+      <div
+        v-else
+        class="size-14 rounded-full flex justify-center items-center shadow-1"
+        :style="{ backgroundImage: avatarColor }"
+      >
+        <span class="font-semibold text-[20px] text-white">
+          {{ initials }}
+        </span>
+      </div>
+    </NuxtLink>
 
     <div class="min-w-0 lg:pr-2">
       <div class="flex items-center gap-2.5 flex-wrap">
-        <span class="text-[17px] font-bold text-ink tracking-[-0.012em]">
+        <NuxtLink
+          :to="profileTo"
+          class="text-[17px] font-bold text-ink tracking-[-0.012em] no-underline hover:underline"
+        >
           {{ name }}
-        </span>
+        </NuxtLink>
         <BasePill
           v-if="pillVariant || pillLabel"
           :variant="pillVariant"
@@ -138,9 +161,10 @@ const viewProfileClass
         block
         :target-type="targetType"
         :target-id="targetId"
+        @change="onFollowChange"
       />
       <NuxtLink
-        :to="localePath(href)"
+        :to="profileTo"
         :class="[
           viewProfileClass,
           !showFollow ? 'col-span-2 lg:col-span-1' : '',
