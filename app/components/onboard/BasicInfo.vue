@@ -13,12 +13,15 @@ import {
 } from '~/utils/dateOfBirth'
 import { useAvatarUpload } from '~/composables/media/useAvatarUpload'
 import { useCatalogApi } from '~/composables/api/useCatalogApi'
+import { locationCatalogLabel } from '~/utils/catalogLabel'
+import { useOccupationsApi } from '~/composables/api/useOccupationsApi'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 const toast = useToast()
 const { onboardInfo, infoErrors, clearInfoError, setInfoError, flushDraft } = useOnboard()
 const { uploadAvatar } = useAvatarUpload()
 const { fetchTags } = useCatalogApi()
+const { resolveOccupationName } = useOccupationsApi()
 
 const avatarFailed = ref(false)
 const uploading = ref(false)
@@ -27,17 +30,21 @@ const catalogsLoading = ref(true)
 
 onMounted(async () => {
   try {
-    const [locations, occupations] = await Promise.all([
-      fetchTags('location').catch(() => []),
-      fetchTags('occupation').catch(() => []),
-    ])
+    const locations = await fetchTags('location').catch(() => [])
     if (onboardInfo.location && !onboardInfo.locationName) {
       const match = locations.find(tag => tag.key === onboardInfo.location)
-      if (match) onboardInfo.locationName = match.name
+      if (match) {
+        onboardInfo.locationName = locationCatalogLabel(
+          match.key,
+          match.name,
+          t,
+          te,
+        )
+      }
     }
     if (onboardInfo.occupation && !onboardInfo.occupationName) {
-      const match = occupations.find(tag => tag.key === onboardInfo.occupation)
-      if (match) onboardInfo.occupationName = match.name
+      const name = await resolveOccupationName(onboardInfo.occupation)
+      if (name) onboardInfo.occupationName = name
     }
   }
   finally {

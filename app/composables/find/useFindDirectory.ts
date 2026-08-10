@@ -11,10 +11,8 @@ import { FIND_TYPE_FILTERS, joinCsv } from '~/types/find'
 import type { FindResults } from '~/types/profile'
 import { facetChips, optionLabel } from '~/utils/findChips'
 import { flattenFindResults } from '~/utils/findResults'
-import {
-  locationCatalogLabel,
-  occupationCatalogLabel,
-} from '~/utils/catalogLabel'
+import { locationCatalogLabel } from '~/utils/catalogLabel'
+import { useOccupationLabels } from '~/composables/catalog/useOccupationLabels'
 
 const emptyResults = (): FindResults => ({
   users: [],
@@ -23,9 +21,10 @@ const emptyResults = (): FindResults => ({
 })
 
 export function useFindDirectory() {
-  const { t, te } = useI18n()
+  const { t, te, locale } = useI18n()
   const { find } = useProfilesApi()
   const { fetchTags } = useCatalogApi()
+  const { ensureLoaded, label: occupationLabel } = useOccupationLabels()
 
   const q = ref('')
   const type = ref<FindType>('all')
@@ -139,6 +138,8 @@ export function useFindDirectory() {
       results.value,
       (key, params) => (params ? t(key, params as never) : t(key)),
       te,
+      locale.value,
+      occupationLabel,
     ),
   )
 
@@ -245,6 +246,7 @@ export function useFindDirectory() {
       fetchTags('location').catch(() => []),
       fetchTags('occupation').catch(() => []),
       fetchTags('industry').catch(() => []),
+      ensureLoaded().catch(() => undefined),
     ])
     locationOptions.value = locations.map(tag => ({
       value: tag.key,
@@ -252,13 +254,25 @@ export function useFindDirectory() {
     }))
     occupationOptions.value = occupations.map(tag => ({
       value: tag.key,
-      label: occupationCatalogLabel(tag.key, tag.name, t, te),
+      label: occupationLabel(tag.key, tag.name),
     }))
     industryOptions.value = industries.map(tag => ({
       value: tag.key,
       label: tag.name,
     }))
   }
+
+  watch(locale, async () => {
+    await ensureLoaded().catch(() => undefined)
+    occupationOptions.value = occupationOptions.value.map(opt => ({
+      value: opt.value,
+      label: occupationLabel(opt.value, opt.label),
+    }))
+    locationOptions.value = locationOptions.value.map(opt => ({
+      value: opt.value,
+      label: locationCatalogLabel(opt.value, opt.label, t, te),
+    }))
+  })
 
   onMounted(async () => {
     await loadCatalogOptions()

@@ -11,7 +11,15 @@ URLs include the locale code: `/en/home`, `/vn/auth/login`. Use `useLocalePath()
 | `en` | `locales/en/forum-common.json` | Default |
 | `vn` | `locales/vn/forum-common.json` | Vietnamese |
 
-When adding or changing a key, update **both** locale files in the same PR.
+When adding or changing a UI key, update **both** locale files in the same PR.
+
+### Occupation catalog (backend)
+
+Occupation titles are **not** in forum-app i18n. Source of truth:
+
+`forum-api/src/modules/occupations/i18n/` — bilingual JSON (`occupations.json`, domains/roles/seniority).
+
+The API returns localized `name` via `GET /catalog/occupations?locale=vn` and `GET /catalog/occupations/resolve?key=…&locale=vn`. Edit those JSON files to review EN ↔ VN side by side.
 
 ## Key shape
 

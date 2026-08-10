@@ -54,7 +54,7 @@ Sibling checkouts need repo (or org) secret **`FORUM_CI_PAT`**: a classic or fin
 - **Onboarding** — three-step wizard (`/onboard`); completion = `profile.onboarded === true` from `/auth/me`.
 - **Goal keys** — stable API identifiers (`raise_capital`, …) in `app/constants/onboardContent.ts`; display text is i18n only.
 - **Route access** — page protection level declared in `definePageMeta({ access })`; see `app/types/routes.ts`.
-- **i18n** — `en` and `vn` with URL prefix (`/en/...`, `/vn/...`). Locale files: `locales/{en,vn}/forum-common.json`. Use `localePath()` for navigation; language switcher in the header. See `docs/conventions/translations.md`.
+- **i18n** — `en` and `vn` with URL prefix (`/en/...`, `/vn/...`). Locale files: `locales/{en,vn}/forum-common.json`. Occupation labels come from `forum-api` (`/catalog/occupations?locale=`). Use `localePath()` for navigation; language switcher in the header. See `docs/conventions/translations.md`.
 
 ## Navigation
 

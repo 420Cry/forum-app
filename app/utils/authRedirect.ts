@@ -23,7 +23,7 @@ export function sanitizeAuthRedirect(
   const value = firstQueryValue(raw)
   if (!value) return null
 
-  let decoded = value
+  let decoded: string
   try {
     decoded = decodeURIComponent(value)
   }

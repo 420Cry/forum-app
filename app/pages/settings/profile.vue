@@ -20,18 +20,19 @@ import { accountNamePrefix } from '~/utils/accountSummary'
 import { getAvatarColor } from '~/utils/avatarColor'
 import {
   locationCatalogLabel,
-  occupationCatalogLabel,
 } from '~/utils/catalogLabel'
+import { useOccupationLabels } from '~/composables/catalog/useOccupationLabels'
 
 definePageMeta({ layout: 'home', access: 'protected' })
 
-const { t, te } = useI18n()
+const { t, te, locale } = useI18n()
 const toast = useToast()
 const { profile, refreshProfile } = useUserProfile()
 const { updateProfile } = useOnboardApi()
 const { uploadAvatar } = useAvatarUpload()
 const { fetchTags, clearCatalogCache } = useCatalogApi()
 const { formInputValidate } = useZodValidation()
+const { ensureLoaded, label: occupationLabelFn } = useOccupationLabels()
 
 const editing = ref(false)
 const firstName = ref('')
@@ -50,7 +51,6 @@ const saving = ref(false)
 const uploading = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
 const locationLabels = ref<Map<string, string>>(new Map())
-const occupationLabels = ref<Map<string, string>>(new Map())
 const dobMin = minDateOfBirthInput()
 const dobMax = maxDateOfBirthInput()
 
@@ -63,10 +63,9 @@ const locationLabel = computed(() => {
 })
 const occupationLabel = computed(() => {
   const key = occupation.value
-  const fromMap = key ? occupationLabels.value.get(key) : undefined
-  const raw = occupationName.value || fromMap || key || '—'
+  const raw = occupationName.value || (key ? occupationLabelFn(key, key) : '') || '—'
   if (!key || raw === '—') return raw
-  return occupationCatalogLabel(key, raw, t, te)
+  return occupationLabelFn(key, raw)
 })
 const dateOfBirthLabel = computed(() => dateOfBirth.value || '—')
 
@@ -93,7 +92,7 @@ function hydrate() {
     = (p.location && locationLabels.value.get(p.location)) || ''
   occupation.value = p.occupation ?? ''
   occupationName.value
-    = (p.occupation && occupationLabels.value.get(p.occupation)) || ''
+    = (p.occupation && occupationLabelFn(p.occupation, '')) || ''
   urlKey.value = p.urlKey ?? ''
   profilePath.value = p.profilePath
   avatarUrl.value = p.avatarUrl
@@ -101,14 +100,17 @@ function hydrate() {
 }
 
 onMounted(async () => {
-  const [, locations, occupations] = await Promise.all([
+  const [, locations] = await Promise.all([
     refreshProfile(),
     fetchTags('location').catch(() => []),
-    fetchTags('occupation').catch(() => []),
+    ensureLoaded().catch(() => undefined),
   ])
   locationLabels.value = new Map(locations.map(tag => [tag.key, tag.name]))
-  occupationLabels.value = new Map(occupations.map(tag => [tag.key, tag.name]))
   hydrate()
+})
+
+watch(locale, () => {
+  void ensureLoaded()
 })
 
 function onLocationSearchError(message: string) {
@@ -242,9 +244,6 @@ async function onSave() {
     })
     if (data.location && locationName.value) {
       locationLabels.value.set(data.location, locationName.value)
-    }
-    if (data.occupation && occupationName.value) {
-      occupationLabels.value.set(data.occupation, occupationName.value)
     }
     clearCatalogCache()
     await refreshProfile(true)

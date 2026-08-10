@@ -6,6 +6,7 @@ const PAGE_SIZE = 20
 
 export function useOccupationsApi() {
   const { baseUrl, getAuthHeaders } = useApiConfig()
+  const { locale } = useI18n()
 
   async function searchOccupations(
     q: string,
@@ -17,7 +18,7 @@ export function useOccupationsApi() {
       `${baseUrl}/catalog/occupations`,
       {
         headers,
-        query: { q, offset, limit },
+        query: { q, offset, limit, locale: locale.value },
       },
     )
     return {
@@ -27,5 +28,17 @@ export function useOccupationsApi() {
     }
   }
 
-  return { searchOccupations }
+  async function resolveOccupationName(key: string): Promise<string | null> {
+    const headers = await getAuthHeaders()
+    const res = await $fetch<{ key: string | null, name: string | null }>(
+      `${baseUrl}/catalog/occupations/resolve`,
+      {
+        headers,
+        query: { key, locale: locale.value },
+      },
+    )
+    return res.name
+  }
+
+  return { searchOccupations, resolveOccupationName }
 }

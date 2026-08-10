@@ -1,29 +1,24 @@
 import type { FindResults } from '~/types/profile'
 import type { FindResultRow } from '~/types/find'
-import {
-  locationCatalogLabel,
-  occupationCatalogLabel,
-} from '~/utils/catalogLabel'
+import { locationCatalogLabel } from '~/utils/catalogLabel'
 import { stageToPillVariant } from '~/utils/stagePill'
 
 type Translate = (key: string, params?: Record<string, unknown>) => string
 type HasKey = (key: string) => boolean
+type OccupationLabel = (key: string, fallback: string) => string
 
 export function flattenFindResults(
   results: FindResults,
   t: Translate,
   te: HasKey = () => false,
+  _locale = 'en',
+  occupationLabel: OccupationLabel = (_key, fallback) => fallback,
 ): FindResultRow[] {
   const rows: FindResultRow[] = []
 
   for (const user of results.users) {
     const occupation = user.occupation
-      ? occupationCatalogLabel(
-          user.occupationKey ?? '',
-          user.occupation,
-          t,
-          te,
-        )
+      ? occupationLabel(user.occupationKey ?? '', user.occupation)
       : null
     const location = user.location
       ? locationCatalogLabel(user.locationKey ?? '', user.location, t, te)

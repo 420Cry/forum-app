@@ -6,7 +6,6 @@ import {
   catalogAutocompleteInput,
   type CatalogAutocompleteInputIntent,
 } from '~/utils/catalogAutocompleteInput'
-import { occupationCatalogLabel } from '~/utils/catalogLabel'
 import { textToTagKey } from '~/utils/tagKey'
 
 defineOptions({ inheritAttrs: false })
@@ -38,17 +37,13 @@ const emit = defineEmits<{
   searchError: [message: string]
 }>()
 
-const { t, te } = useI18n()
-const { searchOccupations } = useOccupationsApi()
+const { t, locale } = useI18n()
+const { searchOccupations, resolveOccupationName } = useOccupationsApi()
 const disabledRef = computed(() => props.disabled)
 
 const CUSTOM_KEY = '__custom__'
 
 type OccupationRow = CatalogOccupation & { custom?: boolean }
-
-function labelFor(row: CatalogOccupation): string {
-  return occupationCatalogLabel(row.key, row.name, t, te)
-}
 
 const {
   rootEl,
@@ -70,13 +65,8 @@ const {
   model,
   displayName,
   disabled: disabledRef,
-  search: async (q, offset) => {
-    const result = await searchOccupations(q, offset)
-    return {
-      ...result,
-      rows: result.rows.map(row => ({ ...row, name: labelFor(row) })),
-    }
-  },
+  // BE owns translations + locale-aware typeahead (`?locale=`).
+  search: (q, offset) => searchOccupations(q, offset),
   searchErrorFallback: t('onboard.error.occupation_search_failed'),
   emitChange: () => emit('change'),
   emitSearchError: message => emit('searchError', message),
@@ -133,11 +123,32 @@ function handleKeydown(event: KeyboardEvent) {
   onKeydown(event)
 }
 
+async function refreshDisplayName() {
+  if (!model.value) return
+  const name = await resolveOccupationName(model.value)
+  // Custom free-text keys are not in the corpus — keep typed label.
+  if (!name) return
+  displayName.value = name
+  // Input binds to `query`; combobox also syncs from displayName when closed.
+  if (!open.value) query.value = name
+}
+
 watch(
   () => [model.value, displayName.value] as const,
   ([key, name]) => {
     if (!key || name) return
-    displayName.value = occupationCatalogLabel(key, key, t, te)
+    void refreshDisplayName()
+  },
+  { immediate: true },
+)
+
+// Prefix locale switch remounts the page with locale already set — must run
+// immediately so a stored EN displayName is re-resolved for VN (and vice versa).
+watch(
+  locale,
+  () => {
+    if (!model.value) return
+    void refreshDisplayName()
   },
   { immediate: true },
 )

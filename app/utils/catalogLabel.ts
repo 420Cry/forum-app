@@ -1,30 +1,3 @@
-/** Role suffixes used by the industry×role occupation matrix. */
-const OCCUPATION_ROLES = [
-  'product_manager',
-  'sales_lead',
-  'analyst',
-  'architect',
-  'consultant',
-  'designer',
-  'director',
-  'engineer',
-  'lead',
-  'manager',
-  'marketer',
-  'operator',
-  'researcher',
-  'scientist',
-  'specialist',
-] as const
-
-const OCCUPATION_SENIORITIES = [
-  'associate',
-  'junior',
-  'lead',
-  'principal',
-  'senior',
-] as const
-
 type Translate = (key: string) => string
 type HasKey = (key: string) => boolean
 
@@ -48,41 +21,16 @@ export function locationCatalogLabel(
 }
 
 /**
- * Occupation display label: exact i18n key → composed domain/role → fallback.
- * Matrix titles like `ai_engineer` compose from `catalog.occupation_domain.*`
- * + `catalog.occupation_role.*` when locale translations exist.
+ * @deprecated Occupation translations live in forum-api (`i18n/*.json`).
+ * Prefer API `name` / `useOccupationLabels`. Kept as a passthrough for sync call sites.
  */
 export function occupationCatalogLabel(
-  key: string,
+  _key: string,
   fallback: string,
-  t: Translate,
-  te: HasKey,
+  _t?: Translate,
+  _te?: HasKey,
+  _locale?: string,
 ): string {
-  const exact = `catalog.occupation.${key}`
-  if (te(exact)) return t(exact)
-
-  for (const seniority of OCCUPATION_SENIORITIES) {
-    const prefix = `${seniority}_`
-    if (!key.startsWith(prefix)) continue
-    const rest = key.slice(prefix.length)
-    const restLabel = occupationCatalogLabel(rest, '', t, te)
-    if (!restLabel) break
-    const seniorityKey = `catalog.occupation_seniority.${seniority}`
-    if (!te(seniorityKey)) break
-    return `${t(seniorityKey)} ${restLabel}`
-  }
-
-  for (const role of OCCUPATION_ROLES) {
-    const suffix = `_${role}`
-    if (!key.endsWith(suffix)) continue
-    const domain = key.slice(0, -suffix.length)
-    const domainKey = `catalog.occupation_domain.${domain}`
-    const roleKey = `catalog.occupation_role.${role}`
-    if (!te(domainKey) || !te(roleKey)) break
-    // English-like order: "AI Engineer"; Vietnamese copy can still read naturally.
-    return `${t(domainKey)} ${t(roleKey)}`
-  }
-
   return fallback
 }
 

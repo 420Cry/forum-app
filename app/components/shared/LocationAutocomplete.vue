@@ -37,7 +37,7 @@ const emit = defineEmits<{
   searchError: [message: string]
 }>()
 
-const { t, te } = useI18n()
+const { t, te, locale } = useI18n()
 const { searchLocations } = useLocationsApi()
 const disabledRef = computed(() => props.disabled)
 
@@ -85,6 +85,16 @@ watch(
   },
   { immediate: true },
 )
+
+watch(locale, () => {
+  if (!model.value) return
+  displayName.value = locationCatalogLabel(
+    model.value,
+    displayName.value || model.value,
+    t,
+    te,
+  )
+})
 
 const showError = computed(
   () => props.intent === 'error' && !!props.errorMsg,
