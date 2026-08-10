@@ -44,6 +44,7 @@ async function submit() {
     >
       <form
         class="space-y-4"
+        onsubmit="return false"
         @submit.prevent="submit"
       >
         <div>
@@ -82,6 +83,7 @@ async function submit() {
         </div>
         <p
           v-if="error"
+          role="alert"
           class="text-sm text-red-600"
         >
           {{ error }}

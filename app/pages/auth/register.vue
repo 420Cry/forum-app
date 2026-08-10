@@ -58,6 +58,7 @@ async function submit() {
     >
       <form
         class="space-y-4"
+        onsubmit="return false"
         @submit.prevent="submit"
       >
         <div>

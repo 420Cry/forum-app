@@ -34,6 +34,7 @@ async function submit() {
       <form
         v-if="!resetSent"
         class="space-y-4"
+        onsubmit="return false"
         @submit.prevent="submit"
       >
         <div>

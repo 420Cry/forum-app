@@ -75,12 +75,16 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const { searchLocations } = useLocationsApi()
 
+const rootEl = ref<HTMLElement | null>(null)
+const listboxEl = ref<HTMLElement | null>(null)
 const query = ref('')
 const open = ref(false)
+const focused = ref(false)
 const loading = ref(false)
 const suggestions = ref<CatalogLocation[]>([])
 const activeIndex = ref(-1)
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
+let blurTimer: ReturnType<typeof setTimeout> | null = null
 let requestSeq = 0
 
 const showError = computed(
@@ -110,6 +114,33 @@ watch(
   },
 )
 
+function clearBlurTimer() {
+  if (blurTimer) {
+    clearTimeout(blurTimer)
+    blurTimer = null
+  }
+}
+
+function closeDropdown() {
+  open.value = false
+  activeIndex.value = -1
+}
+
+async function scrollActiveOptionIntoView() {
+  if (activeIndex.value < 0) return
+  await nextTick()
+  const el = document.getElementById(`${props.id}-option-${activeIndex.value}`)
+  el?.scrollIntoView({ block: 'nearest' })
+}
+
+watch(activeIndex, () => {
+  void scrollActiveOptionIntoView()
+})
+
+watch(suggestions, () => {
+  if (listboxEl.value) listboxEl.value.scrollTop = 0
+})
+
 function clearDebounce() {
   if (debounceTimer) {
     clearTimeout(debounceTimer)
@@ -125,7 +156,7 @@ async function runSearch(raw: string) {
     if (seq !== requestSeq) return
     suggestions.value = rows
     activeIndex.value = rows.length > 0 ? 0 : -1
-    open.value = true
+    open.value = focused.value
   }
   catch (err: unknown) {
     if (seq !== requestSeq) return
@@ -179,20 +210,37 @@ function selectSuggestion(row: CatalogLocation) {
 
 function onFocus() {
   if (props.disabled) return
+  focused.value = true
+  clearBlurTimer()
   void runSearch(query.value)
 }
 
+function syncQueryFromSelection() {
+  if (model.value && displayName.value) {
+    query.value = displayName.value
+  }
+  else if (!model.value) {
+    query.value = ''
+  }
+}
+
 function onBlur() {
+  focused.value = false
+  clearDebounce()
+  clearBlurTimer()
   // Allow mousedown on options to fire first.
-  window.setTimeout(() => {
-    open.value = false
-    if (model.value && displayName.value) {
-      query.value = displayName.value
-    }
-    else if (!model.value) {
-      query.value = ''
-    }
+  blurTimer = setTimeout(() => {
+    closeDropdown()
+    syncQueryFromSelection()
   }, 120)
+}
+
+function onDocumentScroll(event: Event) {
+  if (!open.value) return
+  const target = event.target
+  if (target instanceof Node && rootEl.value?.contains(target)) return
+  closeDropdown()
+  syncQueryFromSelection()
 }
 
 function onKeydown(event: KeyboardEvent) {
@@ -223,8 +271,14 @@ function onKeydown(event: KeyboardEvent) {
   }
 }
 
+onMounted(() => {
+  document.addEventListener('scroll', onDocumentScroll, true)
+})
+
 onBeforeUnmount(() => {
   clearDebounce()
+  clearBlurTimer()
+  document.removeEventListener('scroll', onDocumentScroll, true)
 })
 </script>
 
@@ -235,7 +289,10 @@ onBeforeUnmount(() => {
       class="block text-sm font-semibold text-ink-2 mb-1"
       :for="id"
     >{{ label }}</label>
-    <div class="relative">
+    <div
+      ref="rootEl"
+      class="relative"
+    >
       <input
         :id="id"
         v-bind="$attrs"
@@ -262,6 +319,7 @@ onBeforeUnmount(() => {
       <ul
         v-if="open && (suggestions.length > 0 || loading)"
         :id="`${id}-listbox`"
+        ref="listboxEl"
         role="listbox"
         class="absolute z-20 inset-x-0  top-full mt-1 max-h-56 overflow-auto rounded-md border border-line bg-card py-1 shadow-1"
       >
