@@ -13,6 +13,7 @@ import {
 } from '~/utils/dateOfBirth'
 import { useAvatarUpload } from '~/composables/media/useAvatarUpload'
 import { useCatalogApi } from '~/composables/api/useCatalogApi'
+import { takePickedFile } from '~/utils/avatarUpload'
 import { locationCatalogLabel } from '~/utils/catalogLabel'
 import { useOccupationsApi } from '~/composables/api/useOccupationsApi'
 
@@ -102,9 +103,7 @@ function onOccupationSearchError(message: string) {
 }
 
 async function onPickAvatar(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  input.value = ''
+  const file = takePickedFile(event)
   if (!file) return
 
   uploading.value = true

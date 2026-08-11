@@ -59,16 +59,29 @@ export async function resolveVerifiedUser(
 /**
  * Where a verified user on a protected route should be redirected based on
  * onboarding state, or null to stay.
+ *
+ * Incomplete users (`onboarded === false`) may only stay on `/onboard`.
+ * Completed users are bounced off `/onboard` to `/social`.
+ *
+ * Unknown profile (`null` / still loading) does not gate — treating null as
+ * incomplete caused /onboard ↔ /social loops when `/auth/me` was slow or failed.
  */
 export function onboardingRedirect(
   path: string,
   profile: UserProfile | null | undefined,
 ): string | null {
+  // Do not infer onboarding from a missing profile.
+  if (profile == null) return null
+
   const barePath = stripLocalePrefix(path)
   const completed = isOnboardingComplete(profile)
+  const onOnboard
+    = barePath === '/onboard' || barePath.startsWith('/onboard/')
 
-  if (barePath.startsWith('/social') && !completed) return '/onboard'
-  if (barePath.startsWith('/find') && !completed) return '/onboard'
-  if (barePath === '/onboard' && completed) return '/social'
+  if (!completed) {
+    return onOnboard ? null : '/onboard'
+  }
+
+  if (onOnboard) return '/social'
   return null
 }

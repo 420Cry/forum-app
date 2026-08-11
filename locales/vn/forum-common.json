@@ -4,7 +4,8 @@
       "back": "Quay lại",
       "continue": "Tiếp tục",
       "dismiss": "Đóng",
-      "sign_out": "Đăng xuất"
+      "sign_out": "Đăng xuất",
+      "go_home": "Về trang chủ"
     },
     "aria": {
       "dismiss": "Đóng"
@@ -26,7 +27,10 @@
     },
     "error": {
       "try_again": "Vui lòng thử lại",
-      "try_again_later": "Vui lòng thử lại sau"
+      "try_again_later": "Vui lòng thử lại sau",
+      "page_not_found_title": "Không tìm thấy trang",
+      "page_not_found_body": "Trang này không tồn tại hoặc đã được chuyển đi.",
+      "generic_title": "Đã xảy ra lỗi"
     }
   },
   "auth": {
@@ -159,7 +163,6 @@
       "about_help": "Thông tin này hiển thị trên hồ sơ công khai của bạn.",
       "profile_url_help": "Đây là liên kết công khai tới hồ sơ của bạn. Dùng chữ thường, số và dấu gạch ngang.",
       "profile_saved": "Đã lưu hồ sơ.",
-      "avatar_saved": "Đã cập nhật ảnh.",
       "you_section": "Cách bạn hiện diện với tư cách cá nhân trên Fundedr.",
       "security_section": "Đặt lại mật khẩu bằng link gửi tới email của bạn.",
       "organization_section": "Trang công ty hoặc quỹ công khai theo vai trò của bạn.",

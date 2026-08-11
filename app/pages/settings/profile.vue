@@ -23,6 +23,8 @@ import {
   locationCatalogLabel,
 } from '~/utils/catalogLabel'
 import { useOccupationLabels } from '~/composables/catalog/useOccupationLabels'
+import { takePickedFile } from '~/utils/avatarUpload'
+import { buildSettingsProfileUpdate } from '~/utils/profileEdit'
 
 definePageMeta({ layout: 'home', access: 'protected' })
 
@@ -183,28 +185,36 @@ function clearError(field: string) {
   errors.value = Object.keys(rest).length > 0 ? rest : null
 }
 
+function statusMessage(err: unknown, fallback: string): string {
+  if (err && typeof err === 'object' && 'statusMessage' in err) {
+    const msg = String((err as { statusMessage?: string }).statusMessage ?? '')
+    if (msg) return msg
+  }
+  return fallback
+}
+
+function statusCode(err: unknown): number {
+  if (err && typeof err === 'object' && 'statusCode' in err) {
+    return Number((err as { statusCode?: number }).statusCode) || 0
+  }
+  return 0
+}
+
 async function onPickAvatar(event: Event) {
   if (!editing.value) return
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  input.value = ''
+  const file = takePickedFile(event)
   if (!file) return
 
   uploading.value = true
   try {
+    // Upload to storage for a local preview only — do not PATCH / refresh
+    // global profile until Save, so header/sidebar avatars stay unchanged.
     const url = await uploadAvatar(file)
-    await updateProfile({ avatarUrl: url })
     avatarUrl.value = url
     avatarFailed.value = false
-    await Promise.all([refreshProfile(true), refreshAccounts()])
-    toast.showSuccess(t('settings.info.avatar_saved'), 2000)
   }
   catch (err: unknown) {
-    const msg
-      = err && typeof err === 'object' && 'statusMessage' in err
-        ? String((err as { statusMessage?: string }).statusMessage)
-        : t('settings.error.avatar_upload')
-    toast.showError(msg, 3000)
+    toast.showError(statusMessage(err, t('settings.error.avatar_upload')), 3000)
   }
   finally {
     uploading.value = false
@@ -234,16 +244,20 @@ async function onSave() {
   errors.value = null
   saving.value = true
   try {
-    await updateProfile({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      dateOfBirth: data.dateOfBirth,
-      location: data.location,
-      locationName: locationName.value || undefined,
-      occupation: data.occupation,
-      occupationName: occupationName.value || undefined,
-      urlKey: urlKey.value.trim(),
-    })
+    await updateProfile(
+      buildSettingsProfileUpdate({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        dateOfBirth: data.dateOfBirth,
+        location: data.location,
+        locationName: locationName.value || undefined,
+        occupation: data.occupation,
+        occupationName: occupationName.value || undefined,
+        urlKey: urlKey.value.trim(),
+        avatarUrl: avatarUrl.value,
+        committedAvatarUrl: profile.value?.profile?.avatarUrl,
+      }),
+    )
     if (data.location && locationName.value) {
       locationLabels.value.set(data.location, locationName.value)
     }
@@ -254,18 +268,12 @@ async function onSave() {
     toast.showSuccess(t('settings.info.profile_saved'), 2000)
   }
   catch (err: unknown) {
-    const statusCode
-      = err && typeof err === 'object' && 'statusCode' in err
-        ? Number((err as { statusCode?: number }).statusCode)
-        : 0
-    const msg
-      = err && typeof err === 'object' && 'statusMessage' in err
-        ? String((err as { statusMessage?: string }).statusMessage)
-        : t('common.error.try_again')
-    if (statusCode === 409) {
+    const code = statusCode(err)
+    const msg = statusMessage(err, t('common.error.try_again'))
+    if (code === 409) {
       errors.value = { urlKey: t('settings.error.slug_taken') }
     }
-    else if (statusCode === 400) {
+    else if (code === 400) {
       errors.value = { urlKey: t('settings.error.slug_format') }
     }
     toast.showError(msg || t('common.error.try_again'), 3000)

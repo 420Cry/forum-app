@@ -10,6 +10,7 @@ Read [../ARCHITECTURE.md](../ARCHITECTURE.md) for the cross-repo system map.
 - Node: **22+** (`engines.node`)
 - Install: `bun install`
 - Env: copy `.env.example` → `.env` and `.env.local.example` → `.env.local`
+- Local against staging/prod API: copy `.env.debug.example` → `.env.debug`, then `bun run dev:debug` (skips `.env.local` overrides)
 - Dev (recommended): `forum dev` from [forum-server](../forum-server) → http://app.forum.test
 - App only: `bun run dev` (no proxy)
 

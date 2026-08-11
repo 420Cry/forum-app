@@ -4,7 +4,8 @@
       "back": "Back",
       "continue": "Continue",
       "dismiss": "Dismiss",
-      "sign_out": "Sign out"
+      "sign_out": "Sign out",
+      "go_home": "Go to home"
     },
     "aria": {
       "dismiss": "Dismiss"
@@ -26,7 +27,10 @@
     },
     "error": {
       "try_again": "Please try again",
-      "try_again_later": "Please try again later"
+      "try_again_later": "Please try again later",
+      "page_not_found_title": "Page not found",
+      "page_not_found_body": "That page does not exist or may have moved.",
+      "generic_title": "Something went wrong"
     }
   },
   "auth": {
@@ -159,7 +163,6 @@
       "about_help": "These details show on your public profile.",
       "profile_url_help": "This is the public link to your profile. Use lowercase letters, numbers, and hyphens.",
       "profile_saved": "Profile saved.",
-      "avatar_saved": "Photo updated.",
       "you_section": "How you appear as a person on Fundedr.",
       "security_section": "Reset your password with a link sent to your email.",
       "organization_section": "Your public company or fund page for your role.",
