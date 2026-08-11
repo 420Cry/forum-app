@@ -65,14 +65,20 @@ describe('onboardingRedirect', () => {
 
   it('sends not-onboarded users from any non-onboard route to /onboard', () => {
     expect(onboardingRedirect('/social', incomplete)).toBe('/onboard')
-    expect(onboardingRedirect('/social', null)).toBe('/onboard')
     expect(onboardingRedirect('/find', incomplete)).toBe('/onboard')
     expect(onboardingRedirect('/settings', incomplete)).toBe('/onboard')
-    expect(onboardingRedirect('/settings/profile', null)).toBe('/onboard')
+    expect(onboardingRedirect('/settings/profile', incomplete)).toBe('/onboard')
     expect(onboardingRedirect('/following', incomplete)).toBe('/onboard')
     expect(onboardingRedirect('/profiles/startup/edit', incomplete)).toBe(
       '/onboard',
     )
+  })
+
+  it('does not gate when profile is still unknown', () => {
+    expect(onboardingRedirect('/social', null)).toBeNull()
+    expect(onboardingRedirect('/following', null)).toBeNull()
+    expect(onboardingRedirect('/settings/profile', undefined)).toBeNull()
+    expect(onboardingRedirect('/onboard', null)).toBeNull()
   })
 
   it('sends onboarded users from /onboard to /social', () => {
@@ -84,7 +90,6 @@ describe('onboardingRedirect', () => {
     expect(onboardingRedirect('/social', complete)).toBeNull()
     expect(onboardingRedirect('/settings', complete)).toBeNull()
     expect(onboardingRedirect('/onboard', incomplete)).toBeNull()
-    expect(onboardingRedirect('/onboard', null)).toBeNull()
   })
 
   it('handles locale-prefixed paths', () => {
