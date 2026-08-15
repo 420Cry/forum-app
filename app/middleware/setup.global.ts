@@ -4,6 +4,7 @@ import { isProfileCacheStale } from '~/utils/profileCache'
 import { onboardingRedirect, resolveVerifiedUser } from '~/utils/routeGuards'
 import {
   AUTH_REDIRECT_QUERY,
+  authRedirectQuery,
   resolvePostAuthPath,
   sanitizeAuthRedirect,
 } from '~/utils/authRedirect'
@@ -52,36 +53,42 @@ export default defineNuxtRouteMiddleware(async (to) => {
     if (auth.status === 'verified' && auth.user) {
       const safe = sanitizeAuthRedirect(to.query[AUTH_REDIRECT_QUERY])
       const { profile, refreshProfile, unauthorized } = useUserProfile()
+      // Local copy — Ref narrowing after `!= null` would leave `.value` as null.
+      let me = profile.value
 
       // Prefer cached profile so we don't bounce incomplete users via /social.
-      if (profile.value != null) {
-        const target = resolvePostAuthPath(profile.value.profile, safe)
+      if (me != null) {
+        const target = resolvePostAuthPath(me.profile, safe)
         return navigateTo(localePath(target), REDIRECT_REPLACE)
       }
 
-      await syncProfile(refreshProfile, profile.value?.id, auth.user.id, {
+      await syncProfile(refreshProfile, null, auth.user.id, {
         alwaysAwait: true,
       })
       if (unauthorized.value) {
         return navigateTo(localePath('/auth/login'), REDIRECT_REPLACE)
       }
-      const target = resolvePostAuthPath(
-        profile.value?.profile ?? null,
-        safe,
-      )
+      me = profile.value
+      const target = resolvePostAuthPath(me?.profile ?? null, safe)
       return navigateTo(localePath(target), REDIRECT_REPLACE)
     }
     return
   }
 
   // access === 'protected'
+  const toLogin = () =>
+    navigateTo({
+      path: localePath('/auth/login'),
+      query: authRedirectQuery(to.fullPath),
+    })
+
   if (auth.status !== 'verified' || !auth.user) {
-    return navigateTo(localePath('/auth/login'))
+    return toLogin()
   }
 
   const { profile, refreshProfile, unauthorized } = useUserProfile()
   if (unauthorized.value) {
-    return navigateTo(localePath('/auth/login'))
+    return toLogin()
   }
 
   // Fast path: known incomplete profile → redirect before any /auth/me wait (no flash).
@@ -98,7 +105,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   })
 
   if (unauthorized.value) {
-    return navigateTo(localePath('/auth/login'))
+    return toLogin()
   }
 
   const redirect = onboardingRedirect(path, profile.value?.profile ?? null)

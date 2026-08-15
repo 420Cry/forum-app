@@ -7,70 +7,66 @@ import type {
   StartupProfile,
   StartupProfilePayload,
 } from '~/types/profile'
-import { useApiConfig } from './useApiConfig'
+import { useApiFetch } from './useApiFetch'
 
 export function useProfilesApi() {
-  const { baseUrl, getAuthHeaders } = useApiConfig()
+  const { apiFetch } = useApiFetch()
 
   async function listAccounts() {
-    const headers = await getAuthHeaders()
-    return $fetch<AccountSummary[]>(`${baseUrl}/me/accounts`, { headers })
+    return apiFetch<AccountSummary[]>('/me/accounts')
   }
 
   async function createStartup(payload: StartupProfilePayload) {
-    const headers = await getAuthHeaders()
-    return $fetch<StartupProfile>(`${baseUrl}/profiles/startup`, {
+    return apiFetch<StartupProfile>('/profiles/startup', {
       method: 'POST',
-      headers,
       body: payload,
     })
   }
 
   async function updateStartup(payload: Partial<StartupProfilePayload>) {
-    const headers = await getAuthHeaders()
-    return $fetch<StartupProfile>(`${baseUrl}/profiles/startup`, {
+    return apiFetch<StartupProfile>('/profiles/startup', {
       method: 'PATCH',
-      headers,
       body: payload,
     })
   }
 
   async function getStartup(id: string) {
-    return $fetch<StartupProfile>(`${baseUrl}/profiles/startup/${id}`)
+    return apiFetch<StartupProfile>(`/profiles/startup/${id}`, {
+      requireAuth: false,
+    })
   }
 
   async function createInvestor(payload: InvestorProfilePayload) {
-    const headers = await getAuthHeaders()
-    return $fetch<InvestorProfile>(`${baseUrl}/profiles/investor`, {
+    return apiFetch<InvestorProfile>('/profiles/investor', {
       method: 'POST',
-      headers,
       body: payload,
     })
   }
 
   async function updateInvestor(payload: Partial<InvestorProfilePayload>) {
-    const headers = await getAuthHeaders()
-    return $fetch<InvestorProfile>(`${baseUrl}/profiles/investor`, {
+    return apiFetch<InvestorProfile>('/profiles/investor', {
       method: 'PATCH',
-      headers,
       body: payload,
     })
   }
 
   async function getInvestor(id: string) {
-    return $fetch<InvestorProfile>(`${baseUrl}/profiles/investor/${id}`)
+    return apiFetch<InvestorProfile>(`/profiles/investor/${id}`, {
+      requireAuth: false,
+    })
   }
 
   async function getPublicUser(urlKeyOrId: string) {
-    return $fetch<PublicUserProfile>(`${baseUrl}/profiles/user/${urlKeyOrId}`)
+    return apiFetch<PublicUserProfile>(`/profiles/user/${urlKeyOrId}`, {
+      requireAuth: false,
+    })
   }
 
   async function find(params: Record<string, string | undefined>) {
-    const headers = await getAuthHeaders()
     const query = Object.fromEntries(
       Object.entries(params).filter(([, value]) => value != null && value !== ''),
     )
-    return $fetch<FindResults>(`${baseUrl}/find`, { headers, query })
+    return apiFetch<FindResults>('/find', { query })
   }
 
   return {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BasePill from '~/components/shared/BasePill.vue'
 import FollowButton from '~/components/social/FollowButton.vue'
+import MessageButton from '~/components/chat/MessageButton.vue'
 import type { AccountType } from '~/types/profile'
 import type { PillVariant } from '~/utils/stagePill'
 import { getAvatarColor } from '~/utils/avatarColor'
@@ -83,6 +84,11 @@ function onStatClick(stat: ProfileStat) {
 const editProfileClass = computed(() =>
   buttonClass({ intent: 'primary-outline', size: 'sm' }),
 )
+
+const messageUserId = computed(() => {
+  if (props.targetType === 'user') return props.targetId
+  return props.ownerUserId ?? ''
+})
 const statInteractiveClass
   = 'inline-flex items-baseline gap-1.5 text-ink hover:opacity-80 active:opacity-70 transition-opacity cursor-pointer bg-transparent border-0 p-0 font-inherit focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand rounded-sm'
 const statPlainClass = 'inline-flex items-baseline gap-1.5 text-ink'
@@ -198,6 +204,10 @@ const statPlainClass = 'inline-flex items-baseline gap-1.5 text-ink'
             :target-id="targetId"
             :owner-user-id="ownerUserId"
             @change="onFollowChange"
+          />
+          <MessageButton
+            v-if="messageUserId && !isOwn"
+            :user-id="messageUserId"
           />
         </div>
       </div>

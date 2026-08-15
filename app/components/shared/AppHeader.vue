@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BaseButton from '~/components/shared/BaseButton.vue'
+import HeaderMessagesLink from '~/components/chat/HeaderMessagesLink.vue'
 import HeaderAccountMenu from '~/components/shared/HeaderAccountMenu.vue'
 import LocaleSwitcher from '~/components/shared/LocaleSwitcher.vue'
 import { useAccount } from '~/composables/accounts/useAccount'
@@ -86,6 +87,12 @@ watch(
       <SharedAppLogo />
       <div class="flex items-center gap-3">
         <LocaleSwitcher />
+        <HeaderMessagesLink v-if="isProtectedRoute" />
+        <span
+          v-if="isProtectedRoute"
+          class="hidden h-6 w-px bg-line sm:block"
+          aria-hidden="true"
+        />
         <BaseButton
           v-if="showSignOut"
           intent="ghost"

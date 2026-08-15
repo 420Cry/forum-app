@@ -1,58 +1,49 @@
-import type { AccountSummary, AccountType } from '~/types/profile'
-import { useApiConfig } from './useApiConfig'
+import type {
+  AccountSummary,
+  AccountType,
+  UserConnection,
+} from '~/types/profile'
+import { useApiFetch } from './useApiFetch'
 
 export function useFollowsApi() {
-  const { baseUrl, getAuthHeaders } = useApiConfig()
+  const { apiFetch } = useApiFetch()
 
   async function follow(targetType: AccountType, targetId: string) {
-    const headers = await getAuthHeaders()
-    return $fetch<{ success: boolean, following: boolean }>(
-      `${baseUrl}/follows`,
-      {
-        method: 'POST',
-        headers,
-        body: { targetType, targetId },
-      },
-    )
+    return apiFetch<{ success: boolean, following: boolean }>('/follows', {
+      method: 'POST',
+      body: { targetType, targetId },
+    })
   }
 
   async function unfollow(targetType: AccountType, targetId: string) {
-    const headers = await getAuthHeaders()
-    return $fetch<{ success: boolean, following: boolean }>(
-      `${baseUrl}/follows`,
-      {
-        method: 'DELETE',
-        headers,
-        body: { targetType, targetId },
-      },
-    )
+    return apiFetch<{ success: boolean, following: boolean }>('/follows', {
+      method: 'DELETE',
+      body: { targetType, targetId },
+    })
   }
 
   async function listFollowing() {
-    const headers = await getAuthHeaders()
-    return $fetch<AccountSummary[]>(`${baseUrl}/follows/me`, { headers })
+    return apiFetch<AccountSummary[]>('/follows/me')
+  }
+
+  async function listConnections() {
+    return apiFetch<UserConnection[]>('/follows/connections')
   }
 
   async function listFollowers(targetType: AccountType, targetId: string) {
-    const headers = await getAuthHeaders()
-    return $fetch<AccountSummary[]>(`${baseUrl}/follows/followers`, {
-      headers,
+    return apiFetch<AccountSummary[]>('/follows/followers', {
       query: { targetType, targetId },
     })
   }
 
   async function listFollowingForUser(userId: string) {
-    const headers = await getAuthHeaders()
-    return $fetch<AccountSummary[]>(`${baseUrl}/follows/following`, {
-      headers,
+    return apiFetch<AccountSummary[]>('/follows/following', {
       query: { userId },
     })
   }
 
   async function status(targetType: AccountType, targetId: string) {
-    const headers = await getAuthHeaders()
-    return $fetch<{ following: boolean }>(`${baseUrl}/follows/status`, {
-      headers,
+    return apiFetch<{ following: boolean }>('/follows/status', {
       query: { targetType, targetId },
     })
   }
@@ -61,6 +52,7 @@ export function useFollowsApi() {
     follow,
     unfollow,
     listFollowing,
+    listConnections,
     listFollowers,
     listFollowingForUser,
     status,

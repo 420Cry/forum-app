@@ -1,20 +1,11 @@
 import type { AuthMeResponse } from '~/types/user'
-import { useApiConfig } from './useApiConfig'
+import { useApiFetch } from './useApiFetch'
 
 export function useUserApi() {
-  const { baseUrl, getAuthHeaders } = useApiConfig()
+  const { apiFetch } = useApiFetch()
 
-  async function fetchMe(forceRefresh = false) {
-    const headers = await getAuthHeaders(forceRefresh)
-    if (!headers.Authorization) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Missing access token',
-      })
-    }
-
-    return $fetch<AuthMeResponse>(`${baseUrl}/auth/me`, {
-      headers,
+  async function fetchMe() {
+    return apiFetch<AuthMeResponse>('/auth/me', {
       credentials: 'include',
       timeout: 8_000,
     })

@@ -35,6 +35,13 @@ The API returns localized `name` via `GET /catalog/occupations?locale=vn` and `G
 common      ← shared UI (buttons, generic errors)
 auth        ← sign-in, register, password reset, email verify
 onboard     ← onboarding flow
+chat        ← messaging inbox / thread
+find        ← directory search
+nav         ← chrome / header
+settings    ← account settings
+profiles    ← public profiles
+social      ← follow / network
+following   ← following feed
 ```
 
 If you can't confidently choose, default to `common`.

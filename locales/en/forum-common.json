@@ -447,5 +447,65 @@
       "remote": "Remote",
       "location_other": "Other"
     }
+  },
+  "chat": {
+    "heading": {
+      "messages": "Messages"
+    },
+    "info": {
+      "subtitle": "Direct conversations with founders and investors.",
+      "empty_list": "Search for someone in your network to start a conversation.",
+      "empty_contacts": "No people in your network yet. Follow someone to message them here.",
+      "empty_thread": "Say hello to {name} — your conversation starts here.",
+      "select_conversation": "Your messages",
+      "select_conversation_hint": "Pick a chat on the left, or search for someone to message.",
+      "unavailable": "Messaging is not available yet.",
+      "yesterday": "Yesterday",
+      "sent_file": "Sent a file",
+      "no_messages_yet": "No messages yet",
+      "search_results": "People",
+      "conversations": "Chats",
+      "start_conversation": "Start a conversation",
+      "no_search_results": "No people found",
+      "no_search_results_hint": "Try another name, or check spelling."
+    },
+    "label": {
+      "type_message": "Write a message",
+      "search_connections": "Search connections",
+      "search_connections_placeholder": "Search people",
+      "relation_mutual": "Connected",
+      "relation_following": "Following",
+      "relation_follower": "Follows you"
+    },
+    "action": {
+      "send": "Send",
+      "message": "Message",
+      "sign_in_to_message": "Sign in to message",
+      "back_to_list": "Back"
+    },
+    "aria": {
+      "messages": "Messages",
+      "send": "Send message",
+      "unread": "{count} unread",
+      "message_user": "Message {name}",
+      "view_profile": "View {name}'s profile",
+      "status_pending": "Sending",
+      "status_failed": "Failed to send",
+      "status_sent": "Sent",
+      "status_delivered": "Delivered",
+      "status_seen": "Seen",
+      "add_reaction": "Add reaction",
+      "reaction_picker": "Choose a reaction",
+      "react_with": "React with {emoji}",
+      "reaction": "{emoji}, {count}"
+    },
+    "error": {
+      "session": "Could not open messages. Try again.",
+      "send": "Could not send that message. Try again.",
+      "open": "Could not start this conversation. Try again.",
+      "thread": "Could not load this conversation. Try again.",
+      "contacts": "Could not load connections. Try again.",
+      "reaction": "Could not update that reaction. Try again."
+    }
   }
 }

@@ -1,11 +1,11 @@
 import type { CatalogSearchResult } from '~/types/catalogSearch'
 import type { CatalogOccupationsResponse } from '~/types/catalogOccupations'
-import { useApiConfig } from './useApiConfig'
+import { useApiFetch } from './useApiFetch'
 
 const PAGE_SIZE = 20
 
 export function useOccupationsApi() {
-  const { baseUrl, getAuthHeaders } = useApiConfig()
+  const { apiFetch } = useApiFetch()
   const { locale } = useI18n()
 
   async function searchOccupations(
@@ -13,11 +13,10 @@ export function useOccupationsApi() {
     offset = 0,
     limit = PAGE_SIZE,
   ): Promise<CatalogSearchResult<CatalogOccupationsResponse['occupations'][number]>> {
-    const headers = await getAuthHeaders()
-    const res = await $fetch<CatalogOccupationsResponse>(
-      `${baseUrl}/catalog/occupations`,
+    const res = await apiFetch<CatalogOccupationsResponse>(
+      '/catalog/occupations',
       {
-        headers,
+        requireAuth: false,
         query: { q, offset, limit, locale: locale.value },
       },
     )
@@ -29,11 +28,10 @@ export function useOccupationsApi() {
   }
 
   async function resolveOccupationName(key: string): Promise<string | null> {
-    const headers = await getAuthHeaders()
-    const res = await $fetch<{ key: string | null, name: string | null }>(
-      `${baseUrl}/catalog/occupations/resolve`,
+    const res = await apiFetch<{ key: string | null, name: string | null }>(
+      '/catalog/occupations/resolve',
       {
-        headers,
+        requireAuth: false,
         query: { key, locale: locale.value },
       },
     )

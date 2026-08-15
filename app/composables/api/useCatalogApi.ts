@@ -1,18 +1,16 @@
 import type { CatalogTagKind, CatalogTagsResponse } from '~/types/catalog'
-import { useApiConfig } from './useApiConfig'
+import { useApiFetch } from './useApiFetch'
 
 const cache = new Map<CatalogTagKind, CatalogTagsResponse['tags']>()
 
 export function useCatalogApi() {
-  const { baseUrl, getAuthHeaders } = useApiConfig()
+  const { apiFetch } = useApiFetch()
 
   async function fetchTags(kind: CatalogTagKind, force = false) {
     if (!force && cache.has(kind)) {
       return cache.get(kind)!
     }
-    const headers = await getAuthHeaders()
-    const res = await $fetch<CatalogTagsResponse>(`${baseUrl}/catalog/tags`, {
-      headers,
+    const res = await apiFetch<CatalogTagsResponse>('/catalog/tags', {
       query: { kind },
     })
     cache.set(kind, res.tags)

@@ -64,8 +64,9 @@ Sibling checkouts need repo (or org) secret **`FORUM_CI_PAT`**: a classic or fin
 | Route protection / redirects | `app/middleware/setup.global.ts`, `app/utils/routeGuards.ts`, `app/types/routes.ts` |
 | Auth (login, register, reset) | `app/composables/auth/useSupabaseAuth.ts`, `app/composables/auth/useAuthCallbackPage.ts`, `app/utils/supabaseAuthCallback.ts`, `app/utils/authErrors.ts` |
 | Profile / `/auth/me` | `app/composables/user/useUserProfile.ts`, `app/composables/api/useUserApi.ts` |
+| Chat / messages | `app/composables/chat/`, `app/pages/messages/index.vue` |
 | Onboarding wizard | `app/composables/onboard/useOnboard.ts`, `app/pages/onboard/index.vue` |
-| API calls | `app/composables/api/useApiConfig.ts` |
+| API calls | `app/composables/api/useApiFetch.ts` |
 | Translations | `docs/conventions/translations.md` |
 | System overview | [../ARCHITECTURE.md](../ARCHITECTURE.md) |
 | Local dev stack | [../forum-server/README.md](../forum-server/README.md) |
@@ -84,6 +85,8 @@ definePageMeta({ access: 'protected' })  // requires verified session
 
 Global middleware (`app/middleware/setup.global.ts`) reads `to.meta.access` and delegates to `routeGuards.ts`. **Do not add path-string checks to middleware** — declare access on the page instead.
 
+Signed-out visits to a protected page go to `/auth/login?redirect=<path>` (locale-stripped, query dropped) so sign-in returns them to the page they asked for. Build that query with `authRedirectQuery()` from `app/utils/authRedirect.ts`.
+
 ### SSR note
 
 Protected-route profile sync and onboarding redirects run **client-only** (`import.meta.client`). SSR only checks Supabase session + email verification. Pages that depend on fresh profile data should await `refreshProfile()` in `onMounted`.
@@ -98,7 +101,7 @@ Auth errors from Supabase or callback URLs go through `app/utils/authErrors.ts` 
 
 All forum-api calls go through composables in `app/composables/api/`:
 
-- `useApiConfig()` — base URL + `Authorization: Bearer <supabase_access_token>`
+- `useApiFetch()` — `apiFetch(path, options)`: base URL, `Authorization: Bearer <supabase_access_token>`, and one retry with a refreshed token on 401. Pass `requireAuth: false` for endpoints that serve signed-out visitors; authenticated calls throw a 401 when no token exists.
 - Hand-written types in `app/types/` — keep in sync with forum-api responses
 
 No generated OpenAPI client. When changing API shapes, update both repos.

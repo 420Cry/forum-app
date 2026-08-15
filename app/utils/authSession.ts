@@ -7,7 +7,25 @@ type EmailVerificationState = {
 /** Structural session shape — useSupabaseSession() returns Omit<Session, 'user'>. */
 export type SessionLike = {
   access_token?: string
+  expires_at?: number
   user?: User | null
+}
+
+/** Refresh this long before expiry so in-flight requests keep a valid JWT. */
+export const TOKEN_REFRESH_MARGIN_MS = 60_000
+
+/**
+ * True when the access token is within the refresh margin of expiring.
+ * `expiresAt` is the Supabase `expires_at` claim (unix seconds); an absent
+ * value means unknown, which never triggers a refresh on its own.
+ */
+export function isTokenExpiring(
+  expiresAt: number | null | undefined,
+  nowMs: number = Date.now(),
+  marginMs: number = TOKEN_REFRESH_MARGIN_MS,
+): boolean {
+  if (!expiresAt) return false
+  return expiresAt * 1000 - nowMs <= marginMs
 }
 
 export function isEmailVerified(user: unknown): boolean {

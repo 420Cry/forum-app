@@ -5,7 +5,9 @@ import {
   isEmailVerified,
   isFetchUnauthorized,
   isSignupUserAlreadyExistsError,
+  isTokenExpiring,
   resolveAuthUser,
+  TOKEN_REFRESH_MARGIN_MS,
 } from '~/utils/authSession'
 
 describe('authSession', () => {
@@ -33,10 +35,11 @@ describe('authSession', () => {
 
     it('falls back to composable user then session user', () => {
       const composable = { id: 'composable' } as never
-      const session = { user: { id: 'session' } } as never
+      const sessionUser = { id: 'session' }
+      const session = { user: sessionUser } as never
 
       expect(resolveAuthUser(composable, session)).toEqual(composable)
-      expect(resolveAuthUser(null, session)).toEqual(session.user)
+      expect(resolveAuthUser(null, session)).toEqual(sessionUser)
     })
   })
 
@@ -66,6 +69,25 @@ describe('authSession', () => {
         isDuplicateSignupUser({ identities: [{ provider: 'email' }] } as never),
       ).toBe(false)
       expect(isDuplicateSignupUser(null)).toBe(false)
+    })
+  })
+
+  describe('isTokenExpiring', () => {
+    const now = 1_700_000_000_000
+    const secondsFromNow = (ms: number) => (now + ms) / 1000
+
+    it('is true within the refresh margin and after expiry', () => {
+      expect(isTokenExpiring(secondsFromNow(30_000), now)).toBe(true)
+      expect(isTokenExpiring(secondsFromNow(-5_000), now)).toBe(true)
+      expect(isTokenExpiring(secondsFromNow(TOKEN_REFRESH_MARGIN_MS), now)).toBe(
+        true,
+      )
+    })
+
+    it('is false for a fresh token or unknown expiry', () => {
+      expect(isTokenExpiring(secondsFromNow(10 * 60_000), now)).toBe(false)
+      expect(isTokenExpiring(undefined, now)).toBe(false)
+      expect(isTokenExpiring(null, now)).toBe(false)
     })
   })
 

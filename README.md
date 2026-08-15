@@ -94,6 +94,12 @@ bun run dev
 
 App URL with forum-server: **http://app.forum.test**
 
+### Messages (Sendbird)
+
+Direct messages live at `/en/messages` (and `/vn/messages`). Sendbird **Access token permission = Deny login**; the client never uses a permanent Sendbird access token. `GET /chat/session` returns a BE-issued short-lived **session token**; the app connects with `SendbirdChat.connect(userId, sessionToken)`. Channels: `POST /chat/channels`. Set `SENDBIRD_APP_ID` and `SENDBIRD_API_TOKEN` (master API token) in `forum-api/.env.local` and restart the API. Without those keys the page still loads and shows that messaging is not available yet.
+
+Start a conversation from a profile with **Message**. The header envelope opens the inbox.
+
 ### Dev server notes
 
 - **Vite `allowedHosts`** — `nuxt.config.ts` allows `app.forum.test` so proxied requests are not blocked by Vite 6+ host checks.
