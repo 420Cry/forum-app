@@ -44,6 +44,20 @@ describe('chatPeerFromMembers', () => {
       profileUrl: 'https://cdn/j.png',
     })
   })
+
+  it('still returns peer identity when profileUrl is omitted', () => {
+    const peer = chatPeerFromMembers(
+      [
+        { userId: 'me', nickname: 'Alex' },
+        { userId: 'them', nickname: 'Jordan' },
+      ],
+      'me',
+    )
+    expect(peer).toEqual({
+      userId: 'them',
+      nickname: 'Jordan',
+    })
+  })
 })
 
 describe('shouldShowDaySeparator', () => {

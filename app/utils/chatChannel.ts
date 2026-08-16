@@ -15,14 +15,14 @@ export function channelToPeer(
     channel.members?.map(member => ({
       userId: member.userId,
       nickname: member.nickname,
-      profileUrl: member.profileUrl,
     })),
     myUserId,
   )
   return {
     userId: raw.userId,
     nickname: raw.nickname?.trim() || 'Member',
-    profileUrl: raw.profileUrl?.trim() || '',
+    // Avatars come from Forum (contacts), never from Sendbird profile_url.
+    profileUrl: '',
   }
 }
 
