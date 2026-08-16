@@ -3,6 +3,7 @@ import type { BaseMessage, UserMessage } from '@sendbird/chat/message'
 import BaseIcon from '~/components/shared/BaseIcon.vue'
 import ChatDeliveryStatus from '~/components/chat/ChatDeliveryStatus.vue'
 import ChatMessageReactions from '~/components/chat/ChatMessageReactions.vue'
+import { useReactionPicker } from '~/composables/chat/useReactionPicker'
 import {
   chatBubbleBorderRadius,
   formatChatDayLabel,
@@ -31,6 +32,18 @@ const emit = defineEmits<{
 
 const { locale, t } = useI18n()
 
+const bubbleRef = ref<HTMLElement | null>(null)
+const wrapRef = ref<HTMLElement | null>(null)
+const {
+  open: pickerOpen,
+  anchor,
+  openPicker,
+  onOpenUpdate,
+  onPointerDown,
+  onPointerUp,
+  onContextMenu,
+} = useReactionPicker({ bubbleRef, wrapRef })
+
 const isMine = computed(
   () => (props.message as UserMessage).sender?.userId === props.myUserId,
 )
@@ -44,10 +57,8 @@ const text = computed(() => {
 const showDay = computed(() =>
   shouldShowDaySeparator(props.message.createdAt, props.previousCreatedAt),
 )
-
 const time = computed(() => formatChatTime(props.message.createdAt, locale.value))
 const day = computed(() => formatChatDayLabel(props.message.createdAt, locale.value))
-
 const radius = computed(() =>
   chatBubbleBorderRadius(
     isMine.value,
@@ -55,110 +66,14 @@ const radius = computed(() =>
     props.chainBottom ?? false,
   ),
 )
-
 const reactions = computed(() =>
   chatReactionSummaries(
     (props.message as UserMessage).reactions,
     props.myUserId,
   ),
 )
-
-const showMeta = computed(
-  () => props.showDelivery && !!props.deliveryStatus,
-)
-
+const showMeta = computed(() => props.showDelivery && !!props.deliveryStatus)
 const hasReactions = computed(() => reactions.value.length > 0)
-
-const pickerOpen = ref(false)
-const bubbleRef = ref<HTMLElement | null>(null)
-const wrapRef = ref<HTMLElement | null>(null)
-const anchor = ref<{ left: number, right: number, top: number, bottom: number } | null>(null)
-let ignoreCloseUntil = 0
-let longPressTimer: ReturnType<typeof setTimeout> | null = null
-let scrollRoot: HTMLElement | null = null
-
-function clearLongPress() {
-  if (longPressTimer) {
-    clearTimeout(longPressTimer)
-    longPressTimer = null
-  }
-}
-
-function measureAnchor() {
-  const el = bubbleRef.value
-  if (!el) return
-  const box = el.getBoundingClientRect()
-  anchor.value = {
-    left: box.left,
-    right: box.right,
-    top: box.top,
-    bottom: box.bottom,
-  }
-}
-
-function openPicker() {
-  measureAnchor()
-  ignoreCloseUntil = Date.now() + 400
-  pickerOpen.value = true
-}
-
-function closePicker(reason: string) {
-  if (!pickerOpen.value) return
-  if (reason !== 'scroll' && Date.now() < ignoreCloseUntil) return
-  pickerOpen.value = false
-}
-
-function onPickerOpenUpdate(value: boolean) {
-  if (value) openPicker()
-  else closePicker('child')
-}
-
-function onPointerDown() {
-  clearLongPress()
-  longPressTimer = setTimeout(() => {
-    longPressTimer = null
-    openPicker()
-  }, 450)
-}
-
-function onPointerUp() {
-  clearLongPress()
-}
-
-function onContextMenu(event: Event) {
-  event.preventDefault()
-  openPicker()
-}
-
-function onScrollClose() {
-  closePicker('scroll')
-}
-
-function findScrollRoot(): HTMLElement | null {
-  let node = wrapRef.value?.parentElement ?? null
-  while (node) {
-    const style = getComputedStyle(node)
-    if (/(auto|scroll)/.test(style.overflowY)) return node
-    node = node.parentElement
-  }
-  return null
-}
-
-onMounted(() => {
-  scrollRoot = findScrollRoot()
-  scrollRoot?.addEventListener('scroll', onScrollClose, { passive: true })
-  window.addEventListener('scroll', onScrollClose, { passive: true })
-})
-
-onUnmounted(() => {
-  clearLongPress()
-  scrollRoot?.removeEventListener('scroll', onScrollClose)
-  window.removeEventListener('scroll', onScrollClose)
-})
-
-function onReactToggle(emoji: string) {
-  emit('react', emoji)
-}
 </script>
 
 <template>
@@ -215,7 +130,6 @@ function onReactToggle(emoji: string) {
           </div>
         </div>
 
-        <!-- Desktop hover react -->
         <button
           type="button"
           data-testid="chat-reaction-trigger"
@@ -239,8 +153,8 @@ function onReactToggle(emoji: string) {
           :reactions="reactions"
           :align="isMine ? 'end' : 'start'"
           :anchor="anchor"
-          @update:open="onPickerOpenUpdate"
-          @toggle="onReactToggle"
+          @update:open="onOpenUpdate"
+          @toggle="emit('react', $event)"
         />
       </div>
     </div>

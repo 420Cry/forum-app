@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import ChatChannelRow from '~/components/chat/ChatChannelRow.vue'
-import ChatContactRow from '~/components/chat/ChatContactRow.vue'
+import ChatChannelList from '~/components/chat/ChatChannelList.vue'
 import ChatEmptyState from '~/components/chat/ChatEmptyState.vue'
 import ChatThread from '~/components/chat/ChatThread.vue'
-import BaseIcon from '~/components/shared/BaseIcon.vue'
 import { useChatApi } from '~/composables/api/useChatApi'
 import { useFollowsApi } from '~/composables/api/useFollowsApi'
 import { useSendbirdInbox } from '~/composables/chat/useSendbirdInbox'
 import { useUnreadCount } from '~/composables/chat/useUnreadCount'
 import type { UserConnection } from '~/types/profile'
-import { foldSearchText } from '~/utils/foldSearchText'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -38,48 +35,27 @@ const {
   receiptEpoch,
 } = useSendbirdInbox()
 
-/** Split list + thread from md up (tablet / desktop). Phone stays single-pane. */
+/** Split list + thread from md up. Phone stays single-pane. */
 const isSplit = ref(false)
-const search = ref('')
 const contacts = ref<UserConnection[]>([])
 const contactsLoading = ref(false)
 const contactsError = ref(false)
-let contactsLoaded = false
+const contactsLoaded = ref(false)
+
+const showList = computed(() => isSplit.value || !selectedUrl.value)
+const showThread = computed(() => isSplit.value || !!selectedUrl.value)
 
 function syncBreakpoint() {
   isSplit.value = window.matchMedia('(min-width: 768px)').matches
 }
 
-const showList = computed(() => isSplit.value || !selectedUrl.value)
-const showThread = computed(() => isSplit.value || !!selectedUrl.value)
-const searchActive = computed(() => search.value.trim().length > 0)
-
-const filteredContacts = computed(() => {
-  const q = foldSearchText(search.value.trim())
-  if (!q) return contacts.value
-  return contacts.value.filter((contact) => {
-    const name = foldSearchText(contact.name)
-    const key = foldSearchText(contact.urlKey ?? '')
-    const headline = foldSearchText(contact.headline ?? '')
-    return name.includes(q) || key.includes(q) || headline.includes(q)
-  })
-})
-
-/** Suggested people when there are no chats yet (mutuals first). */
-const suggestedContacts = computed(() => {
-  const list = contacts.value
-  const mutual = list.filter(c => c.relation === 'mutual')
-  const rest = list.filter(c => c.relation !== 'mutual')
-  return [...mutual, ...rest].slice(0, 12)
-})
-
 async function ensureContacts() {
-  if (contactsLoaded || contactsLoading.value) return
+  if (contactsLoaded.value || contactsLoading.value) return
   contactsLoading.value = true
   contactsError.value = false
   try {
     contacts.value = await listConnections()
-    contactsLoaded = true
+    contactsLoaded.value = true
   }
   catch {
     contactsError.value = true
@@ -90,7 +66,6 @@ async function ensureContacts() {
 }
 
 async function selectChannel(url: string) {
-  search.value = ''
   await openThread(url)
   await navigateTo({
     path: localePath('/messages'),
@@ -103,7 +78,6 @@ async function selectChannel(url: string) {
 async function startWithContact(userId: string) {
   try {
     const opened = await openChannel(userId)
-    search.value = ''
     await refreshChannels()
     await navigateTo({
       path: localePath('/messages'),
@@ -128,7 +102,10 @@ async function onSend(text: string) {
   }
 }
 
-async function onReact(message: Parameters<typeof toggleReaction>[0], emoji: string) {
+async function onReact(
+  message: Parameters<typeof toggleReaction>[0],
+  emoji: string,
+) {
   try {
     await toggleReaction(message, emoji)
   }
@@ -256,109 +233,17 @@ watch(
       v-else
       class="grid min-h-0 flex-1 md:grid-cols-[240px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]"
     >
-      <aside
+      <ChatChannelList
         v-show="showList"
-        class="min-h-0 overflow-y-auto border-line md:border-r"
-        data-testid="messages-channel-list"
-      >
-        <div class="sticky top-0 z-10 bg-card px-4 py-3 border-b border-line space-y-2.5 md:space-y-3">
-          <div>
-            <h1 class="text-[15px] font-semibold text-ink">
-              {{ t('chat.heading.messages') }}
-            </h1>
-            <p class="hidden sm:block text-[12.5px] text-ink-4 mt-0.5">
-              {{ t('chat.info.subtitle') }}
-            </p>
-          </div>
-          <label
-            class="flex items-center gap-2 rounded-pill border border-line bg-surface-hover px-3 py-2 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20"
-          >
-            <BaseIcon
-              name="search"
-              size="1.1em"
-              class="text-ink-4 shrink-0"
-            />
-            <span class="sr-only">{{ t('chat.label.search_connections') }}</span>
-            <input
-              id="messages-search"
-              v-model="search"
-              type="search"
-              autocomplete="off"
-              data-testid="messages-search"
-              :placeholder="t('chat.label.search_connections_placeholder')"
-              class="min-w-0 flex-1 border-0 bg-transparent p-0 text-sm text-ink placeholder:text-ink-4 outline-none"
-            >
-          </label>
-        </div>
-
-        <template v-if="searchActive">
-          <p
-            v-if="contactsLoading && contacts.length === 0"
-            class="px-5 py-4 text-center text-sm text-ink-3"
-          >
-            {{ t('common.info.loading') }}
-          </p>
-          <p
-            v-else-if="contactsError && contacts.length === 0"
-            class="px-5 py-4 text-center text-sm text-ink-3"
-          >
-            {{ t('chat.error.contacts') }}
-          </p>
-          <ChatEmptyState
-            v-else-if="filteredContacts.length === 0"
-            :title="t('chat.info.no_search_results')"
-            :description="t('chat.info.no_search_results_hint')"
-            icon="search"
-          />
-          <template v-else>
-            <p class="px-4 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-4">
-              {{ t('chat.info.search_results') }}
-            </p>
-            <ChatContactRow
-              v-for="contact in filteredContacts"
-              :key="contact.id"
-              :contact="contact"
-              @click="startWithContact(contact.id)"
-            />
-          </template>
-        </template>
-
-        <template v-else>
-          <template v-if="channels.length === 0">
-            <ChatEmptyState
-              :title="t('chat.info.no_messages_yet')"
-              :description="
-                contactsLoaded && contacts.length === 0
-                  ? t('chat.info.empty_contacts')
-                  : t('chat.info.empty_list')
-              "
-            />
-            <template v-if="suggestedContacts.length > 0">
-              <p class="px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-4">
-                {{ t('chat.info.start_conversation') }}
-              </p>
-              <ChatContactRow
-                v-for="contact in suggestedContacts"
-                :key="contact.id"
-                :contact="contact"
-                @click="startWithContact(contact.id)"
-              />
-            </template>
-          </template>
-          <template v-else>
-            <p class="px-4 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-4">
-              {{ t('chat.info.conversations') }}
-            </p>
-            <ChatChannelRow
-              v-for="item in channels"
-              :key="item.url"
-              :item="item"
-              :active="item.url === selectedUrl"
-              @click="selectChannel(item.url)"
-            />
-          </template>
-        </template>
-      </aside>
+        :channels="channels"
+        :selected-url="selectedUrl"
+        :contacts="contacts"
+        :contacts-loaded="contactsLoaded"
+        :contacts-loading="contactsLoading"
+        :contacts-error="contactsError"
+        @select="selectChannel"
+        @contact="startWithContact"
+      />
 
       <div
         v-show="showThread"

@@ -1,84 +1,22 @@
 import type { GroupChannel } from '@sendbird/chat/groupChannel'
 import type { BaseMessage, UserMessage } from '@sendbird/chat/message'
 import { useChatApi } from '~/composables/api/useChatApi'
-import type { ChatListItem, ChatPeer } from '~/types/chat'
 import {
-  chatLastMessagePreview,
-  chatPeerFromMembers,
-  sortMessagesChronological,
-} from '~/utils/chatPreview'
+  SENDBIRD_INBOX_HANDLER_ID,
+  ensureSendbirdSdk,
+  getSendbirdGroupChannelApi,
+  getSendbirdSdk,
+  getSendbirdUserId,
+  removeSendbirdInboxHandler,
+  type SendbirdGroupSdk,
+} from '~/composables/chat/useSendbirdClient'
+import type { ChatListItem } from '~/types/chat'
+import {
+  channelToListItem,
+  replaceMessage,
+} from '~/utils/chatChannel'
+import { sortMessagesChronological } from '~/utils/chatPreview'
 import { chatDeliveryStatus, type ChatDeliveryStatus } from '~/utils/chatStatus'
-
-const HANDLER_ID = 'forum-inbox'
-
-type SendbirdGroupSdk = {
-  connect: (userId: string, token: string) => Promise<unknown>
-  disconnect: () => Promise<void>
-  groupChannel: {
-    createMyGroupChannelListQuery: (params: {
-      includeEmpty: boolean
-      limit: number
-      order: string
-    }) => { next: () => Promise<GroupChannel[]> }
-    getChannel: (url: string) => Promise<GroupChannel>
-    addGroupChannelHandler: (id: string, handler: unknown) => void
-    removeGroupChannelHandler: (id: string) => void
-  }
-}
-
-let sdk: SendbirdGroupSdk | null = null
-let client: SendbirdGroupSdk | null = null
-let connecting: Promise<SendbirdGroupSdk> | null = null
-let groupChannelApi: typeof import('@sendbird/chat/groupChannel') | null = null
-
-function toPeer(channel: GroupChannel, myUserId: string): ChatPeer {
-  const raw = chatPeerFromMembers(
-    channel.members?.map(member => ({
-      userId: member.userId,
-      nickname: member.nickname,
-      profileUrl: member.profileUrl,
-    })),
-    myUserId,
-  )
-  return {
-    userId: raw.userId,
-    nickname: raw.nickname?.trim() || 'Member',
-    profileUrl: raw.profileUrl?.trim() || '',
-  }
-}
-
-function toListItem(
-  channel: GroupChannel,
-  myUserId: string,
-  fileFallback: string,
-): ChatListItem {
-  const last = channel.lastMessage as UserMessage | null
-  return {
-    url: channel.url,
-    peer: toPeer(channel, myUserId),
-    lastMessage: chatLastMessagePreview(
-      last
-        ? { messageType: last.messageType, message: last.message }
-        : null,
-      fileFallback,
-    ),
-    lastMessageAt: last?.createdAt ?? channel.createdAt,
-    unread: channel.unreadMessageCount,
-  }
-}
-
-function replaceMessage(list: BaseMessage[], next: BaseMessage): BaseMessage[] {
-  const id = next.messageId
-  let found = false
-  const mapped = list.map((message) => {
-    if (message.messageId === id) {
-      found = true
-      return next
-    }
-    return message
-  })
-  return found ? mapped : sortMessagesChronological([...list, next])
-}
 
 export function useSendbirdInbox() {
   const { getSession } = useChatApi()
@@ -93,52 +31,22 @@ export function useSendbirdInbox() {
   const messages = ref<BaseMessage[]>([])
   const sending = ref(false)
   const threadError = ref(false)
-  /** Live GroupChannel for receipt + reaction APIs. */
   const threadChannel = ref<GroupChannel | null>(null)
-  /** Bumped when delivery/read maps change so UI recomputes ticks. */
   const receiptEpoch = ref(0)
 
   const selected = computed(
     () => channels.value.find(item => item.url === selectedUrl.value) ?? null,
   )
-
   const fileFallback = computed(() => t('chat.info.sent_file'))
 
   async function ensureSdk(): Promise<SendbirdGroupSdk> {
-    if (sdk) return sdk
-    if (connecting) return connecting
-
-    connecting = (async () => {
-      const session = await getSession()
-      const [{ default: SendbirdChat }, groupChannel] = await Promise.all([
-        import('@sendbird/chat'),
-        import('@sendbird/chat/groupChannel'),
-      ])
-      groupChannelApi = groupChannel
-      if (!client) {
-        client = SendbirdChat.init({
-          appId: session.appId,
-          modules: [new groupChannel.GroupChannelModule()],
-        }) as unknown as SendbirdGroupSdk
-      }
-      // Session token from forum-api (Platform API). Access-token login is denied.
-      await client.connect(session.userId, session.token)
-      myUserId.value = session.userId
-      sdk = client
-      bindHandler(client)
-      return client
-    })()
-
-    try {
-      return await connecting
-    }
-    finally {
-      connecting = null
-    }
+    const client = await ensureSendbirdSdk(getSession)
+    myUserId.value = getSendbirdUserId()
+    return client
   }
 
   function upsertChannel(channel: GroupChannel) {
-    const item = toListItem(channel, myUserId.value, fileFallback.value)
+    const item = channelToListItem(channel, myUserId.value, fileFallback.value)
     const rest = channels.value.filter(row => row.url !== item.url)
     channels.value = [item, ...rest].sort(
       (a, b) => b.lastMessageAt - a.lastMessageAt,
@@ -153,9 +61,10 @@ export function useSendbirdInbox() {
   }
 
   function bindHandler(instance: SendbirdGroupSdk) {
-    if (!groupChannelApi) return
-    instance.groupChannel.removeGroupChannelHandler(HANDLER_ID)
-    const handler = new groupChannelApi.GroupChannelHandler({
+    const api = getSendbirdGroupChannelApi()
+    if (!api) return
+    instance.groupChannel.removeGroupChannelHandler(SENDBIRD_INBOX_HANDLER_ID)
+    const handler = new api.GroupChannelHandler({
       onMessageReceived: (channel, message) => {
         if (!channel.isGroupChannel()) return
         upsertChannel(channel)
@@ -197,7 +106,10 @@ export function useSendbirdInbox() {
         messages.value = [...messages.value]
       },
     })
-    instance.groupChannel.addGroupChannelHandler(HANDLER_ID, handler)
+    instance.groupChannel.addGroupChannelHandler(
+      SENDBIRD_INBOX_HANDLER_ID,
+      handler,
+    )
   }
 
   async function loadChannels() {
@@ -209,14 +121,18 @@ export function useSendbirdInbox() {
     })
     const list = await query.next()
     channels.value = list
-      .map(channel => toListItem(channel, myUserId.value, fileFallback.value))
+      .map(channel =>
+        channelToListItem(channel, myUserId.value, fileFallback.value),
+      )
       .sort((a, b) => b.lastMessageAt - a.lastMessageAt)
   }
 
   async function connect() {
     if (!import.meta.client) return
-    if (status.value === 'ready' && sdk) {
-      bindHandler(sdk)
+    const existing = getSendbirdSdk()
+    if (status.value === 'ready' && existing) {
+      myUserId.value = getSendbirdUserId()
+      bindHandler(existing)
       return
     }
     status.value = 'loading'
@@ -297,7 +213,6 @@ export function useSendbirdInbox() {
   }
 
   function deliveryStatusFor(message: BaseMessage): ChatDeliveryStatus | null {
-    // Depend on epoch so ticks refresh when receipt maps update.
     void receiptEpoch.value
     const channel = threadChannel.value
     const mine
@@ -339,8 +254,7 @@ export function useSendbirdInbox() {
   }
 
   onUnmounted(() => {
-    if (!sdk) return
-    sdk.groupChannel.removeGroupChannelHandler(HANDLER_ID)
+    removeSendbirdInboxHandler()
   })
 
   return {
