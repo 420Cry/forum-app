@@ -131,25 +131,31 @@ export function useSendbirdInbox() {
   }
 
   async function openThread(url: string) {
-    // Re-opening the channel already on screen keeps what we know, so a refetch
-    // cannot blank the thread or drop a message sent moments ago.
+    // Keep the live list while re-fetching the same channel. A stale snapshot
+    // taken before `await` would drop messages that land during the fetch
+    // (pending → succeeded), which left the sidebar preview ahead of the thread.
     const reopening = selectedUrl.value === url
-    const known = reopening ? messages.value : []
     selectedUrl.value = url
     threadError.value = false
-    messages.value = known
-    threadChannel.value = reopening ? threadChannel.value : null
+    if (!reopening) {
+      messages.value = []
+      threadChannel.value = null
+    }
     try {
       const client = await ensureSdk()
       const channel = await client.groupChannel.getChannel(url)
       threadChannel.value = channel
-      const fetched = await channel.getMessagesByTimestamp(Date.now(), {
-        prevResultSize: 50,
-        nextResultSize: 0,
-        reverse: false,
-        includeReactions: true,
-      })
-      messages.value = mergeMessages(known, sortMessagesChronological(fetched))
+      const fetched = sortMessagesChronological(
+        await channel.getMessagesByTimestamp(Date.now(), {
+          prevResultSize: 50,
+          nextResultSize: 0,
+          reverse: false,
+          includeReactions: true,
+        }),
+      )
+      messages.value = reopening
+        ? mergeMessages(messages.value, fetched)
+        : fetched
       await channel.markAsRead()
       void channel.markAsDelivered()
       upsertChannel(channel)

@@ -2,9 +2,10 @@ FROM oven/bun:1.2.22-alpine
 
 WORKDIR /app
 
+# package.json / lock are enough for the image; node_modules is a named volume
+# in docker-compose.dev.yml, so a `RUN bun install` here would be masked and
+# then repeated by the compose start command.
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
-
 COPY . .
 
 EXPOSE 3000

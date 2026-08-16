@@ -24,7 +24,7 @@ jobs:
         with:
           bun-version: 1.2.22
 
-      - name: Install dependencies
+      - name: Install forum-app dependencies
         run: bun install --frozen-lockfile
 
       - name: Lint
@@ -158,14 +158,12 @@ jobs:
         with:
           version: latest
 
-      - name: Install dependencies
-        run: |
-          bun install --frozen-lockfile
+      - name: Install forum-api dependencies
+        run: bun install --frozen-lockfile
         working-directory: forum-api
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-        working-directory: forum-app
+      # forum-app deps install inside the dev container (named volume). A host
+      # install here is unused — Playwright runs from forum-test-automation.
 
       - name: Install e2e dependencies
         run: bun install --frozen-lockfile
