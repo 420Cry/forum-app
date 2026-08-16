@@ -29,6 +29,7 @@ const ERROR_CODE_KEYS: Record<string, string> = {
   refresh_token_not_found: 'auth.error.session_invalid',
   flow_state_not_found: 'auth.error.link_expired',
   bad_code_verifier: 'auth.error.link_expired',
+  implicit_flow_disabled: 'auth.error.link_expired',
   validation_failed: 'auth.error.validation_failed',
   unexpected_failure: 'auth.error.unexpected',
 }

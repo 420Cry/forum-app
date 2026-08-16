@@ -4,13 +4,15 @@ import { resolve } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 
 const currentDir = fileURLToPath(new URL('.', import.meta.url))
+const forumApiUrl
+  = process.env.NUXT_PUBLIC_FORUM_API_URL || 'http://api.forum.test'
 
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-  // Report-friendly baseline CSP. Tighten further once Google Fonts are self-hosted.
+  // Baseline CSP. Port wildcards are invalid in CSP — list local ports explicitly.
   'Content-Security-Policy': [
     'default-src \'self\'',
     'base-uri \'self\'',
@@ -22,7 +24,14 @@ const securityHeaders = {
     'font-src \'self\' data: https://fonts.gstatic.com',
     'style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com',
     'script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'',
-    'connect-src \'self\' https: wss: http://api.forum.test http://127.0.0.1:* http://localhost:*',
+    [
+      'connect-src \'self\' https: wss:',
+      forumApiUrl,
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:3001',
+      'http://localhost:3000',
+      'http://localhost:3001',
+    ].join(' '),
     'worker-src \'self\' blob:',
   ].join('; '),
 }
@@ -33,8 +42,7 @@ export default defineNuxtConfig({
   css: ['./app/assets/css/main.css'],
   runtimeConfig: {
     public: {
-      forumApiUrl:
-        process.env.NUXT_PUBLIC_FORUM_API_URL || 'http://api.forum.test',
+      forumApiUrl,
     },
   },
   alias: {

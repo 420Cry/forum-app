@@ -29,6 +29,8 @@ let connecting: Promise<SendbirdGroupSdk> | null = null
 let groupChannelApi: GroupChannelModuleApi | null = null
 let connectedUserId = ''
 let sessionExpiresAt = 0
+/** Bumped on logout so in-flight connects do not republish a session. */
+let connectEpoch = 0
 
 export function getSendbirdGroupChannelApi(): GroupChannelModuleApi | null {
   return groupChannelApi
@@ -67,6 +69,7 @@ async function dropConnectedSession(): Promise<void> {
 
 /** Tear down the in-memory Sendbird connection (call on logout). */
 export async function disconnectSendbird(): Promise<void> {
+  connectEpoch += 1
   connecting = null
   await dropConnectedSession()
 }
@@ -78,12 +81,17 @@ export async function ensureSendbirdSdk(
   if (sdk && isSendbirdSessionFresh(sessionExpiresAt)) return sdk
   if (connecting) return connecting
 
+  const epoch = connectEpoch
   connecting = (async () => {
     if (sdk) {
       await dropConnectedSession()
     }
 
     const session = await getSession()
+    if (epoch !== connectEpoch) {
+      throw new Error('Sendbird connect cancelled')
+    }
+
     const [{ default: SendbirdChat }, groupChannel] = await Promise.all([
       import('@sendbird/chat'),
       import('@sendbird/chat/groupChannel'),
@@ -97,6 +105,17 @@ export async function ensureSendbirdSdk(
     }
     // Session token from forum-api (Platform API). Access-token login is denied.
     await client.connect(session.userId, session.token)
+
+    if (epoch !== connectEpoch) {
+      try {
+        await client.disconnect()
+      }
+      catch {
+        // ignore
+      }
+      throw new Error('Sendbird connect cancelled')
+    }
+
     connectedUserId = session.userId
     sessionExpiresAt = session.expiresAt
     sdk = client
@@ -107,7 +126,9 @@ export async function ensureSendbirdSdk(
     return await connecting
   }
   finally {
-    connecting = null
+    if (connecting && epoch === connectEpoch) {
+      connecting = null
+    }
   }
 }
 

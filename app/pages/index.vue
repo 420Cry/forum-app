@@ -17,24 +17,21 @@ const session = import.meta.server
   : sessionData.session
 
 const hasSession = !!session?.access_token
+const verified = hasSession
+  ? (import.meta.client
+      ? await refreshUser()
+      : isEmailVerified(session?.user))
+  : false
 
-if (!hasSession) {
+if (!hasSession || !verified) {
   await navigateTo(localePath('/auth/login'), { replace: true })
 }
 else {
-  const verified = import.meta.client
-    ? await refreshUser()
-    : isEmailVerified(session.user)
-  if (!verified) {
-    await navigateTo(localePath('/auth/login'), { replace: true })
-  }
-  else {
-    const { refreshProfile } = useUserProfile()
-    const me = await refreshProfile(false)
-    await navigateTo(localePath(postAuthPath(me?.profile ?? null)), {
-      replace: true,
-    })
-  }
+  const { refreshProfile } = useUserProfile()
+  const me = await refreshProfile(false)
+  await navigateTo(localePath(postAuthPath(me?.profile ?? null)), {
+    replace: true,
+  })
 }
 </script>
 

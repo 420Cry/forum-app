@@ -102,7 +102,11 @@ export async function completeAuthCallbackFromUrl(
   supabase: SupabaseClient,
   query: Record<string, unknown>,
 ): Promise<AuthCallbackResult> {
-  const hash = import.meta.client ? window.location.hash : ''
+  // Prefer live window hash when present (works in Vitest stubs too).
+  const hash
+    = typeof window !== 'undefined' && window.location?.hash
+      ? window.location.hash
+      : ''
   const params = mergeAuthCallbackParams(query, hash)
 
   if (params.urlError || params.errorCode) {
@@ -120,8 +124,11 @@ export async function completeAuthCallbackFromUrl(
     return { ok: true }
   }
 
-  // Do not accept access_token/refresh_token from the URL hash (implicit flow
-  // leak surface). Prefer token_hash OTP or same-browser PKCE code exchange.
+  // Reject implicit hash bearer tokens immediately (do not wait for a session).
+  if (params.accessToken || params.refreshToken) {
+    stripAuthParamsFromUrl()
+    return authFail(undefined, 'implicit_flow_disabled')
+  }
 
   if (params.code && await hasPkceCodeVerifier(supabase)) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(params.code)

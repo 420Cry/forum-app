@@ -43,7 +43,7 @@ function onAvatarError() {
 <template>
   <button
     type="button"
-    class="flex w-full items-center gap-3 px-3 py-2.5 text-left rounded-md transition-colors cursor-pointer border-0 bg-transparent hover:bg-surface-hover"
+    class="flex w-full items-center gap-3 px-4 py-3 text-left rounded-none md:rounded-md md:px-3 md:py-2.5 transition-colors cursor-pointer border-0 bg-transparent hover:bg-surface-hover active:bg-surface-hover"
     data-testid="messages-contact-row"
   >
     <AccountAvatar

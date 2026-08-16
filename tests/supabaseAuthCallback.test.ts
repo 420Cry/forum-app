@@ -104,22 +104,17 @@ describe('authCallbackParams', () => {
 })
 
 describe('completeAuthCallbackFromUrl', () => {
-  it('does not setSession from hash access/refresh tokens', async () => {
-    vi.useFakeTimers()
+  it('rejects hash access/refresh tokens without calling setSession', async () => {
     const { completeAuthCallbackFromUrl } = await import(
       '~/utils/supabaseAuthCallback'
     )
 
     const setSession = vi.fn()
-    const getSession = vi.fn().mockResolvedValue({ data: { session: null } })
-    const onAuthStateChange = vi.fn().mockReturnValue({
-      data: { subscription: { unsubscribe: vi.fn() } },
-    })
     const supabase = {
       auth: {
         setSession,
-        getSession,
-        onAuthStateChange,
+        getSession: vi.fn(),
+        onAuthStateChange: vi.fn(),
         verifyOtp: vi.fn(),
         exchangeCodeForSession: vi.fn(),
         storageKey: 'sb',
@@ -137,13 +132,14 @@ describe('completeAuthCallbackFromUrl', () => {
       history: { replaceState: vi.fn(), state: null },
     })
 
-    const pending = completeAuthCallbackFromUrl(supabase as never, {})
-    await vi.advanceTimersByTimeAsync(5_000)
-    const result = await pending
+    const result = await completeAuthCallbackFromUrl(supabase as never, {})
 
     expect(setSession).not.toHaveBeenCalled()
-    expect(result.ok).toBe(false)
+    expect(result).toEqual({
+      ok: false,
+      error: undefined,
+      errorCode: 'implicit_flow_disabled',
+    })
     vi.unstubAllGlobals()
-    vi.useRealTimers()
   })
 })
