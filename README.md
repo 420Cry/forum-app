@@ -103,7 +103,7 @@ Start a conversation from a profile with **Message**. The header envelope opens 
 ### Dev server notes
 
 - **Vite `allowedHosts`** — `nuxt.config.ts` allows `app.forum.test` so proxied requests are not blocked by Vite 6+ host checks.
-- **Supabase cookies** — `cookieOptions.secure` is `false` in development so session cookies work over `http://app.forum.test`.
+- **Supabase cookies** — `cookieOptions.secure` is `false` in development so session cookies work over `http://app.forum.test`. Production sets `secure` + `httpOnly` so tokens are not readable via `document.cookie`.
 
 ## Auth & routing
 

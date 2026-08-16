@@ -1,7 +1,8 @@
 import {
+  avatarContentType,
   buildAvatarObjectPath,
+  detectAvatarKind,
   validateAvatarFile,
-  validateAvatarMagicBytes,
 } from '~/utils/avatarUpload'
 
 const AVATAR_BUCKET = 'avatars'
@@ -13,11 +14,18 @@ export function useAvatarUpload() {
 
   async function uploadAvatar(file: File): Promise<string> {
     const validationKey = validateAvatarFile(file)
-      ?? await validateAvatarMagicBytes(file)
     if (validationKey) {
       throw createError({
         statusCode: 400,
         statusMessage: t(validationKey),
+      })
+    }
+
+    const kind = await detectAvatarKind(file)
+    if (!kind) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: t('settings.error.avatar_type'),
       })
     }
 
@@ -35,10 +43,13 @@ export function useAvatarUpload() {
       })
     }
 
-    const path = buildAvatarObjectPath(userId, file)
+    const path = buildAvatarObjectPath(userId, kind)
     const { error } = await client.storage
       .from(AVATAR_BUCKET)
-      .upload(path, file, { upsert: true, contentType: file.type })
+      .upload(path, file, {
+        upsert: true,
+        contentType: avatarContentType(kind),
+      })
 
     if (error) {
       const bucketMissing = /bucket not found/i.test(error.message)

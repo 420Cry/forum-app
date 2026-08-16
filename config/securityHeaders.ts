@@ -47,8 +47,8 @@ export function contentSecurityPolicy(options: SecurityHeaderOptions): string {
     'object-src \'none\'',
     'img-src \'self\' data: blob: https:',
     'media-src \'self\' blob: https:',
-    'font-src \'self\' data: https://fonts.gstatic.com',
-    'style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com',
+    'font-src \'self\' data:',
+    'style-src \'self\' \'unsafe-inline\'',
     // TODO: drop 'unsafe-inline'/'unsafe-eval' once Nuxt payloads are nonced.
     'script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'',
     connectSrcDirective(options),

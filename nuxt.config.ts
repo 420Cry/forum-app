@@ -98,6 +98,9 @@ export default defineNuxtConfig({
     },
     cookieOptions: {
       // Secure everywhere except the plain-http local dev stack.
+      // httpOnly: server Set-Cookie path (SSR) keeps tokens out of document.cookie.
+      // The browser client still hydrates session via @supabase/ssr + useSsrCookies.
+      httpOnly: true,
       secure: !isDev,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,

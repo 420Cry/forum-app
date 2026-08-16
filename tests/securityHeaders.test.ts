@@ -48,5 +48,11 @@ describe('securityHeaders', () => {
       'frame-ancestors \'none\'',
     )
     expect(headers['Content-Security-Policy']).toContain('object-src \'none\'')
+    expect(headers['Content-Security-Policy']).not.toContain(
+      'fonts.googleapis.com',
+    )
+    expect(headers['Content-Security-Policy']).not.toContain(
+      'fonts.gstatic.com',
+    )
   })
 })
