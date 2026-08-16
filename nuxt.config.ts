@@ -2,43 +2,24 @@
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
+import { securityHeaders } from './config/securityHeaders'
 
 const currentDir = fileURLToPath(new URL('.', import.meta.url))
 const forumApiUrl
   = process.env.NUXT_PUBLIC_FORUM_API_URL || 'http://api.forum.test'
+const supabaseUrl
+  = process.env.NUXT_PUBLIC_SUPABASE_URL || 'http://supabase.forum.test'
+// Opt in to dev relaxations explicitly — an unset NODE_ENV stays hardened.
+const isDev = process.env.NODE_ENV === 'development'
 
-const securityHeaders = {
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
-  'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-  // Baseline CSP. Port wildcards are invalid in CSP — list local ports explicitly.
-  'Content-Security-Policy': [
-    'default-src \'self\'',
-    'base-uri \'self\'',
-    'form-action \'self\'',
-    'frame-ancestors \'none\'',
-    'object-src \'none\'',
-    'img-src \'self\' data: blob: https:',
-    'media-src \'self\' blob: https:',
-    'font-src \'self\' data: https://fonts.gstatic.com',
-    'style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com',
-    'script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'',
-    [
-      'connect-src \'self\' https: wss:',
-      forumApiUrl,
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:3001',
-      'http://localhost:3000',
-      'http://localhost:3001',
-    ].join(' '),
-    'worker-src \'self\' blob:',
-  ].join('; '),
-}
+const headers = securityHeaders({
+  apiOrigins: [forumApiUrl, supabaseUrl],
+  dev: isDev,
+})
 
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxtjs/supabase', '@nuxtjs/i18n'],
-  devtools: { enabled: process.env.NODE_ENV !== 'production' },
+  devtools: { enabled: isDev },
   css: ['./app/assets/css/main.css'],
   runtimeConfig: {
     public: {
@@ -63,7 +44,7 @@ export default defineNuxtConfig({
     '/en/messages': { ssr: false },
     '/vn/messages': { ssr: false },
     '/**': {
-      headers: securityHeaders,
+      headers,
     },
   },
   compatibilityDate: '2025-07-15',
@@ -116,7 +97,8 @@ export default defineNuxtConfig({
       exclude: ['/auth/confirm'],
     },
     cookieOptions: {
-      secure: process.env.NODE_ENV === 'production',
+      // Secure everywhere except the plain-http local dev stack.
+      secure: !isDev,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
     },

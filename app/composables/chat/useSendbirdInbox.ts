@@ -1,20 +1,23 @@
 import type { GroupChannel } from '@sendbird/chat/groupChannel'
 import type { BaseMessage, UserMessage } from '@sendbird/chat/message'
 import { useChatApi } from '~/composables/api/useChatApi'
+import { bindInboxHandler } from '~/composables/chat/sendbirdInboxHandler'
 import {
-  SENDBIRD_INBOX_HANDLER_ID,
   ensureSendbirdSdk,
-  getSendbirdGroupChannelApi,
   getSendbirdSdk,
   getSendbirdUserId,
   removeSendbirdInboxHandler,
   type SendbirdGroupSdk,
 } from '~/composables/chat/useSendbirdClient'
 import type { ChatListItem } from '~/types/chat'
+import { channelToListItem } from '~/utils/chatChannel'
 import {
-  channelToListItem,
+  findLiveMessage,
+  hasReactionFrom,
+  isReactable,
+  mergeMessages,
   replaceMessage,
-} from '~/utils/chatChannel'
+} from '~/utils/chatMessages'
 import { sortMessagesChronological } from '~/utils/chatPreview'
 import { chatDeliveryStatus, type ChatDeliveryStatus } from '~/utils/chatStatus'
 
@@ -61,55 +64,30 @@ export function useSendbirdInbox() {
   }
 
   function bindHandler(instance: SendbirdGroupSdk) {
-    const api = getSendbirdGroupChannelApi()
-    if (!api) return
-    instance.groupChannel.removeGroupChannelHandler(SENDBIRD_INBOX_HANDLER_ID)
-    const handler = new api.GroupChannelHandler({
+    bindInboxHandler(instance, {
+      onChannelUpdated: upsertChannel,
+      onReceiptsUpdated: bumpReceipts,
       onMessageReceived: (channel, message) => {
-        if (!channel.isGroupChannel()) return
         upsertChannel(channel)
-        if (channel.url === selectedUrl.value) {
-          messages.value = sortMessagesChronological([
-            ...messages.value,
-            message,
-          ])
-          threadChannel.value = channel
-          void channel.markAsRead()
-          void channel.markAsDelivered()
-        }
+        if (channel.url !== selectedUrl.value) return
+        messages.value = sortMessagesChronological([
+          ...messages.value,
+          message,
+        ])
+        threadChannel.value = channel
+        void channel.markAsRead()
+        void channel.markAsDelivered()
       },
-      onChannelChanged: (channel) => {
-        if (!channel.isGroupChannel()) return
-        upsertChannel(channel)
-        bumpReceipts(channel)
-      },
-      onUndeliveredMemberStatusUpdated: (channel) => {
-        if (!channel.isGroupChannel()) return
-        bumpReceipts(channel)
-      },
-      onUnreadMemberStatusUpdated: (channel) => {
-        if (!channel.isGroupChannel()) return
-        bumpReceipts(channel)
-      },
-      onUserMarkedRead: (channel) => {
-        if (!channel.isGroupChannel()) return
-        bumpReceipts(channel)
-      },
-      onReactionUpdated: (channel, reactionEvent) => {
-        if (!channel.isGroupChannel()) return
+      onReactionUpdated: (channel, event) => {
         if (channel.url !== selectedUrl.value) return
         const current = messages.value.find(
-          message => message.messageId === reactionEvent.messageId,
+          message => message.messageId === event.messageId,
         )
         if (!current) return
-        current.applyReactionEvent(reactionEvent)
+        current.applyReactionEvent(event)
         messages.value = [...messages.value]
       },
     })
-    instance.groupChannel.addGroupChannelHandler(
-      SENDBIRD_INBOX_HANDLER_ID,
-      handler,
-    )
   }
 
   async function loadChannels() {
@@ -153,10 +131,14 @@ export function useSendbirdInbox() {
   }
 
   async function openThread(url: string) {
+    // Re-opening the channel already on screen keeps what we know, so a refetch
+    // cannot blank the thread or drop a message sent moments ago.
+    const reopening = selectedUrl.value === url
+    const known = reopening ? messages.value : []
     selectedUrl.value = url
     threadError.value = false
-    messages.value = []
-    threadChannel.value = null
+    messages.value = known
+    threadChannel.value = reopening ? threadChannel.value : null
     try {
       const client = await ensureSdk()
       const channel = await client.groupChannel.getChannel(url)
@@ -167,7 +149,7 @@ export function useSendbirdInbox() {
         reverse: false,
         includeReactions: true,
       })
-      messages.value = sortMessagesChronological(fetched)
+      messages.value = mergeMessages(known, sortMessagesChronological(fetched))
       await channel.markAsRead()
       void channel.markAsDelivered()
       upsertChannel(channel)
@@ -231,14 +213,17 @@ export function useSendbirdInbox() {
   async function toggleReaction(message: BaseMessage, emoji: string) {
     const channel = threadChannel.value
     if (!channel || !emoji) return
-    const summaries = (message as UserMessage).reactions ?? []
-    const existing = summaries.find(reaction => reaction.key === emoji)
-    const reactedByMe = existing?.userIds?.includes(myUserId.value) ?? false
+
+    const live = findLiveMessage(messages.value, message)
+    if (!isReactable(live)) {
+      throw new Error('reaction_failed', { cause: 'message_not_ready' })
+    }
+
     try {
-      const event = reactedByMe
-        ? await channel.deleteReaction(message, emoji)
-        : await channel.addReaction(message, emoji)
-      message.applyReactionEvent(event)
+      const event = hasReactionFrom(live, emoji, myUserId.value)
+        ? await channel.deleteReaction(live, emoji)
+        : await channel.addReaction(live, emoji)
+      live.applyReactionEvent(event)
       messages.value = [...messages.value]
     }
     catch (err) {

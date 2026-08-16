@@ -1,6 +1,7 @@
 services:
   app:
     container_name: forum-app
+    image: forum-app:prod
     env_file:
       - .env
     extra_hosts:

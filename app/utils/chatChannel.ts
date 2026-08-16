@@ -1,10 +1,9 @@
 import type { GroupChannel } from '@sendbird/chat/groupChannel'
-import type { BaseMessage, UserMessage } from '@sendbird/chat/message'
+import type { UserMessage } from '@sendbird/chat/message'
 import type { ChatListItem, ChatPeer } from '~/types/chat'
 import {
   chatLastMessagePreview,
   chatPeerFromMembers,
-  sortMessagesChronological,
 } from '~/utils/chatPreview'
 
 export function channelToPeer(
@@ -44,21 +43,4 @@ export function channelToListItem(
     lastMessageAt: last?.createdAt ?? channel.createdAt,
     unread: channel.unreadMessageCount,
   }
-}
-
-/** Replace by messageId, or append + re-sort if the id is new. */
-export function replaceMessage(
-  list: BaseMessage[],
-  next: BaseMessage,
-): BaseMessage[] {
-  const id = next.messageId
-  let found = false
-  const mapped = list.map((message) => {
-    if (message.messageId === id) {
-      found = true
-      return next
-    }
-    return message
-  })
-  return found ? mapped : sortMessagesChronological([...list, next])
 }
