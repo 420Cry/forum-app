@@ -154,7 +154,7 @@ jobs:
           bun-version: 1.2.22
 
       - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
+        uses: supabase/setup-cli@v3
         with:
           version: latest
 
