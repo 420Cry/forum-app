@@ -6,7 +6,6 @@ export function useUserApi() {
 
   async function fetchMe() {
     return apiFetch<AuthMeResponse>('/auth/me', {
-      credentials: 'include',
       timeout: 8_000,
     })
   }

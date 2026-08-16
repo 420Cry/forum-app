@@ -6,6 +6,14 @@ import {
   authReturnPathFromRoute,
 } from '~/utils/authRedirect'
 
+function fetchStatus(err: unknown): number {
+  if (!err || typeof err !== 'object') return 0
+  const status
+    = (err as { statusCode?: number }).statusCode
+      ?? (err as { status?: number }).status
+  return Number(status ?? 0)
+}
+
 const props = withDefaults(
   defineProps<{
     /** Person to message (Supabase UID). */
@@ -51,11 +59,13 @@ async function startChat() {
     })
   }
   catch (err) {
-    const code = Number((err as { statusCode?: number }).statusCode ?? 0)
+    const code = fetchStatus(err)
     toast.showError(
       code === 503
         ? t('chat.info.unavailable')
-        : t('chat.error.open'),
+        : code === 403
+          ? t('chat.error.not_connected')
+          : t('chat.error.open'),
       3000,
     )
   }

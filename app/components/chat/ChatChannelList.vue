@@ -41,8 +41,26 @@ const suggestedContacts = computed(() => {
   const list = props.contacts
   const mutual = list.filter(c => c.relation === 'mutual')
   const rest = list.filter(c => c.relation !== 'mutual')
-  return [...mutual, ...rest].slice(0, 12)
+  return [...mutual, ...rest]
 })
+
+const showPeopleInbox = computed(
+  () => props.channels.length === 0 && suggestedContacts.value.length > 0,
+)
+
+const showTrueEmpty = computed(
+  () =>
+    props.channels.length === 0
+    && props.contactsLoaded
+    && props.contacts.length === 0,
+)
+
+const showContactsLoading = computed(
+  () =>
+    props.channels.length === 0
+    && !props.contactsLoaded
+    && props.contactsLoading,
+)
 
 function clearSearch() {
   search.value = ''
@@ -129,28 +147,37 @@ defineExpose({ clearSearch })
     </template>
 
     <template v-else>
-      <template v-if="channels.length === 0">
-        <ChatEmptyState
-          :title="t('chat.info.no_messages_yet')"
-          :description="
-            contactsLoaded && contacts.length === 0
-              ? t('chat.info.empty_contacts')
-              : t('chat.info.empty_list')
-          "
-        />
-        <template v-if="suggestedContacts.length > 0">
-          <p class="px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-4">
+      <p
+        v-if="showContactsLoading"
+        class="px-5 py-8 text-center text-sm text-ink-3"
+      >
+        {{ t('common.info.loading') }}
+      </p>
+
+      <ChatEmptyState
+        v-else-if="showTrueEmpty"
+        :title="t('chat.info.no_messages_yet')"
+        :description="t('chat.info.empty_contacts')"
+      />
+
+      <template v-else-if="showPeopleInbox">
+        <div class="px-4 pt-3 pb-1 space-y-1">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-4">
             {{ t('chat.info.start_conversation') }}
           </p>
-          <ChatContactRow
-            v-for="contact in suggestedContacts"
-            :key="contact.id"
-            :contact="contact"
-            @click="onContact(contact.id)"
-          />
-        </template>
+          <p class="text-[12.5px] leading-snug text-ink-3 md:text-[13px]">
+            {{ t('chat.info.empty_list') }}
+          </p>
+        </div>
+        <ChatContactRow
+          v-for="contact in suggestedContacts"
+          :key="contact.id"
+          :contact="contact"
+          @click="onContact(contact.id)"
+        />
       </template>
-      <template v-else>
+
+      <template v-else-if="channels.length > 0">
         <p class="px-4 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-4">
           {{ t('chat.info.conversations') }}
         </p>

@@ -2,17 +2,28 @@
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
+import { securityHeaders } from './config/securityHeaders'
 
 const currentDir = fileURLToPath(new URL('.', import.meta.url))
+const forumApiUrl
+  = process.env.NUXT_PUBLIC_FORUM_API_URL || 'http://api.forum.test'
+const supabaseUrl
+  = process.env.NUXT_PUBLIC_SUPABASE_URL || 'http://supabase.forum.test'
+// Opt in to dev relaxations explicitly — an unset NODE_ENV stays hardened.
+const isDev = process.env.NODE_ENV === 'development'
+
+const headers = securityHeaders({
+  apiOrigins: [forumApiUrl, supabaseUrl],
+  dev: isDev,
+})
 
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxtjs/supabase', '@nuxtjs/i18n'],
-  devtools: { enabled: true },
+  devtools: { enabled: isDev },
   css: ['./app/assets/css/main.css'],
   runtimeConfig: {
     public: {
-      forumApiUrl:
-        process.env.NUXT_PUBLIC_FORUM_API_URL || 'http://api.forum.test',
+      forumApiUrl,
     },
   },
   alias: {
@@ -32,6 +43,9 @@ export default defineNuxtConfig({
     '/vn/auth/reset-password': { ssr: false },
     '/en/messages': { ssr: false },
     '/vn/messages': { ssr: false },
+    '/**': {
+      headers,
+    },
   },
   compatibilityDate: '2025-07-15',
   vite: {
@@ -71,9 +85,10 @@ export default defineNuxtConfig({
     redirect: false,
     clientOptions: {
       auth: {
-        // Email links use token_hash or hash tokens — not same-browser PKCE code.
+        // Email links use token_hash (verifyOtp). Same-browser OAuth uses PKCE.
+        // Implicit hash bearer tokens are not accepted by the app callback.
         detectSessionInUrl: false,
-        flowType: 'implicit',
+        flowType: 'pkce',
       },
     },
     redirectOptions: {
@@ -82,7 +97,8 @@ export default defineNuxtConfig({
       exclude: ['/auth/confirm'],
     },
     cookieOptions: {
-      secure: process.env.NODE_ENV === 'production',
+      // Secure everywhere except the plain-http local dev stack.
+      secure: !isDev,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
     },

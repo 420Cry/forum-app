@@ -40,13 +40,15 @@ export function useReactionPicker(opts: {
 
   function openPicker() {
     measureAnchor()
-    ignoreCloseUntil = Date.now() + 400
+    ignoreCloseUntil = Date.now() + 600
     open.value = true
   }
 
   function closePicker(reason: string) {
     if (!open.value) return
-    if (reason !== 'scroll' && Date.now() < ignoreCloseUntil) return
+    // Intentional close from the picker (emoji pick / Escape) always wins.
+    // Ignore brief scroll/noise right after open (Playwright scroll-into-view).
+    if (reason !== 'child' && Date.now() < ignoreCloseUntil) return
     open.value = false
   }
 

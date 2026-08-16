@@ -90,7 +90,15 @@ function statusFor(message: BaseMessage): ChatDeliveryStatus | null {
 }
 
 watch(
-  () => props.messages.length,
+  () => {
+    const last = props.messages[props.messages.length - 1] as
+      | UserMessage
+      | undefined
+    // Length alone misses pending→succeeded (same count, new object).
+    return last
+      ? `${props.messages.length}:${last.reqId || last.messageId}`
+      : '0'
+  },
   async () => {
     await nextTick()
     const el = listRef.value
@@ -182,7 +190,7 @@ function onAvatarError() {}
     >
       <ChatMessageBubble
         v-for="(message, index) in messages"
-        :key="String(message.messageId || message.reqId || index)"
+        :key="String(message.reqId || message.messageId || index)"
         :message="message"
         :previous-created-at="previousCreatedAt(index)"
         :my-user-id="myUserId"

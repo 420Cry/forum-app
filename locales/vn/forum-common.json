@@ -454,7 +454,7 @@
     },
     "info": {
       "subtitle": "Trò chuyện trực tiếp với founder và nhà đầu tư.",
-      "empty_list": "Tìm người trong mạng lưới của bạn để bắt đầu trò chuyện.",
+      "empty_list": "Nhắn tin với người bạn theo dõi — hoặc người theo dõi bạn.",
       "empty_contacts": "Chưa có ai trong mạng lưới của bạn. Hãy theo dõi ai đó để nhắn tin tại đây.",
       "empty_thread": "Hãy chào {name} — cuộc trò chuyện bắt đầu từ đây.",
       "select_conversation": "Tin nhắn của bạn",
@@ -465,7 +465,7 @@
       "no_messages_yet": "Chưa có tin nhắn",
       "search_results": "Mọi người",
       "conversations": "Trò chuyện",
-      "start_conversation": "Bắt đầu trò chuyện",
+      "start_conversation": "Mọi người",
       "no_search_results": "Không tìm thấy ai",
       "no_search_results_hint": "Thử tên khác, hoặc kiểm tra chính tả."
     },
@@ -503,6 +503,7 @@
       "session": "Không mở được tin nhắn. Thử lại.",
       "send": "Không gửi được tin nhắn. Thử lại.",
       "open": "Không bắt đầu được cuộc trò chuyện. Thử lại.",
+      "not_connected": "Hãy theo dõi nhau trước khi bắt đầu trò chuyện.",
       "thread": "Không tải được cuộc trò chuyện. Thử lại.",
       "contacts": "Không tải được danh sách kết nối. Thử lại.",
       "reaction": "Không cập nhật được cảm xúc. Thử lại."

@@ -454,7 +454,7 @@
     },
     "info": {
       "subtitle": "Direct conversations with founders and investors.",
-      "empty_list": "Search for someone in your network to start a conversation.",
+      "empty_list": "Message someone you follow — or who follows you.",
       "empty_contacts": "No people in your network yet. Follow someone to message them here.",
       "empty_thread": "Say hello to {name} — your conversation starts here.",
       "select_conversation": "Your messages",
@@ -465,7 +465,7 @@
       "no_messages_yet": "No messages yet",
       "search_results": "People",
       "conversations": "Chats",
-      "start_conversation": "Start a conversation",
+      "start_conversation": "People",
       "no_search_results": "No people found",
       "no_search_results_hint": "Try another name, or check spelling."
     },
@@ -503,6 +503,7 @@
       "session": "Could not open messages. Try again.",
       "send": "Could not send that message. Try again.",
       "open": "Could not start this conversation. Try again.",
+      "not_connected": "Follow each other first to start a conversation.",
       "thread": "Could not load this conversation. Try again.",
       "contacts": "Could not load connections. Try again.",
       "reaction": "Could not update that reaction. Try again."

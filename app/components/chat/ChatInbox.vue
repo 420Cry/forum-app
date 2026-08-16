@@ -45,6 +45,37 @@ const contactsLoaded = ref(false)
 const showList = computed(() => isSplit.value || !selectedUrl.value)
 const showThread = computed(() => isSplit.value || !!selectedUrl.value)
 
+const avatarByUserId = computed(() => {
+  const map = new Map<string, string>()
+  for (const contact of contacts.value) {
+    const url = contact.avatarUrl?.trim()
+    if (url) map.set(contact.id, url)
+  }
+  return map
+})
+
+const displayChannels = computed(() =>
+  channels.value.map((item) => {
+    const avatar = avatarByUserId.value.get(item.peer.userId)
+    if (!avatar) return item
+    return {
+      ...item,
+      peer: { ...item.peer, profileUrl: avatar },
+    }
+  }),
+)
+
+const displaySelected = computed(() => {
+  const item = selected.value
+  if (!item) return null
+  const avatar = avatarByUserId.value.get(item.peer.userId)
+  if (!avatar) return item
+  return {
+    ...item,
+    peer: { ...item.peer, profileUrl: avatar },
+  }
+})
+
 function syncBreakpoint() {
   isSplit.value = window.matchMedia('(min-width: 768px)').matches
 }
@@ -235,7 +266,7 @@ watch(
     >
       <ChatChannelList
         v-show="showList"
-        :channels="channels"
+        :channels="displayChannels"
         :selected-url="selectedUrl"
         :contacts="contacts"
         :contacts-loaded="contactsLoaded"
@@ -251,10 +282,10 @@ watch(
         data-testid="messages-thread"
       >
         <ChatThread
-          v-if="selected"
-          :peer-name="selected.peer.nickname"
-          :peer-id="selected.peer.userId"
-          :peer-avatar="selected.peer.profileUrl"
+          v-if="displaySelected"
+          :peer-name="displaySelected.peer.nickname"
+          :peer-id="displaySelected.peer.userId"
+          :peer-avatar="displaySelected.peer.profileUrl"
           :my-user-id="myUserId"
           :messages="messages"
           :sending="sending"

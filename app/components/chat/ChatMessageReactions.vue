@@ -93,6 +93,7 @@ function pick(emoji: string) {
           :key="reaction.key"
           type="button"
           role="listitem"
+          data-testid="chat-reaction-chip"
           class="inline-flex min-w-6 items-center justify-center gap-0.5 rounded-full px-1 py-0.5 text-[13px] leading-none transition-transform active:scale-95 hover:scale-110 cursor-pointer border-0 bg-transparent"
           :class="reaction.reactedByMe ? 'bg-brand-tint' : ''"
           :aria-label="t('chat.aria.reaction', { emoji: reaction.key, count: reaction.count })"

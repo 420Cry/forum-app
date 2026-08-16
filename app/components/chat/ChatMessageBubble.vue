@@ -140,6 +140,7 @@ const hasReactions = computed(() => reactions.value.length > 0)
           ]"
           :aria-label="t('chat.aria.add_reaction')"
           :aria-expanded="pickerOpen"
+          :disabled="deliveryStatus === 'pending'"
           @click.stop="openPicker"
         >
           <BaseIcon

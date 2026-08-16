@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   getAuthCallbackQuery,
   isEmailOtpType,
@@ -100,5 +100,46 @@ describe('authCallbackParams', () => {
         refreshToken: undefined,
       })
     })
+  })
+})
+
+describe('completeAuthCallbackFromUrl', () => {
+  it('rejects hash access/refresh tokens without calling setSession', async () => {
+    const { completeAuthCallbackFromUrl } = await import(
+      '~/utils/supabaseAuthCallback'
+    )
+
+    const setSession = vi.fn()
+    const supabase = {
+      auth: {
+        setSession,
+        getSession: vi.fn(),
+        onAuthStateChange: vi.fn(),
+        verifyOtp: vi.fn(),
+        exchangeCodeForSession: vi.fn(),
+        storageKey: 'sb',
+        storage: { getItem: vi.fn().mockResolvedValue(null) },
+      },
+    }
+
+    vi.stubGlobal('window', {
+      location: {
+        hash: '#access_token=at&refresh_token=rt&type=recovery',
+        href: 'http://app.forum.test/en/auth/confirm#access_token=at&refresh_token=rt',
+        pathname: '/en/auth/confirm',
+        search: '',
+      },
+      history: { replaceState: vi.fn(), state: null },
+    })
+
+    const result = await completeAuthCallbackFromUrl(supabase as never, {})
+
+    expect(setSession).not.toHaveBeenCalled()
+    expect(result).toEqual({
+      ok: false,
+      error: undefined,
+      errorCode: 'implicit_flow_disabled',
+    })
+    vi.unstubAllGlobals()
   })
 })
