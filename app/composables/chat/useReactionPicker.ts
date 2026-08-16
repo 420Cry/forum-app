@@ -40,13 +40,16 @@ export function useReactionPicker(opts: {
 
   function openPicker() {
     measureAnchor()
-    ignoreCloseUntil = Date.now() + 400
+    ignoreCloseUntil = Date.now() + 600
     open.value = true
   }
 
   function closePicker(reason: string) {
     if (!open.value) return
-    if (reason !== 'scroll' && Date.now() < ignoreCloseUntil) return
+    // Ignore brief scroll/pointer noise right after open (e.g. Playwright
+    // scroll-into-view before click, or the opening pointerdown).
+    if (Date.now() < ignoreCloseUntil) return
+    void reason
     open.value = false
   }
 
