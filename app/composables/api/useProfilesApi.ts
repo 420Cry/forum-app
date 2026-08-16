@@ -31,9 +31,10 @@ export function useProfilesApi() {
   }
 
   async function getStartup(id: string) {
-    return apiFetch<StartupProfile>(`/profiles/startup/${id}`, {
-      requireAuth: false,
-    })
+    return apiFetch<StartupProfile>(
+      `/profiles/startup/${encodeURIComponent(id)}`,
+      { requireAuth: false },
+    )
   }
 
   async function createInvestor(payload: InvestorProfilePayload) {
@@ -51,15 +52,17 @@ export function useProfilesApi() {
   }
 
   async function getInvestor(id: string) {
-    return apiFetch<InvestorProfile>(`/profiles/investor/${id}`, {
-      requireAuth: false,
-    })
+    return apiFetch<InvestorProfile>(
+      `/profiles/investor/${encodeURIComponent(id)}`,
+      { requireAuth: false },
+    )
   }
 
   async function getPublicUser(urlKeyOrId: string) {
-    return apiFetch<PublicUserProfile>(`/profiles/user/${urlKeyOrId}`, {
-      requireAuth: false,
-    })
+    return apiFetch<PublicUserProfile>(
+      `/profiles/user/${encodeURIComponent(urlKeyOrId)}`,
+      { requireAuth: false },
+    )
   }
 
   async function find(params: Record<string, string | undefined>) {

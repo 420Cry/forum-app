@@ -503,6 +503,7 @@
       "session": "Could not open messages. Try again.",
       "send": "Could not send that message. Try again.",
       "open": "Could not start this conversation. Try again.",
+      "not_connected": "Follow each other first to start a conversation.",
       "thread": "Could not load this conversation. Try again.",
       "contacts": "Could not load connections. Try again.",
       "reaction": "Could not update that reaction. Try again."

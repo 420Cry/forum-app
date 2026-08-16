@@ -120,15 +120,8 @@ export async function completeAuthCallbackFromUrl(
     return { ok: true }
   }
 
-  if (params.accessToken && params.refreshToken) {
-    const { error } = await supabase.auth.setSession({
-      access_token: params.accessToken,
-      refresh_token: params.refreshToken,
-    })
-    if (error) return authFail(error)
-    stripAuthParamsFromUrl()
-    return { ok: true }
-  }
+  // Do not accept access_token/refresh_token from the URL hash (implicit flow
+  // leak surface). Prefer token_hash OTP or same-browser PKCE code exchange.
 
   if (params.code && await hasPkceCodeVerifier(supabase)) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(params.code)

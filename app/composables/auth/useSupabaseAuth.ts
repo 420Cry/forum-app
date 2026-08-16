@@ -175,7 +175,14 @@ export function useSupabaseAuth() {
     useUserProfile().clearProfile()
     error.value = null
     refreshedUser.value = null
-    await supabase.auth.signOut({ scope: 'local' })
+    const { disconnectSendbird } = await import('../chat/useSendbirdClient')
+    await disconnectSendbird()
+    try {
+      await supabase.auth.signOut({ scope: 'global' })
+    }
+    catch {
+      await supabase.auth.signOut({ scope: 'local' })
+    }
   }
 
   async function resetPassword(email: string) {

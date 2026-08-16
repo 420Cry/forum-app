@@ -503,6 +503,7 @@
       "session": "Không mở được tin nhắn. Thử lại.",
       "send": "Không gửi được tin nhắn. Thử lại.",
       "open": "Không bắt đầu được cuộc trò chuyện. Thử lại.",
+      "not_connected": "Hãy theo dõi nhau trước khi bắt đầu trò chuyện.",
       "thread": "Không tải được cuộc trò chuyện. Thử lại.",
       "contacts": "Không tải được danh sách kết nối. Thử lại.",
       "reaction": "Không cập nhật được cảm xúc. Thử lại."

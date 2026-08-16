@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   getAuthCallbackQuery,
   isEmailOtpType,
@@ -100,5 +100,50 @@ describe('authCallbackParams', () => {
         refreshToken: undefined,
       })
     })
+  })
+})
+
+describe('completeAuthCallbackFromUrl', () => {
+  it('does not setSession from hash access/refresh tokens', async () => {
+    vi.useFakeTimers()
+    const { completeAuthCallbackFromUrl } = await import(
+      '~/utils/supabaseAuthCallback'
+    )
+
+    const setSession = vi.fn()
+    const getSession = vi.fn().mockResolvedValue({ data: { session: null } })
+    const onAuthStateChange = vi.fn().mockReturnValue({
+      data: { subscription: { unsubscribe: vi.fn() } },
+    })
+    const supabase = {
+      auth: {
+        setSession,
+        getSession,
+        onAuthStateChange,
+        verifyOtp: vi.fn(),
+        exchangeCodeForSession: vi.fn(),
+        storageKey: 'sb',
+        storage: { getItem: vi.fn().mockResolvedValue(null) },
+      },
+    }
+
+    vi.stubGlobal('window', {
+      location: {
+        hash: '#access_token=at&refresh_token=rt&type=recovery',
+        href: 'http://app.forum.test/en/auth/confirm#access_token=at&refresh_token=rt',
+        pathname: '/en/auth/confirm',
+        search: '',
+      },
+      history: { replaceState: vi.fn(), state: null },
+    })
+
+    const pending = completeAuthCallbackFromUrl(supabase as never, {})
+    await vi.advanceTimersByTimeAsync(5_000)
+    const result = await pending
+
+    expect(setSession).not.toHaveBeenCalled()
+    expect(result.ok).toBe(false)
+    vi.unstubAllGlobals()
+    vi.useRealTimers()
   })
 })

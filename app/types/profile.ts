@@ -38,7 +38,8 @@ export type StartupProfile = {
   stage: string
   industry: string
   websiteUrl: string | null
-  contactEmail: string
+  /** Omitted on public profile GETs. */
+  contactEmail?: string
   avatarUrl: string | null
   logoUrl: string | null
   foundedAt: string
@@ -54,7 +55,8 @@ export type InvestorProfile = {
   firmName: string
   description: string | null
   industry: string
-  contactEmail: string
+  /** Omitted on public profile GETs. */
+  contactEmail?: string
   avatarUrl: string | null
   logoUrl: string | null
   websiteUrl: string | null

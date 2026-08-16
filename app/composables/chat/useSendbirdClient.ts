@@ -3,6 +3,9 @@ import type { ChatSession } from '~/types/chat'
 
 export const SENDBIRD_INBOX_HANDLER_ID = 'forum-inbox'
 
+/** Refresh session this many ms before Sendbird expiresAt. */
+export const SENDBIRD_SESSION_SKEW_MS = 60_000
+
 export type SendbirdGroupSdk = {
   connect: (userId: string, token: string) => Promise<unknown>
   disconnect: () => Promise<void>
@@ -25,6 +28,7 @@ let client: SendbirdGroupSdk | null = null
 let connecting: Promise<SendbirdGroupSdk> | null = null
 let groupChannelApi: GroupChannelModuleApi | null = null
 let connectedUserId = ''
+let sessionExpiresAt = 0
 
 export function getSendbirdGroupChannelApi(): GroupChannelModuleApi | null {
   return groupChannelApi
@@ -38,14 +42,47 @@ export function getSendbirdUserId(): string {
   return connectedUserId
 }
 
+export function isSendbirdSessionFresh(
+  expiresAt: number,
+  now = Date.now(),
+  skewMs = SENDBIRD_SESSION_SKEW_MS,
+): boolean {
+  return Number.isFinite(expiresAt) && expiresAt > now + skewMs
+}
+
+async function dropConnectedSession(): Promise<void> {
+  removeSendbirdInboxHandler()
+  const current = sdk
+  sdk = null
+  connectedUserId = ''
+  sessionExpiresAt = 0
+  if (!current) return
+  try {
+    await current.disconnect()
+  }
+  catch {
+    // Best-effort — session may already be dead.
+  }
+}
+
+/** Tear down the in-memory Sendbird connection (call on logout). */
+export async function disconnectSendbird(): Promise<void> {
+  connecting = null
+  await dropConnectedSession()
+}
+
 /** Shared Sendbird client (session token from forum-api). */
 export async function ensureSendbirdSdk(
   getSession: () => Promise<ChatSession>,
 ): Promise<SendbirdGroupSdk> {
-  if (sdk) return sdk
+  if (sdk && isSendbirdSessionFresh(sessionExpiresAt)) return sdk
   if (connecting) return connecting
 
   connecting = (async () => {
+    if (sdk) {
+      await dropConnectedSession()
+    }
+
     const session = await getSession()
     const [{ default: SendbirdChat }, groupChannel] = await Promise.all([
       import('@sendbird/chat'),
@@ -61,6 +98,7 @@ export async function ensureSendbirdSdk(
     // Session token from forum-api (Platform API). Access-token login is denied.
     await client.connect(session.userId, session.token)
     connectedUserId = session.userId
+    sessionExpiresAt = session.expiresAt
     sdk = client
     return client
   })()

@@ -5,9 +5,31 @@ import tailwindcss from '@tailwindcss/vite'
 
 const currentDir = fileURLToPath(new URL('.', import.meta.url))
 
+const securityHeaders = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  // Report-friendly baseline CSP. Tighten further once Google Fonts are self-hosted.
+  'Content-Security-Policy': [
+    'default-src \'self\'',
+    'base-uri \'self\'',
+    'form-action \'self\'',
+    'frame-ancestors \'none\'',
+    'object-src \'none\'',
+    'img-src \'self\' data: blob: https:',
+    'media-src \'self\' blob: https:',
+    'font-src \'self\' data: https://fonts.gstatic.com',
+    'style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com',
+    'script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'',
+    'connect-src \'self\' https: wss: http://api.forum.test http://127.0.0.1:* http://localhost:*',
+    'worker-src \'self\' blob:',
+  ].join('; '),
+}
+
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxtjs/supabase', '@nuxtjs/i18n'],
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NODE_ENV !== 'production' },
   css: ['./app/assets/css/main.css'],
   runtimeConfig: {
     public: {
@@ -32,6 +54,9 @@ export default defineNuxtConfig({
     '/vn/auth/reset-password': { ssr: false },
     '/en/messages': { ssr: false },
     '/vn/messages': { ssr: false },
+    '/**': {
+      headers: securityHeaders,
+    },
   },
   compatibilityDate: '2025-07-15',
   vite: {
@@ -71,9 +96,10 @@ export default defineNuxtConfig({
     redirect: false,
     clientOptions: {
       auth: {
-        // Email links use token_hash or hash tokens — not same-browser PKCE code.
+        // Email links use token_hash (verifyOtp). Same-browser OAuth uses PKCE.
+        // Implicit hash bearer tokens are not accepted by the app callback.
         detectSessionInUrl: false,
-        flowType: 'implicit',
+        flowType: 'pkce',
       },
     },
     redirectOptions: {

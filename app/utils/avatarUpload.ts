@@ -11,6 +11,41 @@ export function validateAvatarFile(file: File): string | null {
   return null
 }
 
+/** Magic-byte check — do not trust `file.type` alone. */
+export async function validateAvatarMagicBytes(
+  file: File,
+): Promise<string | null> {
+  const header = new Uint8Array(await file.slice(0, 12).arrayBuffer())
+  if (isJpeg(header) || isPng(header) || isWebp(header)) return null
+  return 'settings.error.avatar_type'
+}
+
+function isJpeg(bytes: Uint8Array): boolean {
+  return bytes.length >= 3
+    && bytes[0] === 0xff
+    && bytes[1] === 0xd8
+    && bytes[2] === 0xff
+}
+
+function isPng(bytes: Uint8Array): boolean {
+  return bytes.length >= 8
+    && bytes[0] === 0x89
+    && bytes[1] === 0x50
+    && bytes[2] === 0x4e
+    && bytes[3] === 0x47
+    && bytes[4] === 0x0d
+    && bytes[5] === 0x0a
+    && bytes[6] === 0x1a
+    && bytes[7] === 0x0a
+}
+
+function isWebp(bytes: Uint8Array): boolean {
+  if (bytes.length < 12) return false
+  const riff = String.fromCharCode(bytes[0]!, bytes[1]!, bytes[2]!, bytes[3]!)
+  const webp = String.fromCharCode(bytes[8]!, bytes[9]!, bytes[10]!, bytes[11]!)
+  return riff === 'RIFF' && webp === 'WEBP'
+}
+
 export function buildAvatarObjectPath(userId: string, file: File): string {
   const ext
     = file.type === 'image/png'

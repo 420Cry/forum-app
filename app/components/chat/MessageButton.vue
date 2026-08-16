@@ -55,7 +55,9 @@ async function startChat() {
     toast.showError(
       code === 503
         ? t('chat.info.unavailable')
-        : t('chat.error.open'),
+        : code === 403
+          ? t('chat.error.not_connected')
+          : t('chat.error.open'),
       3000,
     )
   }

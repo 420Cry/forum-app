@@ -1,6 +1,7 @@
 import {
   buildAvatarObjectPath,
   validateAvatarFile,
+  validateAvatarMagicBytes,
 } from '~/utils/avatarUpload'
 
 const AVATAR_BUCKET = 'avatars'
@@ -12,6 +13,7 @@ export function useAvatarUpload() {
 
   async function uploadAvatar(file: File): Promise<string> {
     const validationKey = validateAvatarFile(file)
+      ?? await validateAvatarMagicBytes(file)
     if (validationKey) {
       throw createError({
         statusCode: 400,
