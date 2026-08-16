@@ -2,7 +2,6 @@ import type { AuthMeResponse } from '~/types/user'
 import { isOnboardingComplete } from '~/types/user'
 import { isFetchUnauthorized } from '~/utils/authSession'
 import { useUserApi } from '../api/useUserApi'
-import { useSupabaseToken } from '../auth/useSupabaseToken'
 
 let profileRefreshInFlight: Promise<AuthMeResponse | null> | null = null
 /** Bumped on clear so in-flight fetches cannot write stale results back. */
@@ -29,22 +28,10 @@ export function useUserProfile() {
 
     const epoch = profileEpoch
     const run = async (): Promise<AuthMeResponse | null> => {
-      const { getAccessToken } = useSupabaseToken()
-      // Profile force-refresh must not force a JWT refreshSession — that raced
-      // with parallel middleware/onMounted calls and starved /auth/me.
-      const token = await getAccessToken(false)
-      if (epoch !== profileEpoch) return profile.value
-
-      if (!token) {
-        profile.value = null
-        unauthorized.value = true
-        return null
-      }
-
       loading.value = true
       try {
         const { fetchMe } = useUserApi()
-        const me = await fetchMe(false)
+        const me = await fetchMe()
         if (epoch !== profileEpoch) return profile.value
         profile.value = me
         unauthorized.value = false

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  authRedirectQuery,
   authReturnPathFromRoute,
   resolvePostAuthPath,
   sanitizeAuthRedirect,
@@ -65,5 +66,18 @@ describe('authReturnPathFromRoute', () => {
   it('strips locale and query from the current route', () => {
     expect(authReturnPathFromRoute('/en/u/alex?x=1')).toBe('/u/alex')
     expect(authReturnPathFromRoute('/auth/login')).toBeNull()
+  })
+})
+
+describe('authRedirectQuery', () => {
+  it('builds the login query for a blocked page', () => {
+    expect(authRedirectQuery('/en/messages?channelUrl=abc')).toEqual({
+      redirect: '/messages',
+    })
+  })
+
+  it('is undefined when there is nothing safe to return to', () => {
+    expect(authRedirectQuery('/en/auth/login')).toBeUndefined()
+    expect(authRedirectQuery('https://evil.test')).toBeUndefined()
   })
 })

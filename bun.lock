@@ -7,6 +7,7 @@
         "@nuxt/eslint": "^1.14.0",
         "@nuxtjs/i18n": "^10.4.0",
         "@nuxtjs/supabase": "^2.0.9",
+        "@sendbird/chat": "^4.22.9",
         "@supabase/supabase-js": "^2.110.0",
         "@tailwindcss/vite": "^4.1.18",
         "class-variance-authority": "^0.7.1",
@@ -532,6 +533,8 @@
     "@rollup/rollup-win32-x64-gnu": ["@rollup/rollup-win32-x64-gnu@4.62.0", "", { "os": "win32", "cpu": "x64" }, "sha512-SoTb6lPg25xZlA2ibwQ++ahCCnH+FP0qmEuafMJ4gznZKOlXioKEAeJLgCrqjM98ACziXM9V1amFjICVL4IFoA=="],
 
     "@rollup/rollup-win32-x64-msvc": ["@rollup/rollup-win32-x64-msvc@4.62.0", "", { "os": "win32", "cpu": "x64" }, "sha512-5L+T1fMX4RIEBoZzT0+sQ0PhTS36NULFmMXtl1TZo44TMAROIMHbZufSOjVWt/Y622BtxgxtaNOokbTDvfsrZA=="],
+
+    "@sendbird/chat": ["@sendbird/chat@4.22.9", "", { "peerDependencies": { "react-native-mmkv": ">=2.0.0" }, "optionalPeers": ["react-native-mmkv"] }, "sha512-7lmK2TLMSacF6Dk0iu03DE2kaqKSKYFCErUQupSAzMCngDhuYqu5ewBv+R0JHeTq/z4gek5XtTXbty6SsBYZqQ=="],
 
     "@simple-git/args-pathspec": ["@simple-git/args-pathspec@1.0.3", "", {}, "sha512-ngJMaHlsWDTfjyq9F3VIQ8b7NXbBLq5j9i5bJ6XLYtD6qlDXT7fdKY2KscWWUF8t18xx052Y/PUO1K1TRc9yKA=="],
 

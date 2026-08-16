@@ -1,5 +1,8 @@
 export type AccountType = 'user' | 'startup' | 'investor'
 
+/** Person-to-person follow state for chat contact search. */
+export type FollowRelation = 'mutual' | 'following' | 'follower'
+
 export type AccountSummary = {
   id: string
   name: string
@@ -12,6 +15,11 @@ export type AccountSummary = {
   views?: number
   connections?: number
   accountType: AccountType
+}
+
+/** User network row for messaging search. */
+export type UserConnection = AccountSummary & {
+  relation: FollowRelation
 }
 
 export type AccountSummaryView = AccountSummary & {

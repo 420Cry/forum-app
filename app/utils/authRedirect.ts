@@ -58,3 +58,14 @@ export function resolvePostAuthPath(
 export function authReturnPathFromRoute(path: string): string | null {
   return sanitizeAuthRedirect(stripLocalePrefix(path.split(/[?#]/, 1)[0] ?? path))
 }
+
+/**
+ * Query for the sign-in route so the user returns to the page that blocked
+ * them. Undefined when there is nothing safe to return to.
+ */
+export function authRedirectQuery(
+  path: string,
+): Record<string, string> | undefined {
+  const redirect = authReturnPathFromRoute(path)
+  return redirect ? { [AUTH_REDIRECT_QUERY]: redirect } : undefined
+}

@@ -447,5 +447,65 @@
       "remote": "Từ xa",
       "location_other": "Khác"
     }
+  },
+  "chat": {
+    "heading": {
+      "messages": "Tin nhắn"
+    },
+    "info": {
+      "subtitle": "Trò chuyện trực tiếp với founder và nhà đầu tư.",
+      "empty_list": "Tìm người trong mạng lưới của bạn để bắt đầu trò chuyện.",
+      "empty_contacts": "Chưa có ai trong mạng lưới của bạn. Hãy theo dõi ai đó để nhắn tin tại đây.",
+      "empty_thread": "Hãy chào {name} — cuộc trò chuyện bắt đầu từ đây.",
+      "select_conversation": "Tin nhắn của bạn",
+      "select_conversation_hint": "Chọn một cuộc trò chuyện bên trái, hoặc tìm người để nhắn tin.",
+      "unavailable": "Tin nhắn chưa sẵn sàng.",
+      "yesterday": "Hôm qua",
+      "sent_file": "Đã gửi một tệp",
+      "no_messages_yet": "Chưa có tin nhắn",
+      "search_results": "Mọi người",
+      "conversations": "Trò chuyện",
+      "start_conversation": "Bắt đầu trò chuyện",
+      "no_search_results": "Không tìm thấy ai",
+      "no_search_results_hint": "Thử tên khác, hoặc kiểm tra chính tả."
+    },
+    "label": {
+      "type_message": "Nhập tin nhắn",
+      "search_connections": "Tìm kết nối",
+      "search_connections_placeholder": "Tìm người",
+      "relation_mutual": "Đã kết nối",
+      "relation_following": "Đang theo dõi",
+      "relation_follower": "Theo dõi bạn"
+    },
+    "action": {
+      "send": "Gửi",
+      "message": "Nhắn tin",
+      "sign_in_to_message": "Đăng nhập để nhắn tin",
+      "back_to_list": "Quay lại"
+    },
+    "aria": {
+      "messages": "Tin nhắn",
+      "send": "Gửi tin nhắn",
+      "unread": "{count} chưa đọc",
+      "message_user": "Nhắn tin cho {name}",
+      "view_profile": "Xem hồ sơ của {name}",
+      "status_pending": "Đang gửi",
+      "status_failed": "Gửi thất bại",
+      "status_sent": "Đã gửi",
+      "status_delivered": "Đã nhận",
+      "status_seen": "Đã xem",
+      "add_reaction": "Thêm cảm xúc",
+      "reaction_picker": "Chọn cảm xúc",
+      "react_with": "Thả {emoji}",
+      "reaction": "{emoji}, {count}"
+    },
+    "error": {
+      "session": "Không mở được tin nhắn. Thử lại.",
+      "send": "Không gửi được tin nhắn. Thử lại.",
+      "open": "Không bắt đầu được cuộc trò chuyện. Thử lại.",
+      "thread": "Không tải được cuộc trò chuyện. Thử lại.",
+      "contacts": "Không tải được danh sách kết nối. Thử lại.",
+      "reaction": "Không cập nhật được cảm xúc. Thử lại."
+    }
   }
 }

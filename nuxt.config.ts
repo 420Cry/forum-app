@@ -30,6 +30,8 @@ export default defineNuxtConfig({
     '/vn/auth/confirm': { ssr: false },
     '/en/auth/reset-password': { ssr: false },
     '/vn/auth/reset-password': { ssr: false },
+    '/en/messages': { ssr: false },
+    '/vn/messages': { ssr: false },
   },
   compatibilityDate: '2025-07-15',
   vite: {

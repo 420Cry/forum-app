@@ -3,6 +3,7 @@ import type { navigationLinkType } from '~/types/navigationType'
 import { useNavigationLinks } from '~/composables/useNavLink'
 import BaseIcon from '~/components/shared/BaseIcon.vue'
 import { isNavPathActive } from '~/utils/navActive'
+import { stripLocalePrefix } from '~/utils/localePath'
 
 const navigationLinks = useNavigationLinks()
 const { t } = useI18n()
@@ -10,10 +11,18 @@ const route = useRoute()
 
 const isActive = (link: navigationLinkType) =>
   isNavPathActive(route.path, link.link)
+
+/** Immersive chat thread on phone — hide bottom chrome like WhatsApp. */
+const hideForChatThread = computed(() => {
+  const path = stripLocalePrefix(route.path)
+  if (path !== '/messages' && !path.startsWith('/messages/')) return false
+  return Boolean(String(route.query.channelUrl ?? '').trim())
+})
 </script>
 
 <template>
   <nav
+    v-if="!hideForChatThread"
     class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 backdrop-blur-md lg:hidden"
     :aria-label="t('nav.aria.mobile')"
     style="padding-bottom: env(safe-area-inset-bottom, 0px)"
