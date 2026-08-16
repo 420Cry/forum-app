@@ -46,10 +46,9 @@ export function useReactionPicker(opts: {
 
   function closePicker(reason: string) {
     if (!open.value) return
-    // Ignore brief scroll/pointer noise right after open (e.g. Playwright
-    // scroll-into-view before click, or the opening pointerdown).
-    if (Date.now() < ignoreCloseUntil) return
-    void reason
+    // Intentional close from the picker (emoji pick / Escape) always wins.
+    // Ignore brief scroll/noise right after open (Playwright scroll-into-view).
+    if (reason !== 'child' && Date.now() < ignoreCloseUntil) return
     open.value = false
   }
 
