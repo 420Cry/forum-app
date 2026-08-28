@@ -26,7 +26,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
@@ -97,7 +97,7 @@ jobs:
     needs: verify
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
@@ -150,7 +150,7 @@ jobs:
 
       - name: Checkout forum-app (PR branch)
         if: steps.scope.outputs.full == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: forum-app
           persist-credentials: false
@@ -197,7 +197,7 @@ jobs:
 
       - name: Checkout forum-api
         if: steps.scope.outputs.full == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: 420Cry/forum-api
           ref: ${{ steps.refs.outputs.api }}
@@ -207,7 +207,7 @@ jobs:
 
       - name: Checkout forum-test-automation
         if: steps.scope.outputs.full == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: 420Cry/forum-test-automation
           ref: ${{ steps.refs.outputs.e2e }}
@@ -217,7 +217,7 @@ jobs:
 
       - name: Checkout forum-server
         if: steps.scope.outputs.full == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: 420Cry/forum-server
           ref: ${{ steps.refs.outputs.server }}
