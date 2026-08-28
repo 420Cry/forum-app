@@ -21,7 +21,7 @@
     "test:watch": "vitest --config vitest.config.mjs"
   },
   "dependencies": {
-    "@nuxt/eslint": "^1.14.0",
+    "@nuxt/eslint": "^1.17.0",
     "@nuxtjs/i18n": "^10.4.0",
     "@nuxtjs/supabase": "^2.0.9",
     "@sendbird/chat": "^4.22.9",
