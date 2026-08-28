@@ -32,11 +32,13 @@ Workflow: `.github/workflows/ci.yml` on every push/PR to `main`.
 
 | Job | What it runs |
 | --- | --- |
-| **verify** | `lint`, `test:coverage` (Vitest + v8), unit coverage artifact + job summary |
+| **verify** | `lint`, `test:coverage` (Vitest + v8), production `build`, unit coverage artifact + job summary |
 | **docker** | `Dockerfile` build (after verify) |
-| **e2e** | Full stack (Supabase + Docker) + Playwright from `forum-test-automation`; e2e scenario summary in job output |
+| **e2e** | Full stack (Supabase + Docker) + Playwright from `forum-test-automation`; skipped for dependency-bot and fork PRs |
 
-E2e checks out **forum-app at the PR/push branch**. Sibling repos (`forum-api`, `forum-test-automation`, `forum-server`) use the **same branch name when it exists**, otherwise fall back to `main` (see `.github/scripts/resolve-sibling-ref.sh`). Stack boot lives in `.github/scripts/ci-e2e.sh`.
+**Dependency-bot PRs (Dependabot / Renovate) do not run e2e** and do not check out sibling repos. GitHub withholds repository secrets from those workflows (`FORUM_CI_PAT` is empty), and a branch like `dependabot/docker/oven/bun-1.4.0-alpine` will not exist in `forum-api` / `forum-server`. Lint, unit tests, `bun run build`, and the Docker image build are the right gates for a lockfile or base-image bump.
+
+E2e (human PRs and pushes to `main`) checks out **forum-app at the PR/push branch**. Sibling repos (`forum-api`, `forum-test-automation`, `forum-server`) use the **same branch name when it exists**, otherwise fall back to `main` (see `.github/scripts/resolve-sibling-ref.sh`). Stack boot lives in `.github/scripts/ci-e2e.sh`.
 
 Example: app / api / test-automation all on `4FOR-56` → e2e runs that trio together. If only app has `4FOR-56`, api and e2e stay on `main`.
 
