@@ -18,6 +18,7 @@ env:
   BUN_VERSION: "1.2.22"
 
 jobs:
+  # Always runs on every push/PR (including Dependabot): lint, unit tests, production build.
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -120,37 +121,42 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    env:
-      # Dependabot (and similar) PRs do not receive repository secrets, and a
-      # matching sibling branch like dependabot/docker/... will not exist.
-      # Fork PRs also cannot use FORUM_CI_PAT. Job still succeeds so required
-      # checks / auto-merge are not blocked.
-      FULL_E2E: ${{
-        github.event.pull_request.user.login != 'dependabot[bot]' &&
-        github.event.pull_request.user.login != 'renovate[bot]' &&
-        (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
-      }}
     steps:
-      - name: Skip full-stack e2e for dependency bots
-        if: env.FULL_E2E != 'true'
+      # Decide in bash so YAML never sees unquoted [bot] (that invalidates the whole workflow).
+      - name: Decide whether to run full e2e
+        id: scope
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          THIS_REPO: ${{ github.repository }}
         run: |
-          {
-            echo "### E2E skipped"
-            echo
-            echo "Dependency-update and fork PRs run **verify** (lint, unit tests, build)"
-            echo "and **docker** only. Sibling checkouts and Playwright are reserved for"
-            echo "human PRs in this repo and pushes to main."
-          } >> "$GITHUB_STEP_SUMMARY"
+          full=true
+          if [[ "$PR_AUTHOR" == "dependabot[bot]" || "$PR_AUTHOR" == "renovate[bot]" ]]; then
+            full=false
+          elif [[ "$EVENT_NAME" == "pull_request" && "$HEAD_REPO" != "$THIS_REPO" ]]; then
+            full=false
+          fi
+          echo "full=$full" >> "$GITHUB_OUTPUT"
+          if [[ "$full" != true ]]; then
+            {
+              echo "### E2E skipped"
+              echo
+              echo "Dependency-update and fork PRs run **verify** (lint, unit tests, build)"
+              echo "and **docker** only. Sibling checkouts and Playwright are reserved for"
+              echo "human PRs in this repo and pushes to main."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Checkout forum-app (PR branch)
-        if: env.FULL_E2E == 'true'
+        if: steps.scope.outputs.full == 'true'
         uses: actions/checkout@v4
         with:
           path: forum-app
           persist-credentials: false
 
       - name: Require FORUM_CI_PAT
-        if: env.FULL_E2E == 'true'
+        if: steps.scope.outputs.full == 'true'
         env:
           FORUM_CI_PAT: ${{ secrets.FORUM_CI_PAT }}
         run: |
@@ -160,7 +166,7 @@ jobs:
           fi
 
       - name: Resolve sibling branch refs
-        if: env.FULL_E2E == 'true'
+        if: steps.scope.outputs.full == 'true'
         id: refs
         env:
           GH_TOKEN: ${{ secrets.FORUM_CI_PAT }}
@@ -190,7 +196,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Checkout forum-api
-        if: env.FULL_E2E == 'true'
+        if: steps.scope.outputs.full == 'true'
         uses: actions/checkout@v4
         with:
           repository: 420Cry/forum-api
@@ -200,7 +206,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout forum-test-automation
-        if: env.FULL_E2E == 'true'
+        if: steps.scope.outputs.full == 'true'
         uses: actions/checkout@v4
         with:
           repository: 420Cry/forum-test-automation
@@ -210,7 +216,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout forum-server
-        if: env.FULL_E2E == 'true'
+        if: steps.scope.outputs.full == 'true'
         uses: actions/checkout@v4
         with:
           repository: 420Cry/forum-server
@@ -220,19 +226,19 @@ jobs:
           persist-credentials: false
 
       - name: Setup Bun
-        if: env.FULL_E2E == 'true'
+        if: steps.scope.outputs.full == 'true'
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
 
       - name: Setup Supabase CLI
-        if: env.FULL_E2E == 'true'
+        if: steps.scope.outputs.full == 'true'
         uses: supabase/setup-cli@v3
         with:
           version: latest
 
       - name: Install forum-api dependencies
-        if: env.FULL_E2E == 'true'
+        if: steps.scope.outputs.full == 'true'
         run: bun install --frozen-lockfile
         working-directory: forum-api
 
@@ -240,30 +246,30 @@ jobs:
       # install here is unused — Playwright runs from forum-test-automation.
 
       - name: Install e2e dependencies
-        if: env.FULL_E2E == 'true'
+        if: steps.scope.outputs.full == 'true'
         run: bun install --frozen-lockfile
         working-directory: forum-test-automation
 
       - name: Install Playwright Chromium
-        if: env.FULL_E2E == 'true'
+        if: steps.scope.outputs.full == 'true'
         run: bunx playwright install chromium --with-deps
         working-directory: forum-test-automation
 
       - name: Run e2e stack and tests
-        if: env.FULL_E2E == 'true'
+        if: steps.scope.outputs.full == 'true'
         env:
           FORUM_PROJECTS_ROOT: ${{ github.workspace }}
           CI: "true"
         run: bash forum-app/.github/scripts/ci-e2e.sh
 
       - name: E2E summary
-        if: always() && env.FULL_E2E == 'true'
+        if: always() && steps.scope.outputs.full == 'true'
         run: |
           RESULTS="forum-test-automation/playwright-report/results.json"
           node forum-app/.github/scripts/report-e2e-summary.mjs "$RESULTS" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Download unit coverage
-        if: always() && env.FULL_E2E == 'true' && github.event_name == 'pull_request'
+        if: always() && steps.scope.outputs.full == 'true' && github.event_name == 'pull_request'
         uses: actions/download-artifact@v4
         with:
           name: unit-coverage
@@ -271,7 +277,7 @@ jobs:
         continue-on-error: true
 
       - name: Comment CI report on PR
-        if: always() && env.FULL_E2E == 'true' && github.event_name == 'pull_request'
+        if: always() && steps.scope.outputs.full == 'true' && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -292,7 +298,7 @@ jobs:
             '<!-- ci-report -->' ci-comment.md '${{ github.event.pull_request.number }}'
 
       - name: Upload Playwright report
-        if: always() && env.FULL_E2E == 'true'
+        if: always() && steps.scope.outputs.full == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
@@ -300,7 +306,7 @@ jobs:
           retention-days: 14
 
       - name: Upload Playwright test results
-        if: always() && env.FULL_E2E == 'true'
+        if: always() && steps.scope.outputs.full == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: playwright-results
