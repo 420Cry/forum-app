@@ -12,7 +12,7 @@ definePageMeta({ layout: 'home', access: 'public' })
 const { t } = useI18n()
 const route = useRoute()
 const localePath = useLocalePath()
-const { getStartup } = useProfilesApi()
+const { getStartup, recordStartupView } = useProfilesApi()
 
 const id = computed(() => String(route.params.id ?? ''))
 const profile = ref<StartupProfile | null>(null)
@@ -22,10 +22,19 @@ const loading = ref(true)
 const { sheetOpen, sheetMode, onStatClick } = useProfileFollowSheet({
   allowedModes: ['followers'],
 })
+const user = useSupabaseUser()
+const { profile: me } = useUserProfile()
 
 onMounted(async () => {
   try {
     profile.value = await getStartup(id.value)
+    if (user.value?.id || me.value?.id) {
+      void recordStartupView(id.value)
+        .then((res) => {
+          if (profile.value) profile.value = { ...profile.value, views: res.views }
+        })
+        .catch(() => {})
+    }
   }
   catch {
     error.value = true

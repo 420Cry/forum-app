@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  avatarContentType,
   buildAvatarObjectPath,
+  detectAvatarKind,
   takePickedFile,
   validateAvatarFile,
   validateAvatarMagicBytes,
@@ -36,21 +38,21 @@ describe('validateAvatarFile', () => {
   })
 })
 
-describe('validateAvatarMagicBytes', () => {
-  it('accepts real jpeg/png/webp headers', async () => {
+describe('detectAvatarKind / validateAvatarMagicBytes', () => {
+  it('detects real jpeg/png/webp headers', async () => {
     const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0])
     const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
     const webp = new Uint8Array([
       0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50,
     ])
+    expect(await detectAvatarKind(makeFile('a.jpg', 'image/gif', 4, jpeg)))
+      .toBe('jpeg')
+    expect(await detectAvatarKind(makeFile('a.png', 'image/gif', 8, png)))
+      .toBe('png')
+    expect(await detectAvatarKind(makeFile('a.webp', 'image/gif', 12, webp)))
+      .toBe('webp')
     expect(
       await validateAvatarMagicBytes(makeFile('a.jpg', 'image/jpeg', 4, jpeg)),
-    ).toBeNull()
-    expect(
-      await validateAvatarMagicBytes(makeFile('a.png', 'image/png', 8, png)),
-    ).toBeNull()
-    expect(
-      await validateAvatarMagicBytes(makeFile('a.webp', 'image/webp', 12, webp)),
     ).toBeNull()
   })
 
@@ -61,18 +63,27 @@ describe('validateAvatarMagicBytes', () => {
         makeFile('evil.jpg', 'image/jpeg', 8, junk),
       ),
     ).toBe('settings.error.avatar_type')
+    expect(
+      await detectAvatarKind(makeFile('evil.jpg', 'image/jpeg', 8, junk)),
+    ).toBeNull()
   })
 })
 
 describe('buildAvatarObjectPath', () => {
-  it('builds a path with user id and extension from mime type', () => {
+  it('builds a path with user id and extension from detected kind', () => {
     vi.spyOn(Date, 'now').mockReturnValue(1_700_000_000_000)
-    expect(buildAvatarObjectPath('user-1', makeFile('x.png', 'image/png', 10)))
-      .toBe('user-1/1700000000000.png')
-    expect(buildAvatarObjectPath('user-1', makeFile('x.webp', 'image/webp', 10)))
-      .toBe('user-1/1700000000000.webp')
-    expect(buildAvatarObjectPath('user-1', makeFile('x.jpg', 'image/jpeg', 10)))
-      .toBe('user-1/1700000000000.jpg')
+    expect(buildAvatarObjectPath('user-1', 'png')).toBe(
+      'user-1/1700000000000.png',
+    )
+    expect(buildAvatarObjectPath('user-1', 'webp')).toBe(
+      'user-1/1700000000000.webp',
+    )
+    expect(buildAvatarObjectPath('user-1', 'jpeg')).toBe(
+      'user-1/1700000000000.jpg',
+    )
+    expect(avatarContentType('png')).toBe('image/png')
+    expect(avatarContentType('webp')).toBe('image/webp')
+    expect(avatarContentType('jpeg')).toBe('image/jpeg')
     vi.restoreAllMocks()
   })
 })

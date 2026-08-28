@@ -98,6 +98,8 @@ export default defineNuxtConfig({
     },
     cookieOptions: {
       // Secure everywhere except the plain-http local dev stack.
+      // Do not set httpOnly: the SPA client (PKCE) must persist the session
+      // cookie after sign-in. httpOnly:true left e2e login on /auth/login.
       secure: !isDev,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,

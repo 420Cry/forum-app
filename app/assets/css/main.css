@@ -9,7 +9,7 @@
 }
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
   --font-wordmark: "Asgrike", ui-sans-serif, system-ui, sans-serif;
 
   /* Brand — Deep Sea Green */

@@ -1,6 +1,8 @@
 const MAX_BYTES = 5 * 1024 * 1024
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
+export type AvatarKind = 'jpeg' | 'png' | 'webp'
+
 export function validateAvatarFile(file: File): string | null {
   if (!ALLOWED_TYPES.has(file.type)) {
     return 'settings.error.avatar_type'
@@ -12,12 +14,29 @@ export function validateAvatarFile(file: File): string | null {
 }
 
 /** Magic-byte check — do not trust `file.type` alone. */
+export async function detectAvatarKind(file: File): Promise<AvatarKind | null> {
+  const header = new Uint8Array(await file.slice(0, 12).arrayBuffer())
+  if (isJpeg(header)) return 'jpeg'
+  if (isPng(header)) return 'png'
+  if (isWebp(header)) return 'webp'
+  return null
+}
+
 export async function validateAvatarMagicBytes(
   file: File,
 ): Promise<string | null> {
-  const header = new Uint8Array(await file.slice(0, 12).arrayBuffer())
-  if (isJpeg(header) || isPng(header) || isWebp(header)) return null
-  return 'settings.error.avatar_type'
+  return (await detectAvatarKind(file)) ? null : 'settings.error.avatar_type'
+}
+
+export function avatarContentType(kind: AvatarKind): string {
+  if (kind === 'png') return 'image/png'
+  if (kind === 'webp') return 'image/webp'
+  return 'image/jpeg'
+}
+
+export function buildAvatarObjectPath(userId: string, kind: AvatarKind): string {
+  const ext = kind === 'png' ? 'png' : kind === 'webp' ? 'webp' : 'jpg'
+  return `${userId}/${Date.now()}.${ext}`
 }
 
 function isJpeg(bytes: Uint8Array): boolean {
@@ -44,16 +63,6 @@ function isWebp(bytes: Uint8Array): boolean {
   const riff = String.fromCharCode(bytes[0]!, bytes[1]!, bytes[2]!, bytes[3]!)
   const webp = String.fromCharCode(bytes[8]!, bytes[9]!, bytes[10]!, bytes[11]!)
   return riff === 'RIFF' && webp === 'WEBP'
-}
-
-export function buildAvatarObjectPath(userId: string, file: File): string {
-  const ext
-    = file.type === 'image/png'
-      ? 'png'
-      : file.type === 'image/webp'
-        ? 'webp'
-        : 'jpg'
-  return `${userId}/${Date.now()}.${ext}`
 }
 
 /** Reads the first file from a file input change, then clears the input. */

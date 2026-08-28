@@ -10,9 +10,8 @@ export type FollowSheetMode = 'followers' | 'following'
  */
 export function useProfileFollowSheet(options?: {
   /** Modes allowed on this profile (orgs omit following). */
-  allowedModes?: FollowSheetMode[]
+  allowedModes?: FollowSheetMode[] | Ref<FollowSheetMode[]> | (() => FollowSheetMode[])
 }) {
-  const allowed = options?.allowedModes ?? (['followers', 'following'] as FollowSheetMode[])
   const route = useRoute()
   const localePath = useLocalePath()
   const user = useSupabaseUser()
@@ -20,6 +19,14 @@ export function useProfileFollowSheet(options?: {
 
   const sheetOpen = ref(false)
   const sheetMode = ref<FollowSheetMode>('followers')
+
+  const allowed = computed(() => {
+    const raw = options?.allowedModes
+    if (!raw) return ['followers', 'following'] as FollowSheetMode[]
+    if (typeof raw === 'function') return raw()
+    if (isRef(raw)) return raw.value
+    return raw
+  })
 
   const isSignedIn = computed(() => !!user.value?.id || !!me.value?.id)
 
@@ -32,7 +39,7 @@ export function useProfileFollowSheet(options?: {
   }
 
   function openSheet(mode: FollowSheetMode) {
-    if (!allowed.includes(mode)) return
+    if (!allowed.value.includes(mode)) return
     if (!isSignedIn.value) {
       void goSignIn()
       return
@@ -49,7 +56,7 @@ export function useProfileFollowSheet(options?: {
     const raw = route.query.list
     const value = Array.isArray(raw) ? raw[0] : raw
     if (value !== 'followers' && value !== 'following') return
-    if (!allowed.includes(value)) {
+    if (!allowed.value.includes(value)) {
       await navigateTo(
         { path: route.path, query: { ...route.query, list: undefined } },
         { replace: true },

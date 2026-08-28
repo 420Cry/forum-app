@@ -37,6 +37,13 @@ export function useProfilesApi() {
     )
   }
 
+  async function recordStartupView(id: string) {
+    return apiFetch<{ views: number }>(
+      `/profiles/startup/${encodeURIComponent(id)}/view`,
+      { method: 'POST' },
+    )
+  }
+
   async function createInvestor(payload: InvestorProfilePayload) {
     return apiFetch<InvestorProfile>('/profiles/investor', {
       method: 'POST',
@@ -55,6 +62,13 @@ export function useProfilesApi() {
     return apiFetch<InvestorProfile>(
       `/profiles/investor/${encodeURIComponent(id)}`,
       { requireAuth: false },
+    )
+  }
+
+  async function recordInvestorView(id: string) {
+    return apiFetch<{ views: number }>(
+      `/profiles/investor/${encodeURIComponent(id)}/view`,
+      { method: 'POST' },
     )
   }
 
@@ -77,9 +91,11 @@ export function useProfilesApi() {
     createStartup,
     updateStartup,
     getStartup,
+    recordStartupView,
     createInvestor,
     updateInvestor,
     getInvestor,
+    recordInvestorView,
     getPublicUser,
     find,
   }
