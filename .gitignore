@@ -33,4 +33,3 @@ coverage
 # Claude Code personal settings
 .claude
 .vercel
-.env*
