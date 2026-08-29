@@ -9,14 +9,6 @@ export type AuthCallbackResult
   = | { ok: true }
     | { ok: false, error?: string, errorCode?: string }
 
-export {
-  getAuthCallbackQuery,
-  isEmailOtpType,
-  mergeAuthCallbackParams,
-  parseHashAuthParams,
-  stripAuthParamsFromUrl,
-} from '~/utils/authCallbackParams'
-
 type AuthErrorLike = { message?: string, code?: string }
 
 function authFail(

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useSupabaseAuth, useToast, useUserProfile } from '~/composables'
+import { useSupabaseAuth, useUserProfile } from '~/composables'
+import { useToast } from '~/composables/useToast'
 import { postAuthPath } from '~/types/user'
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
