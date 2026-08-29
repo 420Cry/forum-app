@@ -143,13 +143,34 @@ export function useFindDirectory() {
     ),
   )
 
+  function commitDraftFilters() {
+    location.value = [...draftLocation.value]
+    occupation.value = [...draftOccupation.value]
+    role.value = [...draftRole.value]
+    industry.value = [...draftIndustry.value]
+    stage.value = [...draftStage.value]
+  }
+
+  function resolveApiType(isSuggestions: boolean): FindType | undefined {
+    if (isSuggestions || type.value !== 'all') {
+      return type.value === 'all' ? undefined : type.value
+    }
+    const hasPeopleFacets =
+      showPeopleFilters.value
+      && (location.value.length > 0
+        || occupation.value.length > 0
+        || role.value.length > 0)
+    if (hasPeopleFacets) return 'user'
+    return undefined
+  }
+
   async function loadDirectory(nextMode: FindMode) {
     loading.value = true
     try {
       const isSuggestions = nextMode === 'suggestions'
       results.value = await find({
         q: isSuggestions ? undefined : (q.value.trim() || undefined),
-        type: type.value === 'all' ? undefined : type.value,
+        type: resolveApiType(isSuggestions),
         industry: isSuggestions || !showOrgFilters.value
           ? undefined
           : joinCsv(industry.value),
@@ -179,12 +200,20 @@ export function useFindDirectory() {
     }
   }
 
-  async function onSearch() {
+  async function runSearch() {
     if (!hasActiveFilters.value && !q.value.trim()) {
       await loadDirectory('suggestions')
       return
     }
     await loadDirectory('results')
+  }
+
+  async function onSearch() {
+    if (filtersOpen.value) {
+      commitDraftFilters()
+      filtersOpen.value = false
+    }
+    await runSearch()
   }
 
   function selectType(next: FindType) {
@@ -202,12 +231,9 @@ export function useFindDirectory() {
   }
 
   async function applyFilters() {
-    location.value = [...draftLocation.value]
-    occupation.value = [...draftOccupation.value]
-    role.value = [...draftRole.value]
-    industry.value = [...draftIndustry.value]
-    stage.value = [...draftStage.value]
-    await onSearch()
+    commitDraftFilters()
+    filtersOpen.value = false
+    await runSearch()
   }
 
   function clearFacetState() {
