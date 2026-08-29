@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAccount } from '~/composables/accounts/useAccount'
 import BaseIcon from '../shared/BaseIcon.vue'
+import BaseSkeleton from '../shared/BaseSkeleton.vue'
 
 const emit = defineEmits<{
   close: []
@@ -26,6 +27,7 @@ const {
   handleAvatarError,
   activeAccountId,
   refreshAccounts,
+  accountDetailsPending,
 } = useAccount()
 
 /** Personal account only — org pages are paused for now. */
@@ -70,15 +72,31 @@ function onSettingsClick() {
     </p>
 
     <div class="flex flex-col gap-1">
-      <button
-        v-for="account in personalAccounts"
-        :key="account.id"
-        type="button"
-        role="menuitem"
-        class="flex w-full cursor-pointer items-center gap-3 rounded-sm px-2.5 py-2.75 text-left hover:bg-surface-hover"
-        :class="{ 'bg-brand-tint': account.id === activeAccountId }"
-        @click="openProfile(account.id, account.href)"
+      <div
+        v-if="accountDetailsPending"
+        class="flex items-center gap-3 rounded-sm px-2.5 py-2.75"
+        aria-busy="true"
       >
+        <BaseSkeleton
+          rounded="full"
+          class="size-10 shrink-0"
+        />
+        <div class="min-w-0 flex-1 space-y-2">
+          <BaseSkeleton class="h-3.5 w-28" />
+          <BaseSkeleton class="h-3 w-36 max-w-full" />
+        </div>
+      </div>
+
+      <template v-else>
+        <button
+          v-for="account in personalAccounts"
+          :key="account.id"
+          type="button"
+          role="menuitem"
+          class="flex w-full cursor-pointer items-center gap-3 rounded-sm px-2.5 py-2.75 text-left hover:bg-surface-hover"
+          :class="{ 'bg-brand-tint': account.id === activeAccountId }"
+          @click="openProfile(account.id, account.href)"
+        >
         <img
           v-if="account.avatar && !account.avatarLoadFailed"
           :src="account.avatar"
@@ -111,6 +129,7 @@ function onSettingsClick() {
           class="shrink-0 text-brand"
         />
       </button>
+      </template>
     </div>
 
     <hr class="mx-1 my-1.5 border-line">

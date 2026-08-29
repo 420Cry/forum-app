@@ -4,6 +4,7 @@ import BaseInput from '~/components/shared/BaseInput.vue'
 import LocationAutocomplete from '~/components/shared/LocationAutocomplete.vue'
 import OccupationAutocomplete from '~/components/shared/OccupationAutocomplete.vue'
 import SettingsBackLink from '~/components/settings/SettingsBackLink.vue'
+import BaseSkeleton from '~/components/shared/BaseSkeleton.vue'
 import { useCatalogApi } from '~/composables/api/useCatalogApi'
 import { useOnboardApi } from '~/composables/api/onboard/useOnboardApi'
 import { useAvatarUpload } from '~/composables/media/useAvatarUpload'
@@ -30,7 +31,7 @@ definePageMeta({ layout: 'home', access: 'protected' })
 
 const { t, te, locale } = useI18n()
 const toast = useToast()
-const { profile, refreshProfile } = useUserProfile()
+const { profile, refreshProfile, profileDetailsPending } = useUserProfile()
 const { refreshAccounts } = useAccount()
 const { updateProfile } = useOnboardApi()
 const { uploadAvatar } = useAvatarUpload()
@@ -298,7 +299,7 @@ async function onSave() {
       </div>
 
       <div
-        v-if="!editing"
+        v-if="!editing && !profileDetailsPending"
         class="flex-none pt-8"
       >
         <BaseButton
@@ -312,7 +313,26 @@ async function onSave() {
     </div>
 
     <section class="bg-card border border-line rounded-md shadow-1 px-6 py-5">
-      <div class="flex items-start gap-5">
+      <div
+        v-if="profileDetailsPending"
+        class="flex items-start gap-5"
+        aria-busy="true"
+      >
+        <BaseSkeleton
+          rounded="full"
+          class="size-20 shrink-0"
+        />
+        <div class="min-w-0 flex-1 space-y-3 pt-0.5">
+          <BaseSkeleton class="h-4 w-24" />
+          <BaseSkeleton class="h-3.5 w-full max-w-sm" />
+          <BaseSkeleton class="h-8 w-28" />
+        </div>
+      </div>
+
+      <div
+        v-else
+        class="flex items-start gap-5"
+      >
         <div class="flex-none">
           <img
             v-if="avatarUrl && !avatarFailed"
@@ -365,7 +385,30 @@ async function onSave() {
       </div>
     </section>
 
-    <section class="bg-card border border-line rounded-md shadow-1 px-6 py-5">
+    <section
+      v-if="profileDetailsPending"
+      class="bg-card border border-line rounded-md shadow-1 px-6 py-5"
+      aria-busy="true"
+    >
+      <BaseSkeleton class="h-4 w-28" />
+      <BaseSkeleton class="mt-2 h-3.5 w-48" />
+      <div class="mt-5 flex flex-col gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <BaseSkeleton class="h-11 w-full" />
+          <BaseSkeleton class="h-11 w-full" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <BaseSkeleton class="h-11 w-full" />
+          <BaseSkeleton class="h-11 w-full" />
+        </div>
+        <BaseSkeleton class="h-11 w-full" />
+      </div>
+    </section>
+
+    <section
+      v-else
+      class="bg-card border border-line rounded-md shadow-1 px-6 py-5"
+    >
       <h2 class="text-[14px] font-semibold text-ink">
         {{ t('settings.heading.about_you') }}
       </h2>
@@ -479,7 +522,20 @@ async function onSave() {
       </div>
     </section>
 
-    <section class="bg-card border border-line rounded-md shadow-1 px-6 py-5">
+    <section
+      v-if="profileDetailsPending"
+      class="bg-card border border-line rounded-md shadow-1 px-6 py-5"
+      aria-busy="true"
+    >
+      <BaseSkeleton class="h-4 w-28" />
+      <BaseSkeleton class="mt-2 h-3.5 w-56" />
+      <BaseSkeleton class="mt-5 h-5 w-40" />
+    </section>
+
+    <section
+      v-else
+      class="bg-card border border-line rounded-md shadow-1 px-6 py-5"
+    >
       <h2 class="text-[14px] font-semibold text-ink">
         {{ t('settings.heading.profile_url') }}
       </h2>
