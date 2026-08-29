@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useSupabaseAuth, useUserProfile } from '~/composables'
+import { useAuthCallbackPage } from '~/composables/auth/useAuthCallbackPage'
 import { useToast } from '~/composables/useToast'
-import { postAuthPath } from '~/types/user'
 import BaseButton from '~/components/shared/BaseButton.vue'
-import BaseInput from '~/components/shared/BaseInput.vue'
 import PasswordRequirements from '~/components/auth/PasswordRequirements.vue'
 import { createPasswordSchema } from '~/utils/passwordSchema'
-import { useAuthCallbackPage } from '~/composables/auth/useAuthCallbackPage'
+import { postAuthPath } from '~/types/user'
 import { mapSupabaseAuthError } from '~/utils/authErrors'
 
 definePageMeta({ layout: 'auth', access: 'callback' })
@@ -19,9 +18,11 @@ const { refreshProfile, clearProfile } = useUserProfile()
 const { resolveFromUrl } = useAuthCallbackPage()
 const toast = useToast()
 const password = ref('')
+const confirmPassword = ref('')
 const loading = ref(false)
 const error = ref<string | null>(null)
 const passwordError = ref<string | null>(null)
+const confirmError = ref<string | null>(null)
 const status = ref<'loading' | 'ready' | 'failed'>('loading')
 
 async function initFromResetLink() {
@@ -50,11 +51,18 @@ async function submit() {
   loading.value = true
   error.value = null
   passwordError.value = null
+  confirmError.value = null
 
   const passwordSchema = createPasswordSchema(t)
   const validation = passwordSchema.safeParse(password.value)
   if (!validation.success) {
     passwordError.value = validation.error.issues[0]?.message ?? null
+    loading.value = false
+    return
+  }
+
+  if (password.value !== confirmPassword.value) {
+    confirmError.value = t('auth.error.password_mismatch')
     loading.value = false
     return
   }
@@ -77,53 +85,65 @@ async function submit() {
 </script>
 
 <template>
-  <div
-    class="mx-auto max-w-md bg-card border border-line rounded-xl shadow-1 p-6"
-  >
-    <h2 class="text-2xl font-bold text-ink">
-      {{ t('auth.heading.set_new_password') }}
-    </h2>
+  <AuthFormPanel>
+    <template #top>
+      {{ t('auth.info.need_help') }}
+      <a
+        href="mailto:support@fundedr.com"
+        class="font-semibold text-brand hover:underline"
+      >
+        {{ t('auth.action.contact_support') }}
+      </a>
+    </template>
+
+    <AuthFormHeader
+      :title="t('auth.heading.set_new_password')"
+      :subtitle="status === 'ready' ? t('auth.info.set_new_password_subtitle') : undefined"
+    />
+
     <p
       v-if="status === 'loading'"
-      class="mt-2 text-sm text-ink-3"
+      class="text-sm text-ink-3"
     >
       {{ t('common.info.loading') }}
     </p>
     <p
       v-else-if="status === 'failed'"
-      class="mt-2 text-sm text-red-600"
+      class="text-sm text-red-600"
     >
       {{ error ?? t('auth.info.open_reset_link') }}
     </p>
     <form
       v-else
-      class="mt-4 space-y-4"
+      class="flex flex-col gap-4"
       @submit.prevent="submit"
     >
       <div>
-        <BaseInput
+        <AuthPasswordField
           id="password"
           v-model="password"
           :label="t('auth.label.new_password')"
-          type="password"
-          required
           :placeholder="t('auth.label.password_placeholder')"
           :intent="passwordError ? 'error' : 'primary'"
           :error-msg="passwordError ?? undefined"
         />
         <PasswordRequirements :password="password" />
       </div>
-      <p
-        v-if="error"
-        class="text-sm text-red-600"
-      >
-        {{ error }}
-      </p>
+      <AuthPasswordField
+        id="confirm-password"
+        v-model="confirmPassword"
+        :label="t('auth.label.confirm_password')"
+        :placeholder="t('auth.label.password_placeholder')"
+        :intent="confirmError ? 'error' : 'primary'"
+        :error-msg="confirmError ?? undefined"
+      />
+      <AuthFormError :message="error" />
       <BaseButton
         type="submit"
         :disabled="loading"
-        size="md"
-        class="w-full justify-center"
+        size="lg"
+        block
+        class="h-12! text-[14.5px]!"
       >
         {{
           loading
@@ -132,5 +152,9 @@ async function submit() {
         }}
       </BaseButton>
     </form>
-  </div>
+
+    <template #foot>
+      {{ t('auth.info.password_updated_sign_in') }}
+    </template>
+  </AuthFormPanel>
 </template>

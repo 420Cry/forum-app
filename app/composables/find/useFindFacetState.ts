@@ -1,4 +1,5 @@
 import type { FindType } from '~/types/find'
+import { removeValue } from '~/types/find'
 
 const FACET_KEYS = [
   'location',
@@ -9,6 +10,8 @@ const FACET_KEYS = [
 ] as const
 
 type FacetKey = (typeof FACET_KEYS)[number]
+
+export type FindFacetKey = FacetKey
 
 function arraysEqual(a: string[], b: string[]) {
   return JSON.stringify(a) === JSON.stringify(b)
@@ -121,6 +124,11 @@ export function useFindFacetState(type: Ref<FindType>) {
     draftRole.value = [...roleValues]
   }
 
+  function removeFacetValue(key: FacetKey, value: string) {
+    committed[key].value = removeValue(committed[key].value, value)
+    draft[key].value = [...committed[key].value]
+  }
+
   function openFiltersDrawer() {
     resetDraftFilters()
   }
@@ -147,6 +155,7 @@ export function useFindFacetState(type: Ref<FindType>) {
     commitDraftFilters,
     clearFacetState,
     syncRoleDraft,
+    removeFacetValue,
     openFiltersDrawer,
   }
 }

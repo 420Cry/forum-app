@@ -78,43 +78,73 @@ async function retry() {
 </script>
 
 <template>
-  <div
-    class="mx-auto max-w-md bg-card border border-line rounded-xl shadow-1 p-8 text-center"
-  >
-    <p
-      v-if="status === 'confirming'"
-      class="text-ink-3"
+  <AuthFormPanel>
+    <AuthFormHeader
+      :title="status === 'success'
+        ? t('auth.heading.email_verified')
+        : status === 'failed'
+          ? t('auth.heading.confirming_email')
+          : t('auth.heading.confirming_email')"
+      :subtitle="status === 'confirming' ? t('auth.info.confirming_email') : undefined"
+    />
+
+    <div
+      v-if="status === 'success'"
+      class="flex flex-col gap-4"
     >
-      {{ t('auth.info.confirming_email') }}
-    </p>
-    <template v-else-if="status === 'success'">
-      <p class="text-ink font-semibold">
-        {{ t('auth.info.email_confirm_success') }}
-      </p>
-      <p class="mt-2 text-sm text-ink-3">
+      <div
+        class="mb-2 flex size-[60px] items-center justify-center rounded-full bg-brand-tint text-brand"
+        aria-hidden="true"
+      >
+        <svg
+          width="26"
+          height="26"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        >
+          <rect
+            x="3"
+            y="5"
+            width="18"
+            height="14"
+            rx="2.2"
+          />
+          <path d="M3.6 6.5l8.4 5.8 8.4-5.8" />
+        </svg>
+      </div>
+      <p class="text-sm text-ink-3">
         {{ t('auth.info.email_confirm_redirect') }}
       </p>
       <BaseButton
         type="button"
-        size="md"
-        class="mt-6 w-full justify-center"
+        size="lg"
+        block
+        class="h-12! text-[14.5px]!"
         @click="goHome"
       >
         {{ t('auth.action.continue_to_home') }}
       </BaseButton>
-    </template>
-    <template v-else>
-      <p class="text-ink-3">
+    </div>
+
+    <div
+      v-else-if="status === 'failed'"
+      class="flex flex-col gap-4"
+    >
+      <p class="text-sm text-ink-3">
         {{ failureMessage ?? t('auth.info.email_confirm_failed') }}
       </p>
       <BaseButton
         type="button"
-        size="md"
-        class="mt-4"
+        size="lg"
+        block
+        class="h-12! text-[14.5px]!"
         @click="retry"
       >
         {{ t('auth.action.check_again') }}
       </BaseButton>
-    </template>
-  </div>
+    </div>
+  </AuthFormPanel>
 </template>

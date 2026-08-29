@@ -7,12 +7,17 @@ export function facetChips(
   values: Ref<string[]>,
   labelOf: (value: string) => string,
   enabled = true,
+  onRemove?: (value: string) => void,
 ): FindChip[] {
   if (!enabled) return []
   return values.value.map(value => ({
     key: `${facet}:${value}`,
     label: labelOf(value),
     clear: () => {
+      if (onRemove) {
+        onRemove(value)
+        return
+      }
       values.value = removeValue(values.value, value)
     },
   }))

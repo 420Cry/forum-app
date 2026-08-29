@@ -50,6 +50,7 @@ export function useFindDirectory() {
     roleOptions,
     occupationLabel: catalog.occupationLabel,
     q,
+    removeFacetValue: facets.removeFacetValue,
   })
 
   function syncFacetDraftsBeforeSearch() {

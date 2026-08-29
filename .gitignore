@@ -32,3 +32,4 @@ coverage
 .prettierrc
 # Claude Code personal settings
 .claude
+.vercel

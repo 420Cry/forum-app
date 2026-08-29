@@ -1,0 +1,26 @@
+<svg width="480" height="480" viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="cTop"><path d="M240 80 L380 160 L240 240 L100 160 Z"></path></clipPath>
+    <clipPath id="cLeft"><path d="M100 160 L240 240 L240 400 L100 320 Z"></path></clipPath>
+    <clipPath id="cRight"><path d="M380 160 L380 320 L240 400 L240 240 Z"></path></clipPath>
+  </defs>
+  <path d="M240 80 L380 160 L240 240 L100 160 Z" fill="#0E7A74"></path>
+  <path d="M100 160 L240 240 L240 400 L100 320 Z" fill="#075056"></path>
+  <path d="M380 160 L380 320 L240 400 L240 240 Z" fill="#04393E"></path>
+  <g clip-path="url(#cTop)" stroke="#F2FAFA" stroke-width="19" stroke-linecap="round" fill="none">
+    <path d="M312 140 C 318 110, 250 104, 232 134 C 220 154, 244 178, 264 166"></path>
+  </g>
+  <circle cx="312" cy="140" r="13" fill="#F2FAFA" clip-path="url(#cTop)"></circle>
+  <g clip-path="url(#cLeft)" stroke="#F2FAFA" stroke-width="19" stroke-linecap="round" fill="none">
+    <path d="M146 366 L146 270 C 146 236, 204 248, 204 290 L204 372"></path>
+  </g>
+  <g clip-path="url(#cRight)" stroke="#F2FAFA" stroke-width="19" stroke-linecap="round" fill="none">
+    <path d="M330 244 C 364 250, 366 312, 330 322 C 306 329, 298 298, 318 290"></path>
+  </g>
+  <circle cx="330" cy="244" r="13" fill="#FF5B04" clip-path="url(#cRight)"></circle>
+  <g stroke="#F2FAFA" stroke-width="4" opacity="0.55" stroke-linecap="round">
+    <path d="M240 240 L240 400"></path>
+    <path d="M240 240 L100 160"></path>
+    <path d="M240 240 L380 160"></path>
+  </g>
+</svg>
