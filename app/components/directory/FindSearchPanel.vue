@@ -1,13 +1,15 @@
 <script setup lang="ts">
+import FindFilterPill from '~/components/directory/FindFilterPill.vue'
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseIcon from '~/components/shared/BaseIcon.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
 import type { FindChip, FindType } from '~/types/find'
-import { FIND_TYPE_FILTERS } from '~/types/find'
+import { FIND_ROLE_QUICK_FILTERS, FIND_TYPE_TAB_FILTERS } from '~/types/find'
 
 defineProps<{
   q: string
   type: FindType
+  role: string[]
   loading: boolean
   mode: 'suggestions' | 'results'
   totalCount: number
@@ -21,6 +23,7 @@ const emit = defineEmits<{
   'update:q': [value: string]
   'search': []
   'select-type': [value: FindType]
+  'toggle-role': [value: string]
   'open-filters': []
   'open-sort': []
   'clear-chip': [clear: () => void]
@@ -85,20 +88,26 @@ const { t } = useI18n()
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <button
-          v-for="filter in FIND_TYPE_FILTERS"
+        <FindFilterPill
+          v-for="filter in FIND_TYPE_TAB_FILTERS"
           :key="filter.value"
-          type="button"
-          class="inline-flex cursor-pointer items-center gap-1.5 rounded-pill border-[1.4px] px-3.5 py-1.75 text-[12.5px] font-semibold whitespace-nowrap transition-colors"
-          :class="
-            type === filter.value
-              ? 'border-brand bg-brand-tint text-brand'
-              : 'border-line bg-card text-ink-2 hover:border-line-2 hover:bg-surface-hover'
-          "
+          :label="t(filter.labelKey)"
+          :active="type === filter.value"
           @click="emit('select-type', filter.value)"
-        >
-          {{ t(filter.labelKey) }}
-        </button>
+        />
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-[11px] font-semibold tracking-wide text-ink-4 uppercase">
+          {{ t('find.filter.role') }}
+        </span>
+        <FindFilterPill
+          v-for="filter in FIND_ROLE_QUICK_FILTERS"
+          :key="filter.value"
+          :label="t(filter.labelKey)"
+          :active="role.includes(filter.value)"
+          @click="emit('toggle-role', filter.value)"
+        />
       </div>
 
       <div class="flex items-center justify-between gap-2">
