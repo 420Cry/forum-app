@@ -74,7 +74,10 @@ if (collapse) console.log(`<details><summary>All ${total} scenarios</summary>\n`
 console.log('| ID / scenario | Status |')
 console.log('| --- | --- |')
 for (const c of cases) {
-  console.log(`| ${c.title.replace(/\|/g, '\\|')} | ${c.ok ? 'pass' : 'fail'} |`)
+  const escapedTitle = c.title
+    .replace(/\\/g, '\\\\')
+    .replace(/\|/g, '\\|')
+  console.log(`| ${escapedTitle} | ${c.ok ? 'pass' : 'fail'} |`)
 }
 
 if (collapse) console.log('\n</details>')
