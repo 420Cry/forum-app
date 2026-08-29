@@ -104,12 +104,7 @@ const facts = computed(() => {
       ← {{ t('profiles.action.back_to_find') }}
     </NuxtLink>
 
-    <p
-      v-if="loading"
-      class="text-sm text-ink-3"
-    >
-      {{ t('common.info.loading') }}
-    </p>
+    <ProfilePageSkeleton v-if="loading" />
     <p
       v-else-if="error || !profile"
       class="text-sm text-ink-3"

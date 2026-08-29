@@ -79,11 +79,18 @@ const { t } = useI18n()
           :disabled="loading"
           @click="emit('search')"
         >
-          {{
-            loading
-              ? t('find.action.searching')
-              : t('find.action.search')
-          }}
+          <span class="inline-flex items-center gap-1.5">
+            <span
+              v-if="loading"
+              class="size-3.5 shrink-0 animate-spin rounded-full border-2 border-white/30 border-t-white"
+              aria-hidden="true"
+            />
+            {{
+              loading
+                ? t('find.action.searching')
+                : t('find.action.search')
+            }}
+          </span>
         </BaseButton>
       </div>
 

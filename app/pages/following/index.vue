@@ -68,12 +68,13 @@ onMounted(async () => {
       </p>
     </div>
 
-    <p
+    <div
       v-if="loading"
-      class="text-sm text-ink-3 px-1"
+      class="flex flex-col gap-3"
+      aria-busy="true"
     >
-      {{ t('common.info.loading') }}
-    </p>
+      <ResultCardSkeleton :count="3" />
+    </div>
     <div
       v-else-if="loadError"
       class="bg-card border border-line rounded-md shadow-1 px-5 py-8 text-center text-sm text-ink-3"

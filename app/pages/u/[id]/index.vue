@@ -78,12 +78,7 @@ function onSheetFollowChange(payload: { following: boolean }) {
 
 <template>
   <div class="flex flex-col gap-4">
-    <p
-      v-if="loading"
-      class="text-sm text-ink-3"
-    >
-      {{ t('common.info.loading') }}
-    </p>
+    <ProfilePageSkeleton v-if="loading" />
     <p
       v-else-if="error || !profile"
       class="text-sm text-ink-3"

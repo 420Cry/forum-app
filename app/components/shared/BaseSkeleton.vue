@@ -1,14 +1,15 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    rounded?: 'sm' | 'md' | 'full'
+    rounded?: 'none' | 'sm' | 'md' | 'full'
   }>(),
   {
     rounded: 'md',
   },
 )
 
-const roundedClass: Record<'sm' | 'md' | 'full', string> = {
+const roundedClass: Record<'none' | 'sm' | 'md' | 'full', string> = {
+  none: 'rounded-none',
   sm: 'rounded-sm',
   md: 'rounded-md',
   full: 'rounded-full',

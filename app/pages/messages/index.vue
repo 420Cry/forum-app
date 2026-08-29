@@ -12,8 +12,8 @@ definePageMeta({
   <ClientOnly>
     <ChatInbox />
     <template #fallback>
-      <div class="bg-card border border-line rounded-md shadow-1 px-5 py-8 text-center text-sm text-ink-3">
-        {{ $t('common.info.loading') }}
+      <div class="rounded-md border border-line bg-card shadow-1">
+        <LoadingState padding="lg" />
       </div>
     </template>
   </ClientOnly>

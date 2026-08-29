@@ -115,12 +115,11 @@ defineExpose({ clearSearch })
     </div>
 
     <template v-if="searchActive">
-      <p
+      <LoadingState
         v-if="contactsLoading && contacts.length === 0"
-        class="px-5 py-4 text-center text-sm text-ink-3"
-      >
-        {{ t('common.info.loading') }}
-      </p>
+        size="sm"
+        padding="sm"
+      />
       <p
         v-else-if="contactsError && contacts.length === 0"
         class="px-5 py-4 text-center text-sm text-ink-3"
@@ -147,12 +146,11 @@ defineExpose({ clearSearch })
     </template>
 
     <template v-else>
-      <p
+      <LoadingState
         v-if="showContactsLoading"
-        class="px-5 py-8 text-center text-sm text-ink-3"
-      >
-        {{ t('common.info.loading') }}
-      </p>
+        size="sm"
+        padding="md"
+      />
 
       <ChatEmptyState
         v-else-if="showTrueEmpty"
