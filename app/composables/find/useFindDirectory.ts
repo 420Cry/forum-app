@@ -155,11 +155,11 @@ export function useFindDirectory() {
     if (isSuggestions || type.value !== 'all') {
       return type.value === 'all' ? undefined : type.value
     }
-    const hasPeopleFacets =
-      showPeopleFilters.value
-      && (location.value.length > 0
-        || occupation.value.length > 0
-        || role.value.length > 0)
+    const hasPeopleFacets
+      = showPeopleFilters.value
+        && (location.value.length > 0
+          || occupation.value.length > 0
+          || role.value.length > 0)
     if (hasPeopleFacets) return 'user'
     return undefined
   }
