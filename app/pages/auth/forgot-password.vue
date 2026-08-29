@@ -1,12 +1,14 @@
 <script setup lang="ts">
+import { useAuthRedirectLinks } from '~/composables/auth/useAuthRedirectLinks'
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
+import { buttonClass } from '~/utils/buttonClass'
 
 definePageMeta({ layout: 'auth', access: 'guest' })
 
 const { t } = useI18n()
-const localePath = useLocalePath()
 const { resetPassword, loading, error, clearError } = useSupabaseAuth()
+const { loginTo } = useAuthRedirectLinks()
 const email = ref('')
 const resetSent = ref(false)
 
@@ -19,81 +21,104 @@ async function submit() {
 </script>
 
 <template>
-  <div>
-    <div class="mb-6">
-      <h2 class="text-2xl font-bold text-ink">
-        {{ t('auth.heading.reset_password') }}
-      </h2>
-      <p class="mt-1 text-sm text-ink-3">
-        {{ t('auth.info.reset_password_subtitle') }}
-      </p>
-    </div>
-    <div
-      class="mx-auto max-w-md bg-card border border-line rounded-xl shadow-1 p-6"
+  <AuthFormPanel>
+    <template #top>
+      {{ t('auth.info.remembered_password') }}
+      <NuxtLink
+        :to="loginTo"
+        class="font-semibold text-brand hover:underline"
+      >
+        {{ t('auth.action.sign_in') }}
+      </NuxtLink>
+    </template>
+
+    <AuthFormHeader
+      v-if="!resetSent"
+      :title="t('auth.heading.reset_password')"
+      :subtitle="t('auth.info.reset_password_subtitle')"
+    />
+    <AuthFormHeader
+      v-else
+      :title="t('auth.heading.check_email')"
     >
-      <form
-        v-if="!resetSent"
-        class="space-y-4"
-        onsubmit="return false"
-        @submit.prevent="submit"
-      >
-        <div>
-          <BaseInput
-            id="email"
-            v-model="email"
-            :label="t('auth.label.email')"
-            type="email"
-            required
-            :placeholder="t('auth.label.email_placeholder')"
-          />
-        </div>
-        <p
-          v-if="error"
-          class="text-sm text-red-600"
-        >
-          {{ error }}
-        </p>
-        <BaseButton
-          type="submit"
-          :disabled="loading"
-          size="md"
-          class="w-full justify-center"
-        >
-          {{
-            loading
-              ? t('auth.action.sending')
-              : t('auth.action.send_reset_link')
-          }}
-        </BaseButton>
-      </form>
-      <div
-        v-else
-        class="rounded-md border border-brand-200 bg-brand-50 p-4 text-sm text-brand"
-      >
-        <p class="font-semibold">
-          {{ t('auth.heading.check_email') }}
-        </p>
-        <p class="mt-1 text-ink-3">
-          {{ t('auth.info.reset_link_sent', { email }) }}
-        </p>
-        <NuxtLink
-          :to="localePath('/auth/login')"
-          class="mt-3 inline-block text-sm font-semibold text-brand hover:text-brand-hover"
-        >
-          {{ t('auth.action.back_to_sign_in') }}
-        </NuxtLink>
+      <template #subtitle>
+        {{ t('auth.info.reset_link_sent_prefix') }}
+        <b class="font-semibold text-ink-2">{{ email }}</b>.
+        {{ t('auth.info.reset_link_sent_suffix') }}
+      </template>
+    </AuthFormHeader>
+
+    <form
+      v-if="!resetSent"
+      class="flex flex-col gap-4"
+      @submit.prevent="submit"
+    >
+      <div class="[&_input]:h-[46px] [&_input]:text-sm">
+        <BaseInput
+          id="email"
+          v-model="email"
+          :label="t('auth.label.email')"
+          type="email"
+          required
+          :placeholder="t('auth.label.email_placeholder')"
+        />
       </div>
-      <p
-        v-if="!resetSent"
-        class="mt-4 text-center text-sm text-ink-3"
+      <AuthFormError :message="error" />
+      <BaseButton
+        type="submit"
+        :disabled="loading"
+        size="lg"
+        block
+        class="h-12! text-[14.5px]!"
       >
-        <NuxtLink
-          :to="localePath('/auth/login')"
-          class="font-semibold text-brand hover:text-brand-hover"
+        {{
+          loading
+            ? t('auth.action.sending')
+            : t('auth.action.send_reset_link')
+        }}
+      </BaseButton>
+      <NuxtLink
+        :to="loginTo"
+        :class="buttonClass({ intent: 'secondary', size: 'lg', block: true }) + ' h-12! text-[14.5px]!'"
+      >
+        ← {{ t('auth.action.back_to_sign_in') }}
+      </NuxtLink>
+    </form>
+
+    <div
+      v-else
+      class="flex flex-col gap-4"
+    >
+      <NuxtLink
+        :to="loginTo"
+        :class="buttonClass({ intent: 'secondary', size: 'lg', block: true }) + ' h-12! text-[14.5px]!'"
+      >
+        ← {{ t('auth.action.back_to_sign_in') }}
+      </NuxtLink>
+      <p class="text-[13.5px] text-ink-3">
+        {{ t('auth.info.reset_resend_prefix') }}
+        <button
+          type="button"
+          class="cursor-pointer border-0 bg-transparent p-0 font-semibold text-brand hover:underline"
+          :disabled="loading"
+          @click="submit"
         >
-          ← {{ t('auth.action.back_to_sign_in') }}
-        </NuxtLink>
+          {{ t('auth.action.resend_link') }}
+        </button>
       </p>
     </div>
-  </div>
+
+    <template
+      v-if="!resetSent"
+      #foot
+    >
+      {{ t('auth.info.no_email_access') }}
+      <a
+        href="mailto:support@fundedr.com"
+        class="font-semibold text-brand hover:underline"
+      >
+        {{ t('auth.action.contact_support') }}
+      </a>
+    </template>
+  </AuthFormPanel>
 </template>

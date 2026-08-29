@@ -1,36 +1,22 @@
 <script setup lang="ts">
 import { useOnboard, useSupabaseAuth, useUserProfile } from '~/composables'
+import { useAuthRedirectLinks } from '~/composables/auth/useAuthRedirectLinks'
 import { useToast } from '~/composables/useToast'
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
-import {
-  AUTH_REDIRECT_QUERY,
-  resolvePostAuthPath,
-  sanitizeAuthRedirect,
-} from '~/utils/authRedirect'
+import { resolvePostAuthPath } from '~/utils/authRedirect'
 
 definePageMeta({ layout: 'auth', access: 'guest' })
 
 const { t } = useI18n()
 const localePath = useLocalePath()
-const route = useRoute()
 const { login, loading, error, clearError } = useSupabaseAuth()
 const { refreshProfile, clearProfile } = useUserProfile()
 const { resetOnboarding } = useOnboard()
+const { registerTo, redirectParam } = useAuthRedirectLinks()
 const toast = useToast()
 const email = ref('')
 const password = ref('')
-
-const redirectParam = computed(() =>
-  sanitizeAuthRedirect(route.query[AUTH_REDIRECT_QUERY]),
-)
-
-const registerTo = computed(() => ({
-  path: localePath('/auth/register'),
-  query: redirectParam.value
-    ? { [AUTH_REDIRECT_QUERY]: redirectParam.value }
-    : undefined,
-}))
 
 async function submit() {
   clearError()
@@ -47,88 +33,77 @@ async function submit() {
 </script>
 
 <template>
-  <div>
-    <div class="mb-6">
-      <h2 class="text-2xl font-bold text-ink">
-        {{ t('auth.heading.sign_in') }}
-      </h2>
-      <p class="mt-1 text-sm text-ink-3">
-        {{ t('auth.info.sign_in_subtitle') }}
-      </p>
-    </div>
-    <div
-      class="mx-auto max-w-md bg-card border border-line rounded-xl shadow-1 p-6"
-    >
-      <form
-        class="space-y-4"
-        onsubmit="return false"
-        @submit.prevent="submit"
+  <AuthFormPanel>
+    <template #top>
+      {{ t('auth.info.no_account') }}
+      <NuxtLink
+        :to="registerTo"
+        class="font-semibold text-brand hover:underline"
       >
-        <div>
-          <BaseInput
-            id="email"
-            v-model="email"
-            :label="t('auth.label.email')"
-            type="email"
-            required
-            :placeholder="t('auth.label.email_placeholder')"
-          />
-        </div>
-        <div>
-          <div class="mb-1 flex items-center justify-between">
-            <label
-              for="password"
-              class="text-sm font-semibold text-ink-2"
-            >
-              {{ t('auth.label.password') }}
-            </label>
-            <NuxtLink
-              :to="localePath('/auth/forgot-password')"
-              class="text-sm text-ink-3 hover:text-ink"
-            >
-              {{ t('auth.action.forgot_password') }}
-            </NuxtLink>
-          </div>
-          <BaseInput
-            id="password"
-            v-model="password"
-            label=""
-            type="password"
-            required
-            :placeholder="t('auth.label.password_placeholder')"
-          />
-        </div>
-        <p
-          v-if="error"
-          role="alert"
-          class="text-sm text-red-600"
-        >
-          {{ error }}
-        </p>
-        <BaseButton
-          type="submit"
-          :disabled="loading"
-          size="md"
-          class="w-full justify-center"
-        >
-          <SharedLoadingSpinner
-            v-if="loading"
-            size="sm"
-          />
-          {{
-            loading ? t('auth.action.signing_in') : t('auth.action.sign_in')
-          }}
-        </BaseButton>
-      </form>
-      <p class="mt-4 text-center text-sm text-ink-3">
-        {{ t('auth.info.no_account') }}
-        <NuxtLink
-          :to="registerTo"
-          class="font-semibold text-brand hover:text-brand-hover"
-        >
-          {{ t('auth.action.create_account') }}
-        </NuxtLink>
-      </p>
-    </div>
-  </div>
+        {{ t('auth.action.create_account') }}
+      </NuxtLink>
+    </template>
+
+    <AuthFormHeader
+      :title="t('auth.heading.welcome_back')"
+      :subtitle="t('auth.info.sign_in_subtitle')"
+    />
+
+    <form
+      class="flex flex-col gap-4"
+      @submit.prevent="submit"
+    >
+      <div class="[&_input]:h-[46px] [&_input]:text-sm">
+        <BaseInput
+          id="email"
+          v-model="email"
+          :label="t('auth.label.email')"
+          type="email"
+          required
+          :placeholder="t('auth.label.email_placeholder')"
+        />
+      </div>
+      <AuthPasswordField
+        id="password"
+        v-model="password"
+        :label="t('auth.label.password')"
+        :placeholder="t('auth.label.password_placeholder')"
+      >
+        <template #link>
+          <NuxtLink
+            :to="localePath('/auth/forgot-password')"
+            class="text-[12.5px] font-semibold text-brand hover:underline"
+          >
+            {{ t('auth.action.forgot_password') }}
+          </NuxtLink>
+        </template>
+      </AuthPasswordField>
+      <AuthFormError :message="error" />
+      <BaseButton
+        type="submit"
+        :disabled="loading"
+        size="lg"
+        block
+        class="h-12! text-[14.5px]!"
+      >
+        <SharedLoadingSpinner
+          v-if="loading"
+          size="sm"
+        />
+        {{
+          loading ? t('auth.action.signing_in') : t('auth.action.sign_in')
+        }}
+      </BaseButton>
+    </form>
+
+    <template #foot>
+      {{ t('auth.info.no_account') }}
+      <NuxtLink
+        :to="registerTo"
+        class="font-semibold text-brand hover:underline"
+      >
+        {{ t('auth.action.create_account') }}
+      </NuxtLink>
+    </template>
+  </AuthFormPanel>
 </template>

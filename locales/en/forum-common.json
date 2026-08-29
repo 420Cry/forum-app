@@ -36,24 +36,62 @@
   "auth": {
     "heading": {
       "sign_in": "Sign in",
-      "create_account": "Create account",
-      "reset_password": "Reset password",
+      "welcome_back": "Welcome back",
+      "create_account": "Create your account",
+      "reset_password": "Reset your password",
       "set_new_password": "Set a new password",
       "account": "Account",
-      "check_email": "Check your email"
+      "check_email": "Check your email",
+      "confirming_email": "Confirming your email",
+      "email_verified": "Your email is verified"
     },
     "label": {
       "email": "Email",
+      "work_email": "Work email",
       "password": "Password",
       "new_password": "New password",
-      "email_placeholder": "you{'@'}example.com",
+      "confirm_password": "Confirm new password",
+      "email_placeholder": "you{'@'}company.com",
       "password_placeholder": "••••••••"
     },
+    "brand": {
+      "headline": "Build in the open. Raise with trust.",
+      "subline": "The professional network where early-stage founders and investors share real progress and find each other.",
+      "feature": {
+        "progress": {
+          "title": "Share real progress",
+          "body": "Post updates, milestones, and asks to a focused, relevant audience."
+        },
+        "discover": {
+          "title": "Discover and be discovered",
+          "body": "A structured directory of founders and investors — signal, not noise."
+        },
+        "trust": {
+          "title": "A trust layer that matters",
+          "body": "Verified testimonials and ratings, paywalled behind membership."
+        }
+      },
+      "quote": {
+        "text": "Fundedr is where we started",
+        "thanh": {
+          "name": "Thanh Tran",
+          "role": "Software Engineer"
+        },
+        "nghia": {
+          "name": "Nghia Truong",
+          "role": "Associate Fullstack Engineer"
+        }
+      }
+    },
     "info": {
-      "sign_in_subtitle": "Sign in to your account to use the forum",
-      "create_account_subtitle": "Sign up to join the forum",
-      "reset_password_subtitle": "Enter your email and we'll send you a link to reset your password.",
+      "sign_in_subtitle": "Sign in to pick up where you left off.",
+      "create_account_subtitle": "Join founders and investors building in the open. It takes about two minutes.",
+      "reset_password_subtitle": "Enter the email linked to your account and we'll send you a link to set a new password.",
+      "set_new_password_subtitle": "Choose a strong password you don't use anywhere else.",
       "reset_link_sent": "We've sent a password reset link to {email}",
+      "reset_link_sent_prefix": "We sent a password reset link to",
+      "reset_link_sent_suffix": "The link expires in 30 minutes.",
+      "reset_resend_prefix": "Didn't get it? Check spam, or",
       "open_reset_link": "Open the reset link from your email to continue.",
       "password_requirements": "Password must include:",
       "password_req_min_length": "At least 8 characters",
@@ -62,7 +100,13 @@
       "password_req_lowercase": "At least 1 lowercase letter",
       "password_req_special": "At least 1 special character",
       "already_have_account": "Already have an account?",
-      "no_account": "Don't have an account?",
+      "no_account": "New to Fundedr?",
+      "remembered_password": "Remembered it?",
+      "need_help": "Need help?",
+      "no_email_access": "No longer have access to this email?",
+      "agree_terms": "I agree to the Terms and Privacy Policy",
+      "signup_verification_note": "We'll send a confirmation link to verify your email before you continue.",
+      "password_updated_sign_in": "You'll be signed in automatically once your password is updated.",
       "confirming_email": "Confirming your email...",
       "email_confirm_success": "Your email is verified.",
       "email_confirm_redirect": "Taking you to the homepage...",
@@ -80,8 +124,12 @@
       "forgot_password": "Forgot password?",
       "send_reset_link": "Send reset link",
       "sending": "Sending...",
+      "resend_link": "resend the link",
       "update_password": "Update password",
       "saving": "Saving...",
+      "show_password": "Show password",
+      "hide_password": "Hide password",
+      "contact_support": "Contact support",
       "check_again": "Check again",
       "continue_to_home": "Continue to homepage",
       "back_to_sign_in": "Back to sign in"
@@ -93,6 +141,8 @@
       "password_uppercase": "Password must include at least 1 uppercase letter",
       "password_lowercase": "Password must include at least 1 lowercase letter",
       "password_special": "Password must include at least 1 special character",
+      "password_mismatch": "Passwords do not match.",
+      "terms_required": "Please accept the Terms and Privacy Policy to continue.",
       "session_invalid": "Your session could not be verified. Sign in again after confirming your email.",
       "user_already_exists": "This email is already registered. Sign in, or reset your password if you forgot it.",
       "email_invalid_format": "Enter a valid email address (for example name{'@'}example.com).",

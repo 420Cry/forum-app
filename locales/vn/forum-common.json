@@ -36,24 +36,62 @@
   "auth": {
     "heading": {
       "sign_in": "Đăng nhập",
+      "welcome_back": "Chào mừng trở lại",
       "create_account": "Tạo tài khoản",
       "reset_password": "Đặt lại mật khẩu",
       "set_new_password": "Đặt mật khẩu mới",
       "account": "Tài khoản",
-      "check_email": "Kiểm tra email"
+      "check_email": "Kiểm tra email",
+      "confirming_email": "Đang xác minh email",
+      "email_verified": "Email đã được xác minh"
     },
     "label": {
       "email": "Email",
+      "work_email": "Email công việc",
       "password": "Mật khẩu",
       "new_password": "Mật khẩu mới",
-      "email_placeholder": "ban{'@'}example.com",
+      "confirm_password": "Xác nhận mật khẩu mới",
+      "email_placeholder": "ban{'@'}congty.com",
       "password_placeholder": "••••••••"
     },
+    "brand": {
+      "headline": "Xây dựng công khai. Gọi vốn bằng niềm tin.",
+      "subline": "Mạng lưới chuyên nghiệp nơi founder và nhà đầu tư giai đoạn đầu chia sẻ tiến độ thật và tìm thấy nhau.",
+      "feature": {
+        "progress": {
+          "title": "Chia sẻ tiến độ thật",
+          "body": "Đăng cập nhật, cột mốc và nhu cầu tới đúng đối tượng quan tâm."
+        },
+        "discover": {
+          "title": "Khám phá và được tìm thấy",
+          "body": "Danh bạ có cấu trúc của founder và nhà đầu tư — tín hiệu, không phải nhiễu."
+        },
+        "trust": {
+          "title": "Lớp tin cậy có ý nghĩa",
+          "body": "Đánh giá và testimonial đã xác minh, dành cho thành viên."
+        }
+      },
+      "quote": {
+        "text": "Fundedr is where we started",
+        "thanh": {
+          "name": "Thanh Tran",
+          "role": "Software Engineer"
+        },
+        "nghia": {
+          "name": "Nghia Truong",
+          "role": "Associate Fullstack Engineer"
+        }
+      }
+    },
     "info": {
-      "sign_in_subtitle": "Đăng nhập để sử dụng diễn đàn",
-      "create_account_subtitle": "Đăng ký để tham gia diễn đàn",
-      "reset_password_subtitle": "Nhập email và chúng tôi sẽ gửi liên kết đặt lại mật khẩu.",
+      "sign_in_subtitle": "Đăng nhập để tiếp tục từ nơi bạn dừng lại.",
+      "create_account_subtitle": "Tham gia cùng founder và nhà đầu tư xây dựng công khai. Chỉ mất khoảng hai phút.",
+      "reset_password_subtitle": "Nhập email liên kết với tài khoản và chúng tôi sẽ gửi liên kết đặt mật khẩu mới.",
+      "set_new_password_subtitle": "Chọn mật khẩu mạnh mà bạn không dùng ở nơi khác.",
       "reset_link_sent": "Chúng tôi đã gửi liên kết đặt lại mật khẩu tới {email}",
+      "reset_link_sent_prefix": "Chúng tôi đã gửi liên kết đặt lại mật khẩu tới",
+      "reset_link_sent_suffix": "Liên kết hết hạn sau 30 phút.",
+      "reset_resend_prefix": "Chưa nhận được? Kiểm tra thư rác, hoặc",
       "open_reset_link": "Mở liên kết đặt lại mật khẩu trong email để tiếp tục.",
       "password_requirements": "Mật khẩu phải có:",
       "password_req_min_length": "Ít nhất 8 ký tự",
@@ -62,7 +100,13 @@
       "password_req_lowercase": "Ít nhất 1 chữ thường",
       "password_req_special": "Ít nhất 1 ký tự đặc biệt",
       "already_have_account": "Đã có tài khoản?",
-      "no_account": "Chưa có tài khoản?",
+      "no_account": "Mới dùng Fundedr?",
+      "remembered_password": "Nhớ mật khẩu rồi?",
+      "need_help": "Cần hỗ trợ?",
+      "no_email_access": "Không còn truy cập email này?",
+      "agree_terms": "Tôi đồng ý với Điều khoản và Chính sách bảo mật",
+      "signup_verification_note": "Chúng tôi sẽ gửi liên kết xác minh email trước khi bạn tiếp tục.",
+      "password_updated_sign_in": "Bạn sẽ được đăng nhập tự động sau khi cập nhật mật khẩu.",
       "confirming_email": "Đang xác minh email...",
       "email_confirm_success": "Email của bạn đã được xác minh.",
       "email_confirm_redirect": "Đang chuyển bạn về trang chủ...",
@@ -80,8 +124,12 @@
       "forgot_password": "Quên mật khẩu?",
       "send_reset_link": "Gửi liên kết đặt lại",
       "sending": "Đang gửi...",
+      "resend_link": "gửi lại liên kết",
       "update_password": "Cập nhật mật khẩu",
       "saving": "Đang lưu...",
+      "show_password": "Hiện mật khẩu",
+      "hide_password": "Ẩn mật khẩu",
+      "contact_support": "Liên hệ hỗ trợ",
       "check_again": "Kiểm tra lại",
       "continue_to_home": "Tiếp tục về trang chủ",
       "back_to_sign_in": "Quay lại đăng nhập"
@@ -93,6 +141,8 @@
       "password_uppercase": "Mật khẩu phải có ít nhất 1 chữ hoa",
       "password_lowercase": "Mật khẩu phải có ít nhất 1 chữ thường",
       "password_special": "Mật khẩu phải có ít nhất 1 ký tự đặc biệt",
+      "password_mismatch": "Mật khẩu không khớp.",
+      "terms_required": "Vui lòng chấp nhận Điều khoản và Chính sách bảo mật để tiếp tục.",
       "session_invalid": "Không thể xác minh phiên đăng nhập. Hãy đăng nhập lại sau khi xác nhận email.",
       "user_already_exists": "Email này đã được đăng ký. Đăng nhập hoặc đặt lại mật khẩu nếu bạn quên.",
       "email_invalid_format": "Nhập địa chỉ email hợp lệ (ví dụ ten{'@'}example.com).",
