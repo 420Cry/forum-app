@@ -12,6 +12,7 @@ const { t } = useI18n()
 const {
   q,
   type,
+  role,
   sort,
   loading,
   mode,
@@ -37,6 +38,7 @@ const {
   flatResults,
   onSearch,
   selectType,
+  toggleRole,
   openFilters,
   applyFilters,
   clearDraftFilters,
@@ -51,6 +53,7 @@ const {
     <FindSearchPanel
       :q="q"
       :type="type"
+      :role="role"
       :loading="loading"
       :mode="mode"
       :total-count="totalCount"
@@ -61,6 +64,7 @@ const {
       @update:q="q = $event"
       @search="onSearch"
       @select-type="selectType"
+      @toggle-role="toggleRole"
       @open-filters="openFilters"
       @open-sort="sortOpen = true"
       @clear-chip="clearChip"

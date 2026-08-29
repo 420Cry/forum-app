@@ -27,11 +27,15 @@ export type FindResultRow = {
   avatarUrl: string | null
 }
 
-export const FIND_TYPE_FILTERS: { value: FindType, labelKey: string }[] = [
+/** Directory type tabs shown in Find (org types hidden until setup exists). */
+export const FIND_TYPE_TAB_FILTERS: { value: FindType, labelKey: string }[] = [
   { value: 'all', labelKey: 'find.type.all' },
   { value: 'user', labelKey: 'find.type.user' },
-  { value: 'startup', labelKey: 'find.type.startup' },
-  { value: 'investor', labelKey: 'find.type.investor' },
+]
+
+export const FIND_ROLE_QUICK_FILTERS: { value: string, labelKey: string }[] = [
+  { value: 'Founder', labelKey: 'find.filter.role_founder' },
+  { value: 'Investor', labelKey: 'find.filter.role_investor' },
 ]
 
 export function joinCsv(values: string[]): string | undefined {

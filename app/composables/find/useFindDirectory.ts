@@ -1,177 +1,80 @@
-import { useCatalogApi } from '~/composables/api/useCatalogApi'
 import { useProfilesApi } from '~/composables/api/useProfilesApi'
-import type {
-  FindChip,
-  FindMode,
-  FindOption,
-  FindSort,
-  FindType,
-} from '~/types/find'
-import { FIND_TYPE_FILTERS, joinCsv } from '~/types/find'
+import { buildFindQuery, EMPTY_FIND_RESULTS } from '~/composables/find/findDirectoryQuery'
+import { useFindDirectoryCatalog } from '~/composables/find/useFindDirectoryCatalog'
+import { useFindDirectoryDerived } from '~/composables/find/useFindDirectoryDerived'
+import { useFindFacetState } from '~/composables/find/useFindFacetState'
+import type { FindMode, FindOption, FindSort, FindType } from '~/types/find'
 import type { FindResults } from '~/types/profile'
-import { facetChips, optionLabel } from '~/utils/findChips'
-import { flattenFindResults } from '~/utils/findResults'
-import { locationCatalogLabel } from '~/utils/catalogLabel'
-import { useOccupationLabels } from '~/composables/catalog/useOccupationLabels'
-
-const emptyResults = (): FindResults => ({
-  users: [],
-  startups: [],
-  investors: [],
-})
 
 export function useFindDirectory() {
-  const { t, te, locale } = useI18n()
+  const { t } = useI18n()
   const { find } = useProfilesApi()
-  const { fetchTags } = useCatalogApi()
-  const { ensureLoaded, label: occupationLabel } = useOccupationLabels()
 
   const q = ref('')
   const type = ref<FindType>('all')
-  const industry = ref<string[]>([])
-  const location = ref<string[]>([])
-  const occupation = ref<string[]>([])
-  const role = ref<string[]>([])
-  const stage = ref<string[]>([])
   const sort = ref<FindSort>('newest')
-
   const loading = ref(false)
   const mode = ref<FindMode>('suggestions')
-  const results = ref<FindResults>(emptyResults())
-
+  const results = ref<FindResults>(EMPTY_FIND_RESULTS())
   const filtersOpen = ref(false)
   const sortOpen = ref(false)
-  const draftLocation = ref<string[]>([])
-  const draftOccupation = ref<string[]>([])
-  const draftRole = ref<string[]>([])
-  const draftIndustry = ref<string[]>([])
-  const draftStage = ref<string[]>([])
 
-  const locationOptions = ref<FindOption[]>([])
-  const occupationOptions = ref<FindOption[]>([])
-  const industryOptions = ref<FindOption[]>([])
+  const facets = useFindFacetState(type)
+  const catalog = useFindDirectoryCatalog()
 
   const roleOptions = computed<FindOption[]>(() => [
     { value: 'Founder', label: t('find.filter.role_founder') },
     { value: 'Investor', label: t('find.filter.role_investor') },
   ])
 
-  const showPeopleFilters = computed(
-    () => type.value === 'all' || type.value === 'user',
-  )
-  const showOrgFilters = computed(
-    () =>
-      type.value === 'all'
-      || type.value === 'startup'
-      || type.value === 'investor',
-  )
-  const showStageFilter = computed(
-    () => type.value === 'all' || type.value === 'startup',
-  )
-
-  const facetFilterCount = computed(() => {
-    let count = 0
-    if (showPeopleFilters.value) {
-      count += location.value.length + occupation.value.length + role.value.length
-    }
-    if (showOrgFilters.value) count += industry.value.length
-    if (showStageFilter.value) count += stage.value.length
-    return count
+  const derived = useFindDirectoryDerived({
+    results,
+    sort,
+    type,
+    facetFilterCount: facets.facetFilterCount,
+    facets: {
+      location: facets.location,
+      occupation: facets.occupation,
+      role: facets.role,
+      industry: facets.industry,
+      stage: facets.stage,
+    },
+    visibility: {
+      showPeopleFilters: facets.showPeopleFilters,
+      showOrgFilters: facets.showOrgFilters,
+      showStageFilter: facets.showStageFilter,
+    },
+    locationOptions: catalog.locationOptions,
+    occupationOptions: catalog.occupationOptions,
+    industryOptions: catalog.industryOptions,
+    roleOptions,
+    occupationLabel: catalog.occupationLabel,
+    q,
   })
 
-  const isSortActive = computed(() => sort.value !== 'newest')
-
-  const hasActiveFilters = computed(
-    () =>
-      !!q.value.trim()
-      || facetFilterCount.value > 0
-      || type.value !== 'all'
-      || isSortActive.value,
-  )
-
-  const activeChips = computed<FindChip[]>(() => [
-    ...facetChips(
-      'location',
-      location,
-      v => optionLabel(locationOptions.value, v),
-      showPeopleFilters.value,
-    ),
-    ...facetChips(
-      'occupation',
-      occupation,
-      v => optionLabel(occupationOptions.value, v),
-      showPeopleFilters.value,
-    ),
-    ...facetChips(
-      'role',
-      role,
-      v => optionLabel(roleOptions.value, v),
-      showPeopleFilters.value,
-    ),
-    ...facetChips(
-      'industry',
-      industry,
-      v => optionLabel(industryOptions.value, v),
-      showOrgFilters.value,
-    ),
-    ...facetChips(
-      'stage',
-      stage,
-      v => t(`profiles.stage.${v}`),
-      showStageFilter.value,
-    ),
-  ])
-
-  const sortLabel = computed(() =>
-    sort.value === 'name' ? t('find.sort.name') : t('find.sort.newest'),
-  )
-
-  const totalCount = computed(
-    () =>
-      results.value.users.length
-      + results.value.startups.length
-      + results.value.investors.length,
-  )
-
-  const flatResults = computed(() =>
-    flattenFindResults(
-      results.value,
-      (key, params) => (params ? t(key, params as never) : t(key)),
-      te,
-      locale.value,
-      occupationLabel,
-    ),
-  )
+  function syncFacetDraftsBeforeSearch() {
+    if (filtersOpen.value || facets.hasPendingFacetDraft()) {
+      facets.commitDraftFilters()
+      filtersOpen.value = false
+    }
+  }
 
   async function loadDirectory(nextMode: FindMode) {
     loading.value = true
     try {
-      const isSuggestions = nextMode === 'suggestions'
-      results.value = await find({
-        q: isSuggestions ? undefined : (q.value.trim() || undefined),
-        type: type.value === 'all' ? undefined : type.value,
-        industry: isSuggestions || !showOrgFilters.value
-          ? undefined
-          : joinCsv(industry.value),
-        location: isSuggestions || !showPeopleFilters.value
-          ? undefined
-          : joinCsv(location.value),
-        occupation: isSuggestions || !showPeopleFilters.value
-          ? undefined
-          : joinCsv(occupation.value),
-        role: isSuggestions || !showPeopleFilters.value
-          ? undefined
-          : joinCsv(role.value),
-        stage: isSuggestions || !showStageFilter.value
-          ? undefined
-          : joinCsv(stage.value),
-        sort: sort.value === 'newest' ? undefined : sort.value,
-        limit: isSuggestions ? '12' : undefined,
-      })
+      results.value = await find(
+        buildFindQuery(nextMode, {
+          q: q.value,
+          type: type.value,
+          sort: sort.value,
+          facets: facets.facetValues.value,
+          visibility: facets.visibility.value,
+        }),
+      )
       mode.value = nextMode
     }
     catch {
-      results.value = emptyResults()
+      results.value = EMPTY_FIND_RESULTS()
       mode.value = nextMode
     }
     finally {
@@ -179,12 +82,17 @@ export function useFindDirectory() {
     }
   }
 
-  async function onSearch() {
-    if (!hasActiveFilters.value && !q.value.trim()) {
+  async function runSearch() {
+    syncFacetDraftsBeforeSearch()
+    if (!derived.hasActiveFilters.value && !q.value.trim()) {
       await loadDirectory('suggestions')
       return
     }
     await loadDirectory('results')
+  }
+
+  async function onSearch() {
+    await runSearch()
   }
 
   function selectType(next: FindType) {
@@ -192,39 +100,29 @@ export function useFindDirectory() {
     void onSearch()
   }
 
+  function toggleRole(value: string) {
+    const current = facets.role.value
+    const next = current.includes(value)
+      ? current.filter(v => v !== value)
+      : [...current, value]
+    facets.syncRoleDraft(next)
+    if (type.value === 'startup' || type.value === 'investor') {
+      type.value = 'all'
+    }
+    void onSearch()
+  }
+
   function openFilters() {
-    draftLocation.value = [...location.value]
-    draftOccupation.value = [...occupation.value]
-    draftRole.value = [...role.value]
-    draftIndustry.value = [...industry.value]
-    draftStage.value = [...stage.value]
+    facets.openFiltersDrawer()
     filtersOpen.value = true
   }
 
   async function applyFilters() {
-    location.value = [...draftLocation.value]
-    occupation.value = [...draftOccupation.value]
-    role.value = [...draftRole.value]
-    industry.value = [...draftIndustry.value]
-    stage.value = [...draftStage.value]
-    await onSearch()
-  }
-
-  function clearFacetState() {
-    location.value = []
-    occupation.value = []
-    role.value = []
-    industry.value = []
-    stage.value = []
-    draftLocation.value = []
-    draftOccupation.value = []
-    draftRole.value = []
-    draftIndustry.value = []
-    draftStage.value = []
+    await runSearch()
   }
 
   async function clearDraftFilters() {
-    clearFacetState()
+    facets.clearFacetState()
     await onSearch()
   }
 
@@ -232,7 +130,7 @@ export function useFindDirectory() {
     q.value = ''
     type.value = 'all'
     sort.value = 'newest'
-    clearFacetState()
+    facets.clearFacetState()
     await loadDirectory('suggestions')
   }
 
@@ -241,78 +139,52 @@ export function useFindDirectory() {
     await onSearch()
   }
 
-  async function loadCatalogOptions() {
-    const [locations, occupations, industries] = await Promise.all([
-      fetchTags('location').catch(() => []),
-      fetchTags('occupation').catch(() => []),
-      fetchTags('industry').catch(() => []),
-      ensureLoaded().catch(() => undefined),
-    ])
-    locationOptions.value = locations.map(tag => ({
-      value: tag.key,
-      label: locationCatalogLabel(tag.key, tag.name, t, te),
-    }))
-    occupationOptions.value = occupations.map(tag => ({
-      value: tag.key,
-      label: occupationLabel(tag.key, tag.name),
-    }))
-    industryOptions.value = industries.map(tag => ({
-      value: tag.key,
-      label: tag.name,
-    }))
-  }
-
-  watch(locale, async () => {
-    await ensureLoaded().catch(() => undefined)
-    occupationOptions.value = occupationOptions.value.map(opt => ({
-      value: opt.value,
-      label: occupationLabel(opt.value, opt.label),
-    }))
-    locationOptions.value = locationOptions.value.map(opt => ({
-      value: opt.value,
-      label: locationCatalogLabel(opt.value, opt.label, t, te),
-    }))
+  watch(filtersOpen, (open) => {
+    if (!open) facets.resetDraftFilters()
   })
 
   onMounted(async () => {
-    await loadCatalogOptions()
+    if (type.value === 'startup' || type.value === 'investor') {
+      type.value = 'all'
+    }
+    await catalog.loadCatalogOptions()
     void loadDirectory('suggestions')
   })
 
   return {
     q,
     type,
-    industry,
-    location,
-    occupation,
-    role,
-    stage,
+    industry: facets.industry,
+    location: facets.location,
+    occupation: facets.occupation,
+    role: facets.role,
+    stage: facets.stage,
     sort,
     loading,
     mode,
     filtersOpen,
     sortOpen,
-    draftLocation,
-    draftOccupation,
-    draftRole,
-    draftIndustry,
-    draftStage,
-    locationOptions,
-    occupationOptions,
-    industryOptions,
+    draftLocation: facets.draftLocation,
+    draftOccupation: facets.draftOccupation,
+    draftRole: facets.draftRole,
+    draftIndustry: facets.draftIndustry,
+    draftStage: facets.draftStage,
+    locationOptions: catalog.locationOptions,
+    occupationOptions: catalog.occupationOptions,
+    industryOptions: catalog.industryOptions,
     roleOptions,
-    typeFilters: FIND_TYPE_FILTERS,
-    showPeopleFilters,
-    showOrgFilters,
-    showStageFilter,
-    facetFilterCount,
-    isSortActive,
-    activeChips,
-    sortLabel,
-    totalCount,
-    flatResults,
+    showPeopleFilters: facets.showPeopleFilters,
+    showOrgFilters: facets.showOrgFilters,
+    showStageFilter: facets.showStageFilter,
+    facetFilterCount: facets.facetFilterCount,
+    isSortActive: derived.isSortActive,
+    activeChips: derived.activeChips,
+    sortLabel: derived.sortLabel,
+    totalCount: derived.totalCount,
+    flatResults: derived.flatResults,
     onSearch,
     selectType,
+    toggleRole,
     openFilters,
     applyFilters,
     clearDraftFilters,
