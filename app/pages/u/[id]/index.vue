@@ -15,10 +15,7 @@ const routeKey = computed(() => String(route.params.id ?? ''))
 const { profile, error, loading, isOwnProfile, facts, occupationTagline }
   = usePublicUserPage(routeKey)
 
-const { sheetOpen, sheetMode, onStatClick } = useProfileFollowSheet({
-  allowedModes: () =>
-    isOwnProfile.value ? ['followers', 'following'] : ['followers'],
-})
+const { sheetOpen, sheetMode, onStatClick } = useProfileFollowSheet()
 
 const headerMeta = computed(() => {
   const p = profile.value
@@ -43,8 +40,7 @@ const headerStats = computed(() => {
       key: 'following',
       count: p.followingCount ?? 0,
       label: t('profiles.stat.following'),
-      // Following graphs are owner-only on the API.
-      interactive: isOwnProfile.value,
+      interactive: true,
     },
   ]
 })
