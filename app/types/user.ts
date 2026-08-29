@@ -1,4 +1,5 @@
 export type UserProfile = {
+  // Keep in sync with forum-api/src/contracts/auth-me.ts (AUTH_PROFILE_KEYS).
   onboarded: boolean
   onboardingStep: number | null
   role: 'Founder' | 'Investor' | null

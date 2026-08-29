@@ -32,16 +32,38 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!path) return
 
   const localePath = useLocalePath()
-
-  const access: RouteAccess = to.meta.access ?? 'public'
-  if (access === 'public' || access === 'callback') return
-
   const supabase = useSupabaseClient()
   const nuxtSession = useSupabaseSession()
   const { data: sessionData } = await supabase.auth.getSession()
   const session = import.meta.server
     ? (sessionData.session ?? nuxtSession.value)
     : sessionData.session
+
+  const access: RouteAccess = to.meta.access ?? 'public'
+
+  if (access === 'entry') {
+    const auth = await resolveVerifiedUser(
+      supabase,
+      session,
+      useSupabaseUser().value,
+    )
+
+    if (auth.status !== 'verified' || !auth.user) {
+      return navigateTo(localePath('/auth/login'), REDIRECT_REPLACE)
+    }
+
+    const { profile, refreshProfile, unauthorized } = useUserProfile()
+    await syncProfile(refreshProfile, profile.value?.id, auth.user.id, {
+      alwaysAwait: true,
+    })
+    if (unauthorized.value) {
+      return navigateTo(localePath('/auth/login'), REDIRECT_REPLACE)
+    }
+    const target = resolvePostAuthPath(profile.value?.profile ?? null)
+    return navigateTo(localePath(target), REDIRECT_REPLACE)
+  }
+
+  if (access === 'public' || access === 'callback') return
 
   const auth = await resolveVerifiedUser(
     supabase,

@@ -79,6 +79,7 @@ Sibling checkouts need repo (or org) secret **`FORUM_CI_PAT`**: a classic or fin
 Every page must declare how middleware treats it:
 
 ```ts
+definePageMeta({ access: 'entry' })      // app root — session-aware redirect to login / onboard / social
 definePageMeta({ access: 'guest' })      // auth forms — redirects verified users to /social
 definePageMeta({ access: 'callback' })   // email-link landing pages — never redirected
 definePageMeta({ access: 'protected' })  // requires verified session
@@ -104,14 +105,12 @@ Auth errors from Supabase or callback URLs go through `app/utils/authErrors.ts` 
 All forum-api calls go through composables in `app/composables/api/`:
 
 - `useApiFetch()` — `apiFetch(path, options)`: base URL, `Authorization: Bearer <supabase_access_token>`, and one retry with a refreshed token on 401. Pass `requireAuth: false` for endpoints that serve signed-out visitors; authenticated calls throw a 401 when no token exists.
-- Hand-written types in `app/types/` — keep in sync with forum-api responses
+- Hand-written types in `app/types/` — keep in sync with `forum-api/src/contracts/auth-me.ts`
 
 No generated OpenAPI client. When changing API shapes, update both repos.
 
 ## Current state / known rough edges
 
-- Types are duplicated with forum-api (`UserProfile`, goal keys) — no shared package yet.
-- `app/pages/index.vue` has custom redirect logic instead of `access` meta.
 - `@/` and `~/` import aliases are both used.
 - `app/composables/index.ts` re-exports only a subset; import API composables by path.
 
