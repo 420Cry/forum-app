@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useOnboard, useSupabaseAuth, useToast, useUserProfile } from '~/composables'
+import { useOnboard, useSupabaseAuth, useUserProfile } from '~/composables'
+import { useToast } from '~/composables/useToast'
 import BaseButton from '~/components/shared/BaseButton.vue'
 import BaseInput from '~/components/shared/BaseInput.vue'
 import {

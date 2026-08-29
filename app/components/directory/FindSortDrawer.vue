@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import BaseDrawer from '~/components/shared/BaseDrawer.vue'
-
-export type FindSort = 'newest' | 'name'
+import type { FindSort } from '~/types/find'
 
 const open = defineModel<boolean>('open', { default: false })
 const sort = defineModel<FindSort>({ required: true })
