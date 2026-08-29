@@ -6,6 +6,7 @@ import {
 } from '~/utils/catalogLabel'
 import { useOccupationLabels } from '~/composables/catalog/useOccupationLabels'
 import { resolveViewerId } from '~/utils/viewerId'
+import { useProfileFollowRefresh } from '~/utils/profileFollowRefresh'
 
 export function usePublicUserPage(routeKey: MaybeRefOrGetter<string>) {
   const { t, te, locale } = useI18n()
@@ -14,6 +15,7 @@ export function usePublicUserPage(routeKey: MaybeRefOrGetter<string>) {
   const { profile: me } = useUserProfile()
   const { getPublicUser } = useProfilesApi()
   const { ensureLoaded, label: occupationLabel } = useOccupationLabels()
+  const { token: followRefreshToken } = useProfileFollowRefresh()
 
   const profile = ref<PublicUserProfile | null>(null)
   const error = ref(false)
@@ -93,12 +95,20 @@ export function usePublicUserPage(routeKey: MaybeRefOrGetter<string>) {
     void load()
   })
 
+  onActivated(() => {
+    void load()
+  })
+
   watch(
     () => toValue(routeKey),
     (next, prev) => {
       if (next && next !== prev) void load()
     },
   )
+
+  watch(followRefreshToken, () => {
+    void load()
+  })
 
   watch(locale, () => {
     void ensureLoaded()

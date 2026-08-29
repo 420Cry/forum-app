@@ -1,5 +1,6 @@
 import type { AccountType } from '~/types/profile'
 import { useFollowsApi } from '~/composables/api/useFollowsApi'
+import { useProfileFollowRefresh } from '~/utils/profileFollowRefresh'
 
 export function useFollowTarget(
   targetType: MaybeRefOrGetter<AccountType>,
@@ -8,6 +9,7 @@ export function useFollowTarget(
   const { follow, unfollow, status } = useFollowsApi()
   const { t } = useI18n()
   const toast = useToast()
+  const { notifyFollowingChanged } = useProfileFollowRefresh()
   const following = ref(false)
   const busy = ref(false)
   const ready = ref(false)
@@ -54,6 +56,7 @@ export function useFollowTarget(
         ? await unfollow(type, id)
         : await follow(type, id)
       following.value = res.following
+      notifyFollowingChanged()
       toast.showSuccess(
         res.following
           ? t('social.info.followed_toast')
