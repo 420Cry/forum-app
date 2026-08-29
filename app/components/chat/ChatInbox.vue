@@ -234,12 +234,11 @@ watch(
     "
     data-testid="messages-inbox"
   >
-    <div
+    <LoadingState
       v-if="status === 'loading' || status === 'idle'"
-      class="flex flex-1 items-center justify-center text-sm text-ink-3"
-    >
-      {{ t('common.info.loading') }}
-    </div>
+      class="flex flex-1 items-center justify-center"
+      padding="lg"
+    />
 
     <div
       v-else-if="status === 'unavailable'"

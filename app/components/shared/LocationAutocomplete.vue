@@ -150,9 +150,13 @@ const showErrorSlot = computed(() => {
       >
         <li
           v-if="loading && listRows.length === 0"
-          class="px-3 py-2 text-sm text-ink-3"
+          class="px-3 py-2"
         >
-          {{ t('common.info.loading') }}
+          <LoadingState
+            size="sm"
+            layout="inline"
+            padding="none"
+          />
         </li>
         <li
           v-for="(row, index) in listRows"
@@ -168,9 +172,13 @@ const showErrorSlot = computed(() => {
         </li>
         <li
           v-if="loadingMore"
-          class="px-3 py-2 text-sm text-ink-3"
+          class="px-3 py-2"
         >
-          {{ t('common.info.loading') }}
+          <LoadingState
+            size="sm"
+            layout="inline"
+            padding="none"
+          />
         </li>
       </ul>
     </div>

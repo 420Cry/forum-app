@@ -103,9 +103,12 @@ async function submit() {
 
     <p
       v-if="status === 'loading'"
-      class="text-sm text-ink-3"
+      class="flex justify-center py-8"
     >
-      {{ t('common.info.loading') }}
+      <LoadingState
+        size="sm"
+        padding="none"
+      />
     </p>
     <p
       v-else-if="status === 'failed'"

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import AccountSwitcher from '~/components/home/AccountSwitcher.vue'
 import BaseIcon from '~/components/shared/BaseIcon.vue'
+import BaseSkeleton from '~/components/shared/BaseSkeleton.vue'
 import { useAccount } from '~/composables/accounts/useAccount'
 
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { profile: me } = useUserProfile()
-const { activeAccount, handleAvatarError } = useAccount()
+const { activeAccount, handleAvatarError, accountDetailsPending } = useAccount()
 
 const open = ref(false)
 const rootRef = ref<HTMLElement | null>(null)
@@ -51,27 +52,38 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
       <button
         type="button"
         class="flex h-10 cursor-pointer items-center gap-2 rounded-full pl-1 pr-2 hover:bg-surface-hover"
+        :class="{ 'pointer-events-none': accountDetailsPending }"
         :aria-label="t('profiles.action.view_own_profile')"
+        :aria-busy="accountDetailsPending"
         @click="goToOwnProfile"
       >
-        <img
-          v-if="activeAccount?.avatar && !activeAccount?.avatarLoadFailed"
-          :src="activeAccount.avatar"
-          class="size-8 shrink-0 rounded-full object-cover"
-          @error="handleAvatarError(activeAccount.id)"
-        />
-        <div
-          v-else
-          class="flex size-8 shrink-0 items-center justify-center rounded-full"
-          :style="{ backgroundImage: activeAccount?.avatarColor }"
-        >
-          <span class="text-xs font-semibold text-white">
-            {{ activeAccount?.prefix }}
-          </span>
-        </div>
-        <p class="text-[13px] font-semibold text-ink-2">
-          {{ activeAccount?.name?.split(' ')[0] }}
-        </p>
+        <template v-if="accountDetailsPending">
+          <BaseSkeleton
+            rounded="full"
+            class="size-8 shrink-0"
+          />
+          <BaseSkeleton class="h-3.5 w-16" />
+        </template>
+        <template v-else>
+          <img
+            v-if="activeAccount?.avatar && !activeAccount?.avatarLoadFailed"
+            :src="activeAccount.avatar"
+            class="size-8 shrink-0 rounded-full object-cover"
+            @error="handleAvatarError(activeAccount.id)"
+          />
+          <div
+            v-else
+            class="flex size-8 shrink-0 items-center justify-center rounded-full"
+            :style="{ backgroundImage: activeAccount?.avatarColor }"
+          >
+            <span class="text-xs font-semibold text-white">
+              {{ activeAccount?.prefix }}
+            </span>
+          </div>
+          <p class="text-[13px] font-semibold text-ink-2">
+            {{ activeAccount?.name?.split(' ')[0] }}
+          </p>
+        </template>
       </button>
 
       <button

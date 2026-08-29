@@ -173,12 +173,11 @@ function onRowFollowChange(
         </header>
 
         <div class="min-h-0 flex-1 overflow-y-auto px-4 py-1 sm:px-5">
-          <p
+          <LoadingState
             v-if="loading"
-            class="px-1 py-8 text-center text-sm text-ink-3"
-          >
-            {{ t('common.info.loading') }}
-          </p>
+            size="sm"
+            padding="lg"
+          />
           <p
             v-else-if="loadError"
             class="px-1 py-8 text-center text-sm text-ink-3"

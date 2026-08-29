@@ -73,9 +73,10 @@ const {
 
     <div
       v-if="loading && flatResults.length === 0"
-      class="rounded-md border border-line bg-card px-5 py-10 text-center text-sm text-ink-3 shadow-1"
+      class="flex flex-col gap-3"
+      aria-busy="true"
     >
-      {{ t('common.info.loading') }}
+      <ResultCardSkeleton :count="4" />
     </div>
 
     <div

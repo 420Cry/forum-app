@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import BaseIcon from '~/components/shared/BaseIcon.vue'
 import BasePill from '~/components/shared/BasePill.vue'
+import BaseSkeleton from '~/components/shared/BaseSkeleton.vue'
 import { useUserProfile } from '~/composables/user/useUserProfile'
 
 definePageMeta({ layout: 'home', access: 'protected' })
 
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { profile, refreshProfile } = useUserProfile()
+const { profile, refreshProfile, profileDetailsPending } = useUserProfile()
 
 const avatarFailed = ref(false)
 
@@ -56,47 +57,66 @@ const avatarUrl = computed(() => userProfile.value?.avatarUrl ?? null)
       <NuxtLink
         :to="localePath('/settings/profile')"
         class="flex items-center gap-3.5 px-5 py-4 no-underline transition-colors hover:bg-surface-hover"
+        :class="{ 'pointer-events-none': profileDetailsPending }"
+        :aria-busy="profileDetailsPending"
       >
-        <img
-          v-if="avatarUrl && !avatarFailed"
-          :src="avatarUrl"
-          class="size-12 flex-none rounded-full border border-line object-cover"
-          @error="avatarFailed = true"
-        >
-        <div
-          v-else
-          class="flex size-12 flex-none items-center justify-center rounded-full border border-line bg-surface-hover text-ink-4"
-        >
-          <BaseIcon
-            name="person"
-            size="1.4em"
+        <template v-if="profileDetailsPending">
+          <BaseSkeleton
+            rounded="full"
+            class="size-12 flex-none"
           />
-        </div>
-
-        <div class="min-w-0 flex-1">
-          <div class="flex flex-wrap items-center gap-2">
-            <p class="truncate text-[14.5px] font-semibold text-ink">
-              {{ displayName }}
-            </p>
-            <BasePill
-              v-if="roleLabel"
-              :variant="rolePillVariant"
-            >
-              {{ roleLabel }}
-            </BasePill>
-            <span
-              v-else
-              class="text-[12px] text-ink-4"
-            >{{ t('settings.info.no_role') }}</span>
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <BaseSkeleton class="h-4 w-36 max-w-full" />
+              <BaseSkeleton class="h-5 w-16 rounded-full" />
+            </div>
+            <BaseSkeleton class="mt-2 h-3.5 w-44 max-w-full" />
           </div>
-          <p class="mt-1 text-[13px] text-ink-3">
-            {{ t('settings.info.edit_profile_cta') }}
-          </p>
-        </div>
+          <BaseSkeleton class="h-4 w-14 flex-none" />
+        </template>
 
-        <span class="flex-none text-[13px] font-semibold text-brand">
-          {{ t('settings.action.edit') }} →
-        </span>
+        <template v-else>
+          <img
+            v-if="avatarUrl && !avatarFailed"
+            :src="avatarUrl"
+            class="size-12 flex-none rounded-full border border-line object-cover"
+            @error="avatarFailed = true"
+          >
+          <div
+            v-else
+            class="flex size-12 flex-none items-center justify-center rounded-full border border-line bg-surface-hover text-ink-4"
+          >
+            <BaseIcon
+              name="person"
+              size="1.4em"
+            />
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <p class="truncate text-[14.5px] font-semibold text-ink">
+                {{ displayName }}
+              </p>
+              <BasePill
+                v-if="roleLabel"
+                :variant="rolePillVariant"
+              >
+                {{ roleLabel }}
+              </BasePill>
+              <span
+                v-else
+                class="text-[12px] text-ink-4"
+              >{{ t('settings.info.no_role') }}</span>
+            </div>
+            <p class="mt-1 text-[13px] text-ink-3">
+              {{ t('settings.info.edit_profile_cta') }}
+            </p>
+          </div>
+
+          <span class="flex-none text-[13px] font-semibold text-brand">
+            {{ t('settings.action.edit') }} →
+          </span>
+        </template>
       </NuxtLink>
     </section>
 

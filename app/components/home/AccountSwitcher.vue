@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAccount } from '~/composables/accounts/useAccount'
 import BaseIcon from '../shared/BaseIcon.vue'
+import BaseSkeleton from '../shared/BaseSkeleton.vue'
 
 const emit = defineEmits<{
   close: []
@@ -26,6 +27,7 @@ const {
   handleAvatarError,
   activeAccountId,
   refreshAccounts,
+  accountDetailsPending,
 } = useAccount()
 
 /** Personal account only — org pages are paused for now. */
@@ -70,47 +72,64 @@ function onSettingsClick() {
     </p>
 
     <div class="flex flex-col gap-1">
-      <button
-        v-for="account in personalAccounts"
-        :key="account.id"
-        type="button"
-        role="menuitem"
-        class="flex w-full cursor-pointer items-center gap-3 rounded-sm px-2.5 py-2.75 text-left hover:bg-surface-hover"
-        :class="{ 'bg-brand-tint': account.id === activeAccountId }"
-        @click="openProfile(account.id, account.href)"
+      <div
+        v-if="accountDetailsPending"
+        class="flex items-center gap-3 rounded-sm px-2.5 py-2.75"
+        aria-busy="true"
       >
-        <img
-          v-if="account.avatar && !account.avatarLoadFailed"
-          :src="account.avatar"
-          class="size-10 shrink-0 rounded-full object-cover"
-          @error="handleAvatarError(account.id)"
+        <BaseSkeleton
+          rounded="full"
+          class="size-10 shrink-0"
         />
-        <div
-          v-else
-          class="flex size-10 shrink-0 items-center justify-center rounded-full"
-          :style="{ backgroundImage: account.avatarColor }"
+        <div class="min-w-0 flex-1 space-y-2">
+          <BaseSkeleton class="h-3.5 w-28" />
+          <BaseSkeleton class="h-3 w-36 max-w-full" />
+        </div>
+      </div>
+
+      <template v-else>
+        <button
+          v-for="account in personalAccounts"
+          :key="account.id"
+          type="button"
+          role="menuitem"
+          class="flex w-full cursor-pointer items-center gap-3 rounded-sm px-2.5 py-2.75 text-left hover:bg-surface-hover"
+          :class="{ 'bg-brand-tint': account.id === activeAccountId }"
+          @click="openProfile(account.id, account.href)"
         >
-          <span class="text-sm font-semibold text-white">
-            {{ account.prefix }}
-          </span>
-        </div>
+          <img
+            v-if="account.avatar && !account.avatarLoadFailed"
+            :src="account.avatar"
+            class="size-10 shrink-0 rounded-full object-cover"
+            @error="handleAvatarError(account.id)"
+          />
+          <div
+            v-else
+            class="flex size-10 shrink-0 items-center justify-center rounded-full"
+            :style="{ backgroundImage: account.avatarColor }"
+          >
+            <span class="text-sm font-semibold text-white">
+              {{ account.prefix }}
+            </span>
+          </div>
 
-        <div class="min-w-0 flex-1">
-          <p class="text-[13.5px] font-semibold text-ink">
-            {{ account.name }}
-          </p>
-          <p class="mt-0.75 truncate whitespace-nowrap text-xs text-ink-3">
-            {{ account.subtitle }}
-          </p>
-        </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[13.5px] font-semibold text-ink">
+              {{ account.name }}
+            </p>
+            <p class="mt-0.75 truncate whitespace-nowrap text-xs text-ink-3">
+              {{ account.subtitle }}
+            </p>
+          </div>
 
-        <BaseIcon
-          v-if="account.id === activeAccountId"
-          name="check"
-          size="1.5em"
-          class="shrink-0 text-brand"
-        />
-      </button>
+          <BaseIcon
+            v-if="account.id === activeAccountId"
+            name="check"
+            size="1.5em"
+            class="shrink-0 text-brand"
+          />
+        </button>
+      </template>
     </div>
 
     <hr class="mx-1 my-1.5 border-line">

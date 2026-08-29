@@ -5,6 +5,7 @@ import { toAccountSummaryView } from '~/utils/accountSummary'
 export const useAccount = () => {
   const accounts = useState<AccountSummaryView[]>('forum-accounts', () => [])
   const accountsLoading = useState('forum-accounts-loading', () => false)
+  const accountsLoaded = useState('forum-accounts-loaded', () => false)
   const activeAccountId = useState<string | null>(
     'active-account-id',
     () => null,
@@ -20,6 +21,10 @@ export const useAccount = () => {
       ?? null
     )
   })
+
+  const accountDetailsPending = computed(
+    () => accountsLoading.value || !accountsLoaded.value,
+  )
 
   async function refreshAccounts() {
     accountsLoading.value = true
@@ -39,6 +44,7 @@ export const useAccount = () => {
     }
     finally {
       accountsLoading.value = false
+      accountsLoaded.value = true
     }
   }
 
@@ -59,6 +65,8 @@ export const useAccount = () => {
     accounts,
     refreshAccounts,
     accountsLoading,
+    accountsLoaded,
+    accountDetailsPending,
     activeAccountId,
   }
 }
