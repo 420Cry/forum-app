@@ -97,38 +97,38 @@ function onSettingsClick() {
           :class="{ 'bg-brand-tint': account.id === activeAccountId }"
           @click="openProfile(account.id, account.href)"
         >
-        <img
-          v-if="account.avatar && !account.avatarLoadFailed"
-          :src="account.avatar"
-          class="size-10 shrink-0 rounded-full object-cover"
-          @error="handleAvatarError(account.id)"
-        />
-        <div
-          v-else
-          class="flex size-10 shrink-0 items-center justify-center rounded-full"
-          :style="{ backgroundImage: account.avatarColor }"
-        >
-          <span class="text-sm font-semibold text-white">
-            {{ account.prefix }}
-          </span>
-        </div>
+          <img
+            v-if="account.avatar && !account.avatarLoadFailed"
+            :src="account.avatar"
+            class="size-10 shrink-0 rounded-full object-cover"
+            @error="handleAvatarError(account.id)"
+          />
+          <div
+            v-else
+            class="flex size-10 shrink-0 items-center justify-center rounded-full"
+            :style="{ backgroundImage: account.avatarColor }"
+          >
+            <span class="text-sm font-semibold text-white">
+              {{ account.prefix }}
+            </span>
+          </div>
 
-        <div class="min-w-0 flex-1">
-          <p class="text-[13.5px] font-semibold text-ink">
-            {{ account.name }}
-          </p>
-          <p class="mt-0.75 truncate whitespace-nowrap text-xs text-ink-3">
-            {{ account.subtitle }}
-          </p>
-        </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-[13.5px] font-semibold text-ink">
+              {{ account.name }}
+            </p>
+            <p class="mt-0.75 truncate whitespace-nowrap text-xs text-ink-3">
+              {{ account.subtitle }}
+            </p>
+          </div>
 
-        <BaseIcon
-          v-if="account.id === activeAccountId"
-          name="check"
-          size="1.5em"
-          class="shrink-0 text-brand"
-        />
-      </button>
+          <BaseIcon
+            v-if="account.id === activeAccountId"
+            name="check"
+            size="1.5em"
+            class="shrink-0 text-brand"
+          />
+        </button>
       </template>
     </div>
 
