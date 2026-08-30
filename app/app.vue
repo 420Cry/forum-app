@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useSupabaseAuth } from '~/composables'
+import CookieBanner from '~/components/legal/CookieBanner.vue'
+import CookiePreferencesDialog from '~/components/legal/CookiePreferencesDialog.vue'
 
 const { refreshUser } = useSupabaseAuth()
 onMounted(async () => {
@@ -26,5 +28,7 @@ useHead({
       <NuxtPage />
     </NuxtLayout>
     <AppToast />
+    <CookieBanner />
+    <CookiePreferencesDialog />
   </div>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LeftRail from '~/components/home/shared/LeftRail.vue'
+import LegalFooter from '~/components/legal/LegalFooter.vue'
 import MobileBottomNav from '~/components/home/MobileBottomNav.vue'
 import { stripLocalePrefix } from '~/utils/localePath'
 
@@ -26,6 +27,12 @@ const mainPadClass = computed(() => {
   if (!isSignedIn.value) return undefined
   if (immersiveChatThread.value) return 'pb-0 lg:pb-0'
   return 'pb-20 lg:pb-0'
+})
+
+/** Chat uses 100dvh; a page footer would overflow the viewport. */
+const hideLegalFooter = computed(() => {
+  const path = stripLocalePrefix(route.path)
+  return path === '/messages' || path.startsWith('/messages/')
 })
 </script>
 
@@ -56,6 +63,15 @@ const mainPadClass = computed(() => {
         <slot />
       </main>
     </div>
+    <footer
+      v-if="!hideLegalFooter"
+      class="mt-auto border-t border-line bg-card p-4 sm:px-7"
+      :class="isSignedIn ? 'pb-24 lg:pb-4' : ''"
+    >
+      <div class="mx-auto flex w-full max-w-340 justify-center">
+        <LegalFooter />
+      </div>
+    </footer>
     <MobileBottomNav v-if="isSignedIn" />
   </div>
 </template>

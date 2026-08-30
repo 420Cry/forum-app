@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import LegalFooter from '~/components/legal/LegalFooter.vue'
+</script>
+
 <template>
   <section class="flex h-full min-h-0 flex-col overflow-hidden bg-card p-6  lg:px-14 lg:py-9">
     <div class="mb-4 flex shrink-0 items-center justify-between gap-3 lg:hidden">
@@ -23,5 +27,10 @@
     >
       <slot name="foot" />
     </p>
+
+    <LegalFooter
+      compact
+      class="mx-auto mt-4 w-full max-w-[400px] shrink-0"
+    />
   </section>
 </template>
