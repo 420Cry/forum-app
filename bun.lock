@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "nuxt-app",
@@ -17,7 +18,7 @@
         "zod": "^4.4.3",
       },
       "devDependencies": {
-        "@iconify-json/material-symbols": "^1.2.61",
+        "@iconify-json/material-symbols": "^1.2.90",
         "@nuxt/icon": "^2.2.1",
         "@vitest/coverage-v8": "^3.2.4",
         "eslint-plugin-better-tailwindcss": "^4.7.0",
@@ -198,7 +199,7 @@
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
 
-    "@iconify-json/material-symbols": ["@iconify-json/material-symbols@1.2.78", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-ITcvZUeHGRowyVc5SGWlAR6eW7r4Ywj/cXT3FUd3lnUHT47GIyaWL93zFOflq9Fwz+3AZ8UCzU8k/jBie+BDqQ=="],
+    "@iconify-json/material-symbols": ["@iconify-json/material-symbols@1.2.90", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-gCOGFOIhK4QFsmUBsxtp6q7EPghSP11txPFfvb5Dj4nDYZ9qO88xpTQGtIzEQJ4mTPdXfzE9OWR2G4KUif4nXg=="],
 
     "@iconify/collections": ["@iconify/collections@1.0.696", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-k06LxE/f1o3Tuj/n+ugiCyyq6CGxUG+k8o5ZZbOgVBHvpHiAWDDvZvdOSLNC8zeISRJhhiD04FkDKP7zk63fxQ=="],
 
