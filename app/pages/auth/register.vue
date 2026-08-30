@@ -105,7 +105,29 @@ async function submit() {
           type="checkbox"
           class="mt-0.5 size-4 rounded border-line text-brand focus:ring-brand/20"
         >
-        <span>{{ t('auth.info.agree_terms') }}</span>
+        <i18n-t
+          keypath="auth.info.agree_terms"
+          tag="span"
+        >
+          <template #terms>
+            <NuxtLink
+              :to="localePath('/legal/terms')"
+              class="font-semibold text-brand no-underline hover:underline"
+              @click.stop
+            >
+              {{ t('common.action.terms') }}
+            </NuxtLink>
+          </template>
+          <template #privacy>
+            <NuxtLink
+              :to="localePath('/legal/privacy')"
+              class="font-semibold text-brand no-underline hover:underline"
+              @click.stop
+            >
+              {{ t('common.action.privacy_policy') }}
+            </NuxtLink>
+          </template>
+        </i18n-t>
       </label>
       <p
         v-if="termsError"

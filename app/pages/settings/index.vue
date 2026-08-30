@@ -2,6 +2,7 @@
 import BaseIcon from '~/components/shared/BaseIcon.vue'
 import BasePill from '~/components/shared/BasePill.vue'
 import BaseSkeleton from '~/components/shared/BaseSkeleton.vue'
+import { useCookieConsent } from '~/composables/useCookieConsent'
 import { useUserProfile } from '~/composables/user/useUserProfile'
 
 definePageMeta({ layout: 'home', access: 'protected' })
@@ -9,6 +10,7 @@ definePageMeta({ layout: 'home', access: 'protected' })
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { profile, refreshProfile, profileDetailsPending } = useUserProfile()
+const { openPreferences } = useCookieConsent()
 
 const avatarFailed = ref(false)
 
@@ -144,6 +146,49 @@ const avatarUrl = computed(() => userProfile.value?.avatarUrl ?? null)
         </div>
         <span class="mt-0.5 flex-none text-[13px] font-semibold text-brand">
           {{ t('settings.action.edit') }} →
+        </span>
+      </NuxtLink>
+    </section>
+
+    <section class="overflow-hidden rounded-md border border-line bg-card shadow-1">
+      <div class="border-b border-line px-5 pt-4 pb-3">
+        <h2 class="text-[14px] font-semibold text-ink">
+          {{ t('settings.heading.privacy') }}
+        </h2>
+        <p class="mt-0.5 text-[12.5px] text-ink-4">
+          {{ t('settings.info.privacy_section') }}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="flex w-full cursor-pointer items-start justify-between gap-4 border-b border-line bg-transparent px-5 py-4 text-left transition-colors hover:bg-surface-hover"
+        @click="openPreferences"
+      >
+        <div class="min-w-0">
+          <p class="text-[14px] font-semibold text-ink">
+            {{ t('settings.heading.cookie_settings') }}
+          </p>
+          <p class="mt-1 text-[13px] text-ink-3">
+            {{ t('settings.info.cookie_settings_cta') }}
+          </p>
+        </div>
+      </button>
+
+      <NuxtLink
+        :to="localePath('/legal/cookies')"
+        class="flex items-start justify-between gap-4 px-5 py-4 no-underline transition-colors hover:bg-surface-hover"
+      >
+        <div class="min-w-0">
+          <p class="text-[14px] font-semibold text-ink">
+            {{ t('settings.heading.cookie_policy') }}
+          </p>
+          <p class="mt-1 text-[13px] text-ink-3">
+            {{ t('settings.info.cookie_policy_cta') }}
+          </p>
+        </div>
+        <span class="mt-0.5 flex-none text-[13px] font-semibold text-brand">
+          {{ t('settings.action.view') }} →
         </span>
       </NuxtLink>
     </section>

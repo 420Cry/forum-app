@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LeftRail from '~/components/home/shared/LeftRail.vue'
+import AppLegalFooter from '~/components/legal/AppLegalFooter.vue'
 import MobileBottomNav from '~/components/home/MobileBottomNav.vue'
 import { stripLocalePrefix } from '~/utils/localePath'
 
@@ -16,11 +17,14 @@ const isSignedIn = computed(
 )
 
 /** Phone chat thread hides the bottom nav — drop the spacer padding. */
-const immersiveChatThread = computed(() => {
+const isMessages = computed(() => {
   const path = stripLocalePrefix(route.path)
-  if (path !== '/messages' && !path.startsWith('/messages/')) return false
-  return Boolean(String(route.query.channelUrl ?? '').trim())
+  return path === '/messages' || path.startsWith('/messages/')
 })
+
+const immersiveChatThread = computed(
+  () => isMessages.value && Boolean(String(route.query.channelUrl ?? '').trim()),
+)
 
 const mainPadClass = computed(() => {
   if (!isSignedIn.value) return undefined
@@ -56,6 +60,10 @@ const mainPadClass = computed(() => {
         <slot />
       </main>
     </div>
+    <AppLegalFooter
+      v-if="!isMessages"
+      :padded="isSignedIn"
+    />
     <MobileBottomNav v-if="isSignedIn" />
   </div>
 </template>
