@@ -25,7 +25,13 @@ export function useCookieConsent() {
   })
 
   const preferencesOpen = useState('cookie-preferences-open', () => false)
-  const consent = computed(() => parseConsent(stored.value))
+
+  /** useCookie reads the raw document.cookie string on first load (decode runs later). */
+  const consent = computed(() => {
+    const value = stored.value
+    if (typeof value === 'string') return decodeConsentCookie(value)
+    return parseConsent(value)
+  })
   const hasDecision = computed(() => hasConsentDecision(consent.value))
 
   function persist(next: CookieConsent) {
