@@ -17,11 +17,13 @@ Stored in `forum_cookie_consent` (1 year, `lax`, path `/`). Shape and helpers li
 
 Necessary cookies (always on):
 
-| Name | Purpose | Set by | Duration |
-| --- | --- | --- | --- |
-| `forum_locale` | Language | Fundedr | Until language change or site data clear |
-| `sb-…-auth-token` | Sign-in session | Supabase | 7 days |
-| `forum_cookie_consent` | Stores this notice / group choices | Fundedr | 1 year |
+| Name | Purpose | Duration |
+| --- | --- | --- |
+| `forum_locale` | Language | Until language change or site data clear |
+| `sb-…-auth-token` | Sign-in session | 7 days |
+| `forum_cookie_consent` | Stores this notice / group choices | 1 year |
+
+These are first-party Fundedr cookies. Processor names (Supabase, Sendbird) belong on the **privacy** page, not this table.
 
 `LIVE_OPTIONAL_GROUPS` is `[]`. Optional switches only **persist a choice**. They do not load scripts.
 
@@ -29,7 +31,7 @@ Necessary cookies (always on):
 
 1. Put the group in `LIVE_OPTIONAL_GROUPS` (`performance` / `functional` / `targeting`).
 2. Add the cookie to `COOKIE_INVENTORY` and the policy table copy.
-3. Gate the script (or similar) with the matching helper. Do not load it unless that group is on:
+3. Gate the script with `groupAllowed` (or the matching `*Allowed` computed from `useCookieConsent`). Do not load it unless that group is on:
 
 ```ts
 const { performanceAllowed, functionalAllowed, targetingAllowed } = useCookieConsent()
@@ -58,7 +60,8 @@ Until a group is live, do not claim in UI copy that we set that cookie today.
 | --- | --- | --- |
 | Banner | [`CookieBanner.vue`](../app/components/legal/CookieBanner.vue) | Until a choice exists: Accept all, Cookie configuration, Reject all |
 | Drawer | [`CookiePreferencesDialog.vue`](../app/components/legal/CookiePreferencesDialog.vue) | Necessary locked; optional switches; Accept all / Save / Reject all |
-| Footer | [`LegalFooter.vue`](../app/components/legal/LegalFooter.vue) | Cookie settings + legal links. Mounted in home / default / onboard / auth. Hidden on `/messages` |
+| Footer | [`LegalFooter.vue`](../app/components/legal/LegalFooter.vue) + [`AppLegalFooter.vue`](../app/components/legal/AppLegalFooter.vue) | Cookie settings + legal links. Hidden on `/messages` |
+| Legal pages | [`LegalPage.vue`](../app/components/legal/LegalPage.vue) + [`LegalSection.vue`](../app/components/legal/LegalSection.vue) | Shared article layout for cookies / privacy / terms |
 | Settings | [`settings/index.vue`](../app/pages/settings/index.vue) | Reopens the drawer |
 | Composable | [`useCookieConsent.ts`](../app/composables/useCookieConsent.ts) | Persist, open/close drawer, `*Allowed` flags |
 

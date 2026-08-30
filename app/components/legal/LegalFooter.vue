@@ -14,16 +14,19 @@ const { openPreferences } = useCookieConsent()
 
 const linkClass
   = 'font-semibold text-ink-3 no-underline hover:text-ink hover:underline'
+
+const links = [
+  { to: '/legal/cookies', key: 'common.action.cookie_policy' },
+  { to: '/legal/privacy', key: 'common.action.privacy_policy' },
+  { to: '/legal/terms', key: 'common.action.terms' },
+] as const
 </script>
 
 <template>
   <nav
     :aria-label="t('common.aria.legal')"
-    :class="
-      compact
-        ? 'flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-[12.5px]'
-        : 'flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center text-[13px]'
-    "
+    class="flex flex-wrap items-center justify-center gap-y-1 text-center"
+    :class="compact ? 'gap-x-3 text-[12.5px]' : 'gap-x-4 text-[13px]'"
   >
     <button
       type="button"
@@ -33,22 +36,12 @@ const linkClass
       {{ t('common.action.cookie_settings') }}
     </button>
     <NuxtLink
-      :to="localePath('/legal/cookies')"
+      v-for="link in links"
+      :key="link.to"
+      :to="localePath(link.to)"
       :class="linkClass"
     >
-      {{ t('common.action.cookie_policy') }}
-    </NuxtLink>
-    <NuxtLink
-      :to="localePath('/legal/privacy')"
-      :class="linkClass"
-    >
-      {{ t('common.action.privacy_policy') }}
-    </NuxtLink>
-    <NuxtLink
-      :to="localePath('/legal/terms')"
-      :class="linkClass"
-    >
-      {{ t('common.action.terms') }}
+      {{ t(link.key) }}
     </NuxtLink>
   </nav>
 </template>

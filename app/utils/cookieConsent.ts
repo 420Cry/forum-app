@@ -2,67 +2,78 @@ export const COOKIE_CONSENT_KEY = 'forum_cookie_consent'
 export const COOKIE_CONSENT_MAX_AGE = 60 * 60 * 24 * 365
 export const COOKIE_CONSENT_VERSION = 1
 
-export type CookieConsent = {
-  v: number
-  necessary: true
+export type OptionalConsent = {
   performance: boolean
   functional: boolean
   targeting: boolean
 }
 
-export type OptionalConsent = Pick<
-  CookieConsent,
-  'performance' | 'functional' | 'targeting'
->
+export type CookieConsent = OptionalConsent & {
+  v: number
+  necessary: true
+}
 
-export const OPTIONAL_GROUPS: Array<keyof OptionalConsent> = [
+export const OPTIONAL_GROUPS = [
   'performance',
   'functional',
   'targeting',
-]
+] as const satisfies ReadonlyArray<keyof OptionalConsent>
 
-/** Optional groups that actually have cookies or scripts today. Keep empty until one ships. */
+/** Groups that actually have cookies or scripts. Empty until one ships. */
 export const LIVE_OPTIONAL_GROUPS: Array<keyof OptionalConsent> = []
+
+export const OPTIONAL_GROUP_COPY = OPTIONAL_GROUPS.map(key => ({
+  key,
+  heading: `common.heading.cookie_${key}`,
+  info: `common.info.cookie_${key}`,
+  aria: `common.aria.cookie_${key}`,
+}))
 
 export type CookieInventoryItem = {
   nameKey: string
   purposeKey: string
-  providerKey: string
   durationKey: string
 }
 
-export const COOKIE_INVENTORY: CookieInventoryItem[] = [
-  {
-    nameKey: 'common.info.cookie_name_locale',
-    purposeKey: 'common.info.cookie_purpose_locale',
-    providerKey: 'common.info.cookie_provider_fundedr',
-    durationKey: 'common.info.cookie_duration_locale',
-  },
-  {
-    nameKey: 'common.info.cookie_name_session',
-    purposeKey: 'common.info.cookie_purpose_session',
-    providerKey: 'common.info.cookie_provider_supabase',
-    durationKey: 'common.info.cookie_duration_session',
-  },
-  {
-    nameKey: 'common.info.cookie_name_consent',
-    purposeKey: 'common.info.cookie_purpose_consent',
-    providerKey: 'common.info.cookie_provider_fundedr',
-    durationKey: 'common.info.cookie_duration_consent',
-  },
-]
-
-export function emptyConsent(): CookieConsent {
+function inventoryItem(
+  id: 'locale' | 'session' | 'consent',
+): CookieInventoryItem {
   return {
-    v: COOKIE_CONSENT_VERSION,
-    necessary: true,
-    performance: false,
-    functional: false,
-    targeting: false,
+    nameKey: `common.info.cookie_name_${id}`,
+    purposeKey: `common.info.cookie_purpose_${id}`,
+    durationKey: `common.info.cookie_duration_${id}`,
   }
 }
 
-export function clampConsent(value: CookieConsent): CookieConsent {
+export const COOKIE_INVENTORY: CookieInventoryItem[] = [
+  inventoryItem('locale'),
+  inventoryItem('session'),
+  inventoryItem('consent'),
+]
+
+function withFlags(on: boolean): CookieConsent {
+  return {
+    v: COOKIE_CONSENT_VERSION,
+    necessary: true,
+    performance: on,
+    functional: on,
+    targeting: on,
+  }
+}
+
+export function emptyConsent(): CookieConsent {
+  return withFlags(false)
+}
+
+export function acceptAllConsent(): CookieConsent {
+  return withFlags(true)
+}
+
+export function rejectAllConsent(): CookieConsent {
+  return emptyConsent()
+}
+
+export function clampConsent(value: Partial<OptionalConsent>): CookieConsent {
   return {
     v: COOKIE_CONSENT_VERSION,
     necessary: true,
@@ -72,31 +83,11 @@ export function clampConsent(value: CookieConsent): CookieConsent {
   }
 }
 
-export function acceptAllConsent(): CookieConsent {
-  return {
-    v: COOKIE_CONSENT_VERSION,
-    necessary: true,
-    performance: true,
-    functional: true,
-    targeting: true,
-  }
-}
-
-export function rejectAllConsent(): CookieConsent {
-  return emptyConsent()
-}
-
 export function parseConsent(value: unknown): CookieConsent | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null
   const record = value as Record<string, unknown>
   if (record.v !== COOKIE_CONSENT_VERSION) return null
-  return clampConsent({
-    v: COOKIE_CONSENT_VERSION,
-    necessary: true,
-    performance: Boolean(record.performance),
-    functional: Boolean(record.functional),
-    targeting: Boolean(record.targeting),
-  })
+  return clampConsent(record)
 }
 
 export function hasConsentDecision(
@@ -109,27 +100,27 @@ export function mergeConsent(
   current: CookieConsent | null | undefined,
   partial: Partial<OptionalConsent>,
 ): CookieConsent {
-  const base = current ?? emptyConsent()
-  return clampConsent({
-    ...base,
-    ...partial,
-  })
+  return clampConsent({ ...(current ?? emptyConsent()), ...partial })
 }
 
-export function performanceAllowed(consent: CookieConsent | null | undefined) {
-  return consent?.performance === true
-}
-
-export function functionalAllowed(consent: CookieConsent | null | undefined) {
-  return consent?.functional === true
-}
-
-export function targetingAllowed(consent: CookieConsent | null | undefined) {
-  return consent?.targeting === true
+export function groupAllowed(
+  consent: CookieConsent | null | undefined,
+  key: keyof OptionalConsent,
+) {
+  return consent?.[key] === true
 }
 
 export function hasLiveOptionalCookies() {
   return LIVE_OPTIONAL_GROUPS.length > 0
+}
+
+function tryParseJson(raw: string): CookieConsent | null {
+  try {
+    return parseConsent(JSON.parse(raw))
+  }
+  catch {
+    return null
+  }
 }
 
 export function decodeConsentCookie(raw: string): CookieConsent | null {
@@ -138,12 +129,7 @@ export function decodeConsentCookie(raw: string): CookieConsent | null {
     return parseConsent(JSON.parse(decodeURIComponent(raw)))
   }
   catch {
-    try {
-      return parseConsent(JSON.parse(raw))
-    }
-    catch {
-      return null
-    }
+    return tryParseJson(raw)
   }
 }
 

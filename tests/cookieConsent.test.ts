@@ -6,38 +6,40 @@ import {
   decodeConsentCookie,
   emptyConsent,
   encodeConsentCookie,
-  functionalAllowed,
+  groupAllowed,
   hasConsentDecision,
   hasLiveOptionalCookies,
   mergeConsent,
   parseConsent,
-  performanceAllowed,
   rejectAllConsent,
-  targetingAllowed,
 } from '~/utils/cookieConsent'
+
+const allOff = {
+  v: 1,
+  necessary: true,
+  performance: false,
+  functional: false,
+  targeting: false,
+} as const
+
+const allOn = {
+  v: 1,
+  necessary: true,
+  performance: true,
+  functional: true,
+  targeting: true,
+} as const
 
 describe('cookieConsent', () => {
   it('defaults optional groups off and necessary on', () => {
-    expect(emptyConsent()).toEqual({
-      v: 1,
-      necessary: true,
-      performance: false,
-      functional: false,
-      targeting: false,
-    })
+    expect(emptyConsent()).toEqual(allOff)
     expect(rejectAllConsent()).toEqual(emptyConsent())
   })
 
   it('accepts all optional groups even when none are live yet', () => {
     expect(LIVE_OPTIONAL_GROUPS).toEqual([])
     expect(hasLiveOptionalCookies()).toBe(false)
-    expect(acceptAllConsent()).toEqual({
-      v: 1,
-      necessary: true,
-      performance: true,
-      functional: true,
-      targeting: true,
-    })
+    expect(acceptAllConsent()).toEqual(allOn)
   })
 
   it('parses a valid stored decision and keeps optional flags', () => {
@@ -50,10 +52,8 @@ describe('cookieConsent', () => {
         targeting: 'yes',
       }),
     ).toEqual({
-      v: 1,
-      necessary: true,
+      ...allOff,
       performance: true,
-      functional: false,
       targeting: true,
     })
   })
@@ -74,28 +74,19 @@ describe('cookieConsent', () => {
 
   it('saves optional group choices', () => {
     expect(mergeConsent(null, { performance: true })).toEqual({
-      v: 1,
-      necessary: true,
+      ...allOff,
       performance: true,
-      functional: false,
-      targeting: false,
     })
     expect(
       mergeConsent(acceptAllConsent(), { targeting: false, functional: true }),
-    ).toEqual({
-      v: 1,
-      necessary: true,
-      performance: true,
-      functional: true,
-      targeting: false,
-    })
+    ).toEqual({ ...allOn, targeting: false })
   })
 
   it('reports optional groups from the stored decision', () => {
-    expect(performanceAllowed(null)).toBe(false)
-    expect(functionalAllowed(rejectAllConsent())).toBe(false)
-    expect(targetingAllowed(acceptAllConsent())).toBe(true)
-    expect(performanceAllowed(acceptAllConsent())).toBe(true)
+    expect(groupAllowed(null, 'performance')).toBe(false)
+    expect(groupAllowed(rejectAllConsent(), 'functional')).toBe(false)
+    expect(groupAllowed(acceptAllConsent(), 'targeting')).toBe(true)
+    expect(groupAllowed(acceptAllConsent(), 'performance')).toBe(true)
   })
 
   it('lists the cookies the policy page should describe', () => {
@@ -110,9 +101,9 @@ describe('cookieConsent', () => {
     const encoded = encodeConsentCookie(acceptAllConsent())
     expect(encoded).toContain('%7B')
     expect(decodeConsentCookie(encoded)).toEqual(acceptAllConsent())
-    expect(
-      decodeConsentCookie(JSON.stringify(rejectAllConsent())),
-    ).toEqual(rejectAllConsent())
+    expect(decodeConsentCookie(JSON.stringify(rejectAllConsent()))).toEqual(
+      rejectAllConsent(),
+    )
     expect(decodeConsentCookie('')).toBeNull()
     expect(decodeConsentCookie('not-json')).toBeNull()
     expect(encodeConsentCookie(null)).toBe('')

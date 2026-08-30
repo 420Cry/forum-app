@@ -1,10 +1,22 @@
 <script setup lang="ts">
 import BaseButton from '~/components/shared/BaseButton.vue'
 import { useCookieConsent } from '~/composables/useCookieConsent'
+import type { ButtonIntent } from '~/utils/buttonClass'
 
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { hasDecision, acceptAll, rejectAll, openPreferences } = useCookieConsent()
+
+const actions: Array<{
+  intent: ButtonIntent
+  aria: string
+  action: string
+  onClick: () => void
+}> = [
+  { intent: 'primary', aria: 'common.aria.accept_all', action: 'common.action.accept_all', onClick: acceptAll },
+  { intent: 'secondary', aria: 'common.aria.cookie_configuration', action: 'common.action.cookie_configuration', onClick: openPreferences },
+  { intent: 'secondary', aria: 'common.aria.reject_all', action: 'common.action.reject_all', onClick: rejectAll },
+]
 </script>
 
 <template>
@@ -19,7 +31,7 @@ const { hasDecision, acceptAll, rejectAll, openPreferences } = useCookieConsent(
     >
       <aside
         v-if="!hasDecision"
-        class="fixed inset-x-4 bottom-4 z-80 max-w-[500px] rounded-md border border-line bg-card p-5 shadow-pop sm:right-auto"
+        class="fixed inset-x-4 bottom-4 z-80 max-w-125 rounded-md border border-line bg-card p-5 shadow-pop sm:right-auto"
         role="region"
         :aria-label="t('common.aria.cookie_banner')"
       >
@@ -45,31 +57,15 @@ const { hasDecision, acceptAll, rejectAll, openPreferences } = useCookieConsent(
         </i18n-t>
         <div class="mt-4 flex flex-col gap-2">
           <BaseButton
-            intent="primary"
+            v-for="item in actions"
+            :key="item.action"
+            :intent="item.intent"
             size="sm"
             block
-            :aria-label="t('common.aria.accept_all')"
-            @click="acceptAll"
+            :aria-label="t(item.aria)"
+            @click="item.onClick"
           >
-            {{ t('common.action.accept_all') }}
-          </BaseButton>
-          <BaseButton
-            intent="secondary"
-            size="sm"
-            block
-            :aria-label="t('common.aria.cookie_configuration')"
-            @click="openPreferences"
-          >
-            {{ t('common.action.cookie_configuration') }}
-          </BaseButton>
-          <BaseButton
-            intent="secondary"
-            size="sm"
-            block
-            :aria-label="t('common.aria.reject_all')"
-            @click="rejectAll"
-          >
-            {{ t('common.action.reject_all') }}
+            {{ t(item.action) }}
           </BaseButton>
         </div>
       </aside>

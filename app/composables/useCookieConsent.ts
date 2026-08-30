@@ -4,13 +4,11 @@ import {
   acceptAllConsent,
   decodeConsentCookie,
   encodeConsentCookie,
-  functionalAllowed,
+  groupAllowed,
   hasConsentDecision,
   mergeConsent,
   parseConsent,
-  performanceAllowed,
   rejectAllConsent,
-  targetingAllowed,
   type CookieConsent,
   type OptionalConsent,
 } from '~/utils/cookieConsent'
@@ -27,7 +25,6 @@ export function useCookieConsent() {
   })
 
   const preferencesOpen = useState('cookie-preferences-open', () => false)
-
   const consent = computed(() => parseConsent(stored.value))
   const hasDecision = computed(() => hasConsentDecision(consent.value))
 
@@ -36,37 +33,26 @@ export function useCookieConsent() {
     preferencesOpen.value = false
   }
 
-  function acceptAll() {
-    persist(acceptAllConsent())
-  }
-
-  function rejectAll() {
-    persist(rejectAllConsent())
-  }
-
-  function save(partial: Partial<OptionalConsent>) {
-    persist(mergeConsent(consent.value, partial))
-  }
-
-  function openPreferences() {
-    preferencesOpen.value = true
-  }
-
-  function closePreferences() {
-    preferencesOpen.value = false
+  function allowed(key: keyof OptionalConsent) {
+    return computed(() => groupAllowed(consent.value, key))
   }
 
   return {
     consent,
     hasDecision,
     preferencesOpen,
-    acceptAll,
-    rejectAll,
-    save,
-    openPreferences,
-    closePreferences,
-    performanceAllowed: computed(() => performanceAllowed(consent.value)),
-    functionalAllowed: computed(() => functionalAllowed(consent.value)),
-    targetingAllowed: computed(() => targetingAllowed(consent.value)),
+    acceptAll: () => persist(acceptAllConsent()),
+    rejectAll: () => persist(rejectAllConsent()),
+    save: (partial: Partial<OptionalConsent>) =>
+      persist(mergeConsent(consent.value, partial)),
+    openPreferences: () => {
+      preferencesOpen.value = true
+    },
+    closePreferences: () => {
+      preferencesOpen.value = false
+    },
+    performanceAllowed: allowed('performance'),
+    functionalAllowed: allowed('functional'),
+    targetingAllowed: allowed('targeting'),
   }
 }

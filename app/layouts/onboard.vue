@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LegalFooter from '~/components/legal/LegalFooter.vue'
+import AppLegalFooter from '~/components/legal/AppLegalFooter.vue'
 </script>
 
 <template>
@@ -8,10 +8,6 @@ import LegalFooter from '~/components/legal/LegalFooter.vue'
     <div class="flex-1">
       <slot />
     </div>
-    <footer class="mt-auto border-t border-line bg-card p-4 sm:px-7">
-      <div class="flex justify-center">
-        <LegalFooter />
-      </div>
-    </footer>
+    <AppLegalFooter />
   </div>
 </template>

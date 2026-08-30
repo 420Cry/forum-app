@@ -1,54 +1,37 @@
 <script setup lang="ts">
+import LegalPage from '~/components/legal/LegalPage.vue'
+import LegalSection from '~/components/legal/LegalSection.vue'
+
 definePageMeta({ layout: 'home', access: 'public' })
 
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-useHead({
-  title: () => t('common.heading.privacy_policy'),
-})
+const beforeCookies = [
+  ['common.heading.privacy_who', 'common.info.privacy_who'],
+  ['common.heading.privacy_data', 'common.info.privacy_data'],
+  ['common.heading.privacy_processors', 'common.info.privacy_processors'],
+] as const
+
+const afterCookies = [
+  ['common.heading.privacy_rights', 'common.info.privacy_rights'],
+  ['common.heading.privacy_contact', 'common.info.privacy_contact'],
+] as const
 </script>
 
 <template>
-  <article class="mx-auto max-w-prose pb-8">
-    <h1 class="text-[22px] font-bold tracking-[-0.02em] text-ink">
-      {{ t('common.heading.privacy_policy') }}
-    </h1>
-    <p class="mt-3 text-base text-ink-2">
-      {{ t('common.info.privacy_intro') }}
-    </p>
+  <LegalPage
+    title="common.heading.privacy_policy"
+    intro="common.info.privacy_intro"
+  >
+    <LegalSection
+      v-for="[heading, info] in beforeCookies"
+      :key="heading"
+      :heading="heading"
+      :info="info"
+    />
 
-    <section class="mt-8">
-      <h2 class="text-[16px] font-semibold text-ink">
-        {{ t('common.heading.privacy_who') }}
-      </h2>
-      <p class="mt-2 text-base text-ink-2">
-        {{ t('common.info.privacy_who') }}
-      </p>
-    </section>
-
-    <section class="mt-8">
-      <h2 class="text-[16px] font-semibold text-ink">
-        {{ t('common.heading.privacy_data') }}
-      </h2>
-      <p class="mt-2 text-base text-ink-2">
-        {{ t('common.info.privacy_data') }}
-      </p>
-    </section>
-
-    <section class="mt-8">
-      <h2 class="text-[16px] font-semibold text-ink">
-        {{ t('common.heading.privacy_processors') }}
-      </h2>
-      <p class="mt-2 text-base text-ink-2">
-        {{ t('common.info.privacy_processors') }}
-      </p>
-    </section>
-
-    <section class="mt-8">
-      <h2 class="text-[16px] font-semibold text-ink">
-        {{ t('common.heading.privacy_cookies') }}
-      </h2>
+    <LegalSection heading="common.heading.privacy_cookies">
       <i18n-t
         keypath="common.info.privacy_cookies"
         tag="p"
@@ -63,24 +46,13 @@ useHead({
           </NuxtLink>
         </template>
       </i18n-t>
-    </section>
+    </LegalSection>
 
-    <section class="mt-8">
-      <h2 class="text-[16px] font-semibold text-ink">
-        {{ t('common.heading.privacy_rights') }}
-      </h2>
-      <p class="mt-2 text-base text-ink-2">
-        {{ t('common.info.privacy_rights') }}
-      </p>
-    </section>
-
-    <section class="mt-8">
-      <h2 class="text-[16px] font-semibold text-ink">
-        {{ t('common.heading.privacy_contact') }}
-      </h2>
-      <p class="mt-2 text-base text-ink-2">
-        {{ t('common.info.privacy_contact') }}
-      </p>
-    </section>
-  </article>
+    <LegalSection
+      v-for="[heading, info] in afterCookies"
+      :key="heading"
+      :heading="heading"
+      :info="info"
+    />
+  </LegalPage>
 </template>
