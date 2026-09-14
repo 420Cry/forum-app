@@ -4,7 +4,7 @@ import AccountAvatar from '~/components/shared/AccountAvatar.vue'
 import BaseIcon from '~/components/shared/BaseIcon.vue'
 
 const props = defineProps<{
-  account?: AccountSummaryView
+  account?: AccountSummaryView | null
 }>()
 
 const emit = defineEmits<{

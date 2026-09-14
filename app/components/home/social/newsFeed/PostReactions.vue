@@ -14,7 +14,6 @@ const props = defineProps<{ post: Post }>()
 const emit = defineEmits<{ react: [postId: string, type: ReactionType] }>()
 const { t } = useI18n()
 
-// Shared shape for the three action buttons (react / comment / share).
 const actionBase
   = 'flex flex-1 items-center justify-center gap-[7px] rounded-sm px-3.5 py-[9px] text-[13px] font-semibold transition-colors'
 const soonBadge
@@ -42,10 +41,12 @@ const soonBadge
       </div>
 
       <button
-        v-if="!props.post.reacted_type"
+        v-if="!props.post.viewer_reaction"
         type="button"
         :class="`${actionBase} cursor-pointer text-ink-3 hover:bg-surface-hover hover:text-ink`"
-        @click="emit('react', props.post.id, defaultReaction?.key as ReactionType)"
+        @click="
+          emit('react', props.post.id, defaultReaction?.key as ReactionType)
+        "
       >
         <BaseIcon
           :name="defaultReaction?.key as ReactionType"
@@ -60,20 +61,20 @@ const soonBadge
         :class="[
           actionBase,
           'cursor-pointer hover:bg-surface-hover',
-          reactionActiveColor(props.post.reacted_type as ReactionType)
+          reactionActiveColor(props.post.viewer_reaction as ReactionType)
             ?? 'text-brand',
         ]"
-        @click="emit('react', props.post.id, props.post.reacted_type)"
+        @click="emit('react', props.post.id, props.post.viewer_reaction)"
       >
         <BaseReaction
-          :intent="props.post.reacted_type as ReactionType"
+          :intent="props.post.viewer_reaction as ReactionType"
           active
           size="sm"
         />
         <span>
           {{
-            reactionActiveName(props.post.reacted_type as ReactionType)
-              ?? props.post.reacted_type
+            reactionActiveName(props.post.viewer_reaction as ReactionType)
+              ?? props.post.viewer_reaction
           }}
         </span>
       </button>

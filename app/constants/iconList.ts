@@ -23,6 +23,7 @@ export const iconList = {
   following: 'material-symbols:person-add-outline-rounded',
   saved: 'material-symbols:bookmark-outline-rounded',
   chat: 'material-symbols:chat-bubble-outline-rounded',
+  message: 'material-symbols:mail-outline-rounded',
   send: 'material-symbols:send-rounded',
   doneAll: 'material-symbols:done-all-rounded',
   addReaction: 'material-symbols:add-reaction-outline-rounded',
@@ -41,5 +42,4 @@ export const iconList = {
   milestone: 'material-symbols:rocket-launch-outline-rounded',
   globe: 'material-symbols:public',
   lock: 'material-symbols:lock-outline',
-  close: 'material-symbols:close-rounded',
 } as const

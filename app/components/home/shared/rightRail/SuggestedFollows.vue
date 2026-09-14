@@ -60,7 +60,7 @@ const { suggestions, isFollowed, handleFollow, handleAvatarError }
           {{
             isFollowed(suggestion.id)
               ? t('social.action.unfollow')
-              : `+ ${t('social.action.follow')}`
+              : `${t('social.action.follow')}`
           }}
         </button>
       </div>

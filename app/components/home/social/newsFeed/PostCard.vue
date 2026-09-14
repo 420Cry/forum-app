@@ -3,7 +3,6 @@ import type { Post } from '~/types/post'
 import type { ReactionType } from '~/types/reaction'
 import AccountAvatar from '~/components/shared/AccountAvatar.vue'
 import BaseIcon from '~/components/shared/BaseIcon.vue'
-import BasePill from '~/components/shared/BasePill.vue'
 import ReactionCount from './ReactionCount.vue'
 import PostReactions from './PostReactions.vue'
 
@@ -25,7 +24,7 @@ const { t } = useI18n()
     <header class="flex items-start gap-3 px-[18px] pb-2 pt-3.5">
       <AccountAvatar
         :account="props.post.author"
-        :handle-avatar-error="id => emit('avatarError', id)"
+        :handle-avatar-error="(id) => emit('avatarError', id)"
         size="size-12"
         text-class="text-base"
       />
@@ -36,13 +35,6 @@ const { t } = useI18n()
           >
             {{ props.post.author.name }}
           </span>
-          <BasePill
-            :variant="
-              props.post.author.accountType === 'startup'
-                ? props.post.author.stage
-                : 'investor'
-            "
-          />
         </div>
         <p class="mt-0.5 text-[12.5px] text-ink-3">
           {{ props.post.author.headline }}
@@ -72,16 +64,16 @@ const { t } = useI18n()
     </p>
 
     <div
-      v-if="!props.post.imageUrl || props.post.imageLoadFailed"
+      v-if="props.post.imageUrl && props.post.imageLoadFailed"
       class="flex h-80 w-full items-center justify-center bg-[repeating-linear-gradient(135deg,#F3F1EC_0_8px,#EAE7E0_8px_16px)] text-[11.5px] font-medium uppercase tracking-[0.04em] text-ink-4"
     >
       <span>{{ t('feed.info.image_unavailable') }}</span>
     </div>
 
     <img
-      v-else
+      v-else-if="props.post.imageUrl"
       :src="props.post.imageUrl"
-      :alt="props.post.author.headline"
+      :alt="props.post.author.headline as string"
       class="h-80 w-full object-cover"
       @error="emit('imageError', props.post.id)"
     />

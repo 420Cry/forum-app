@@ -6,23 +6,28 @@ import { useUpload } from '~/composables/posts/useUpload'
 import type { PostUploadPayload } from '~/types/upload'
 import ComposerCard from './ComposerCard.vue'
 import PostComposer from './PostComposer.vue'
-import FeedFilterBar from './FeedFilterBar.vue'
 import FeedEmptyState from './FeedEmptyState.vue'
 import PostCard from './PostCard.vue'
+import PostCardSkeleton from './PostCardSkeleton.vue'
+import LoadingSpinner from '~/components/shared/LoadingSpinner.vue'
+import { useInfiniteScroll } from '@vueuse/core'
 
 const { t } = useI18n()
-const {
-  activeAccount,
-  handleAvatarError: handleAccountAvatarError,
-} = useAccount()
+const { activeAccount, handleAvatarError: handleAccountAvatarError }
+  = useAccount()
 
 const {
   posts,
   react,
   handleAvatarError,
   hasPosts,
-  togglePost,
+  loadPosts,
   handlePostError,
+  limit,
+  isLoading,
+  loadMore,
+  isLoadingMore,
+  hasMore,
 } = usePosts()
 
 const { isComposerOpen, openComposer, closeComposer } = useUpload()
@@ -31,6 +36,22 @@ const { isComposerOpen, openComposer, closeComposer } = useUpload()
 const onSubmitPost = (_payload: PostUploadPayload) => {
   closeComposer()
 }
+
+useInfiniteScroll(
+  window,
+  async () => {
+    if (!hasMore.value) {
+      return
+    }
+    await loadMore()
+  }, {
+    distance: 10,
+  },
+)
+
+onMounted(() => {
+  loadPosts(limit.value)
+})
 </script>
 
 <template>
@@ -72,10 +93,17 @@ const onSubmitPost = (_payload: PostUploadPayload) => {
     @submit="onSubmitPost"
   />
 
-  <!-- Sort also toggles the mock feed while the real fetch is a dev scaffold. -->
-  <FeedFilterBar @sort="togglePost" />
+  <div
+    v-if="isLoading && !hasPosts"
+    class="flex flex-col gap-3"
+  >
+    <PostCardSkeleton
+      v-for="n in 3"
+      :key="n"
+    />
+  </div>
 
-  <FeedEmptyState v-if="!hasPosts" />
+  <FeedEmptyState v-else-if="!hasPosts" />
 
   <div
     v-else
@@ -88,6 +116,12 @@ const onSubmitPost = (_payload: PostUploadPayload) => {
       @react="react"
       @avatar-error="handleAvatarError"
       @image-error="handlePostError"
+    />
+
+    <LoadingSpinner
+      v-if="isLoadingMore"
+      size="sm"
+      class="py-4"
     />
   </div>
 </template>

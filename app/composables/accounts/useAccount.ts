@@ -11,9 +11,6 @@ export const useAccount = () => {
     () => null,
   )
 
-  /** Alias kept for AccountSwitcher / AppHeader compatibility. */
-  const profileExample = accounts
-
   const activeAccount = computed(() => {
     return (
       accounts.value.find(p => p.id === activeAccountId.value)
@@ -61,7 +58,6 @@ export const useAccount = () => {
     handleAvatarError,
     activeAccount,
     handleActive,
-    profileExample,
     accounts,
     refreshAccounts,
     accountsLoading,

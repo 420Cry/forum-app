@@ -23,7 +23,7 @@ const handleLogout = async () => {
 }
 
 const {
-  profileExample,
+  accounts,
   handleActive,
   handleAvatarError,
   activeAccountId,
@@ -33,7 +33,7 @@ const {
 
 /** Personal account only — org pages are paused for now. */
 const personalAccounts = computed(() =>
-  profileExample.value.filter(a => a.accountType === 'user'),
+  accounts.value.filter(a => a.accountType === 'user'),
 )
 
 watch(
