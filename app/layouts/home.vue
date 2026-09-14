@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import LeftRail from '~/components/home/shared/LeftRail.vue'
+import RightRail from '~/components/home/shared/RightRail.vue'
 import AppLegalFooter from '~/components/legal/AppLegalFooter.vue'
 import MobileBottomNav from '~/components/home/MobileBottomNav.vue'
 import { stripLocalePrefix } from '~/utils/localePath'
+import { useUpload } from '~/composables/posts/useUpload'
 
+const { isComposerOpen, closeComposer } = useUpload()
 const user = useSupabaseUser()
 const session = useSupabaseSession()
 const { unauthorized } = useUserProfile()
@@ -43,7 +46,9 @@ const mainPadClass = computed(() => {
       class="mx-auto grid w-full max-w-340 items-start gap-4 p-4 sm:gap-6 sm:px-7 sm:py-6"
       :class="
         isSignedIn
-          ? 'grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)]'
+          ? isMessages
+            ? 'grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)]'
+            : 'grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)_320px]'
           : 'grid-cols-1'
       "
     >
@@ -59,11 +64,32 @@ const mainPadClass = computed(() => {
       >
         <slot />
       </main>
+      <aside
+        v-if="isSignedIn && !isMessages"
+        class="hidden lg:block sticky top-6"
+      >
+        <RightRail />
+      </aside>
     </div>
     <AppLegalFooter
       v-if="!isMessages"
       :padded="isSignedIn"
     />
     <MobileBottomNav v-if="isSignedIn" />
+
+    <!-- Darkening scrim behind the composer -->
+    <Transition
+      enter-active-class="transition-opacity duration-200 ease-out"
+      leave-active-class="transition-opacity duration-200 ease-out"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="isComposerOpen"
+        class="fixed inset-0 z-(--z-overlay) bg-[rgb(20_30_45/0.55)] backdrop-blur-[1px]"
+        aria-hidden="true"
+        @click="closeComposer"
+      />
+    </Transition>
   </div>
 </template>

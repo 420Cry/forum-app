@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import type { AccountSummaryView } from '~/types/profile'
+import type { SuggestionView } from '~/types/discoveryType'
+import type { PostAuthor } from '~/types/post'
+
+// Anything the avatar can render: accounts, follow suggestions, or post authors.
+// All share the avatar/color/prefix/error fields the avatar needs.
+type AvatarSource = AccountSummaryView | SuggestionView | PostAuthor
 
 withDefaults(
   defineProps<{
-    account: Pick<
-      AccountSummaryView,
-      'id' | 'avatar' | 'avatarLoadFailed' | 'avatarColor' | 'prefix'
-    >
+    account: AvatarSource
     handleAvatarError: (id: string) => void
+    // Tailwind size utility for the avatar (e.g. "size-16"); text scales with it.
     size?: string
     textClass?: string
   }>(),

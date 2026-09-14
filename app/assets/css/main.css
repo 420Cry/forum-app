@@ -1,8 +1,8 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @font-face {
-  font-family: "Asgrike";
-  src: url("../fonts/Asgrike.otf") format("opentype");
+  font-family: 'Asgrike';
+  src: url('../fonts/Asgrike.otf') format('opentype');
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
@@ -76,6 +76,13 @@
   --color-stage-investor-bg: #e7e4f0;
   --color-stage-investor-fg: #4e3a8a;
 
+  /* Reaction logo */
+  --color-reaction-backed: #075056;
+  --color-reaction-watch: #5bae73;
+  --color-reaction-signal: #c97a3a;
+  --color-reaction-celebrate: #e0a810;
+  --color-reaction-insight: #7d55c4;
+
   /* Border radius */
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -86,8 +93,8 @@
   /* Shadows */
   --shadow-1: 0 1px 0 rgba(20, 30, 45, 0.04), 0 1px 2px rgba(20, 30, 45, 0.04);
   --shadow-2: 0 2px 8px rgba(20, 30, 45, 0.07);
-  --shadow-pop: 0 8px 28px rgba(20, 30, 45, 0.12),
-    0 0 0 1px rgba(20, 30, 45, 0.04);
+  --shadow-pop:
+    0 8px 28px rgba(20, 30, 45, 0.12), 0 0 0 1px rgba(20, 30, 45, 0.04);
 }
 
 :root {
